@@ -243,7 +243,7 @@ public class NoteController {
             throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
             //Order of clauses means we don't mind of someone manually zeroes their expireDate when making something inactive.
           } else if(inputDoc.get("expireDate").toString() //This assumes that we're using the same string encoding they are, but it's our own API we should be fine.
-          .matches("\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d([+, -])\\d\\d\\d\\d")) {
+          .matches(ISO_8601_REGEX)) {
             toEdit.append("expireDate", inputDoc.get("expireDate"));
           } else {
             throw new UnprocessableResponse("The 'expireDate' field must contain an ISO 8061 time string.");
