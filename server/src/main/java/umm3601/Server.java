@@ -15,8 +15,6 @@ import umm3601.note.NoteController;
 
 public class Server {
 
-  static String appName = "DoorBoard";
-
   private static MongoDatabase database;
 
   public static void main(String[] args) {
@@ -41,12 +39,6 @@ public class Server {
     NoteController noteController = new NoteController(database, DeathTimer.getDeathTimerInstance());
 
     Javalin server = Javalin.create().start(4567);
-
-    // Simple example route
-    server.get("hello", ctx -> ctx.result("Hello World"));
-
-    // Utility routes
-    server.get("api", ctx -> ctx.result(appName));
 
     // ----- Owner routes ----- //
     // Get specific owner
