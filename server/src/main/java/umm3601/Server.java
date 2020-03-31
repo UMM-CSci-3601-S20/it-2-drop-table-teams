@@ -14,6 +14,7 @@ import umm3601.note.NoteController;
 
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
+import com.auth0.jwt.JWTVerifier;
 
 public class Server {
 
