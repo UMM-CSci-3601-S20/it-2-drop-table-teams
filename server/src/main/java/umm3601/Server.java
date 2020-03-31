@@ -9,7 +9,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
 import io.javalin.Javalin;
-import umm3601.owner.OwnerController;
 import umm3601.note.DeathTimer;
 import umm3601.note.NoteController;
 
@@ -35,24 +34,9 @@ public class Server {
     database = mongoClient.getDatabase(databaseName);
 
     // Initialize dependencies
-    OwnerController ownerController = new OwnerController(database);
     NoteController noteController = new NoteController(database, DeathTimer.getDeathTimerInstance());
 
     Javalin server = Javalin.create().start(4567);
-
-    // ----- Owner routes ----- //
-    // Get specific owner
-    server.get("api/owners/:id", ownerController::getOwner);
-
-    // Delete specific owner
-   // server.delete("api/owners/:id", ownerController::deleteOwner);
-
-    // List owners, filtered using query parameters
-    server.get("api/owners", ownerController::getOwners);
-
-    // Add new owner
-    server.post("api/owners/new", ownerController::addNewOwner);
-
 
     // ----- Note routes ----- //
     // Get specific note
@@ -61,11 +45,7 @@ public class Server {
     // Delete specific note
     server.delete("api/notes/:id", noteController::deleteNote);
 
-    // List notes, filtered using query parameters
-    server.get("api/notes", noteController::getNotesByOwner);
-
     // Add new note
-
     server.post("api/notes/new", noteController::addNewNote);
 
     // Update a note
