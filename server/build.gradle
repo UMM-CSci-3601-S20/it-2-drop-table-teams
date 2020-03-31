@@ -15,9 +15,16 @@ plugins {
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-  // Use jcenter for resolving your dependencies.
-  // You can declare any Maven/Ivy/file repository here.
+  // Use jcenter for resolving most dependencies.
   jcenter()
+
+  // We get the javalin-jwt from JitPack.
+  maven { url 'https://jitpack.io' }
+
+  // We get jwks-rsa from Maven Central
+  mavenCentral()
+
+  // You can declare any Maven/Ivy/file repository here.
 }
 
 // The class where our server is located
@@ -47,6 +54,12 @@ dependencies {
 
   // Simple Logging Facade for Java
   implementation 'org.slf4j:slf4j-simple:1.7.30'
+
+  // JSON Web Tokens (JWT) for Javalin
+  implementation 'com.github.kmehrunes:javalin-jwt:v0.2'
+
+  // JSON Web Key Set (JWKS) for Java
+  implementation 'com.auth0:jwks-rsa:0.11.0'
 
   // JUnit Jupiter API for testing.
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
