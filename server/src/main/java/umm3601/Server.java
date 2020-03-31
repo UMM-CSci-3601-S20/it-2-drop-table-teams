@@ -12,9 +12,18 @@ import io.javalin.Javalin;
 import umm3601.note.DeathTimer;
 import umm3601.note.NoteController;
 
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
+
 public class Server {
 
   private static MongoDatabase database;
+
+  // This is what we'll use to get Auth0's public keys. (In the form of
+  // JSON Web Keys, or JWKs.) We'll use these JWKs to verify the tokens that
+  // Auth0 sends us.
+  public static JwkProvider auth0JwkProvider =
+    new UrlJwkProvider("https://doorboard.auth0.com/");
 
   public static void main(String[] args) {
 
