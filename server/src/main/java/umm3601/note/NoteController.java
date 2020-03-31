@@ -39,6 +39,7 @@ import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.http.UnauthorizedResponse;
 import javalinjwt.JavalinJWT;
 import umm3601.Server;
 import umm3601.UnprocessableResponse;
@@ -114,40 +115,35 @@ public class NoteController {
     try {
       encodedToken = JavalinJWT.getTokenFromHeader(ctx).get();
     } catch (NoSuchElementException e) {
-      ctx.status(401).result("Missing token");
-      return;
+      throw new UnauthorizedResponse("Missing token");
     }
 
     DecodedJWT decodedToken;
     try {
       decodedToken = JWT.decode(encodedToken);
     } catch (JWTDecodeException e) {
-      ctx.status(401).result("Malformed token");
-      return;
+      throw new UnauthorizedResponse("Malformed token");
     }
 
     String keyID = decodedToken.getKeyId();
 
     if (keyID == null) {
-      ctx.status(401).result(
-        "Token does not contain a key ID");
-      return;
+      throw new UnauthorizedResponse("Token does not contain a key ID");
     }
 
     Jwk jsonWebKey;
     try {
       jsonWebKey = Server.auth0JwkProvider.get(keyID);
     } catch (JwkException e) {
-      ctx.status(401).result("Token doesn't refer to one of Auth0's public keys");
-      return;
+      throw new UnauthorizedResponse(
+        "Token doesn't refer to one of Auth0's public keys");
     }
 
     RSAPublicKey publicKey;
     try {
       publicKey = (RSAPublicKey)jsonWebKey.getPublicKey();
     } catch (InvalidPublicKeyException e) {
-      ctx.status(401).result("Auth0 didn't give us a valid public key");
-      return;
+      throw new UnauthorizedResponse("Auth0 didn't give us a valid public key");
     }
 
     try {
@@ -161,8 +157,7 @@ public class NoteController {
       // (We're only calling verify() for its side-effects.)
       verifier.verify(encodedToken);
     } catch (JWTVerificationException exception) {
-      ctx.status(401).result("Token provided does not verify");
-      return;
+      throw new UnauthorizedResponse("Token provided does not verify");
     }
 
     String ownerID = ctx.queryParam("ownerid");
