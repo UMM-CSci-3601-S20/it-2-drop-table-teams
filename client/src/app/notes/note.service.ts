@@ -36,21 +36,6 @@ export class NoteService {
     });
   }
 
-
-  /**
-   * @param id: _id of the note being retrieved
-   * @param ownerID: _id of the owner who is requesting this note (fails if not a match in the note)
-   *
-   * @returns a single note with `id` belonging to `ownerID`
-   */
-  getNoteById(id: string, ownerID: string): Observable<Note> {
-    let httpParams: HttpParams = new HttpParams();
-    httpParams = httpParams.set('ownerid', ownerID); // Ensure we are getting a note that belongs to this owner
-    return this.httpClient.get<Note>(this.noteUrl + '/' + id, {
-      params: httpParams,
-    });
-  }
-
   /**
    *
    * @param notes: the list of notes being filtered

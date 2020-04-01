@@ -62,9 +62,6 @@ public class Server {
     Javalin server = Javalin.create().start(4567);
 
     // ----- Note routes ----- //
-    // Get specific note
-    server.get("api/notes/:id", noteController::getNoteById);
-
     // List notes, filtered using query parameters
     server.get("api/notes", noteController::getNotesByOwner);
 

@@ -55,34 +55,6 @@ public class NoteController {
   }
 
   /**
-   * Get a note belonging to a specific owner.
-   * Uses the following parameters in the request:
-   *
-   * `id` parameter -> note id
-   * `ownerid` -> which owner's notes
-   *
-   * @param ctx a Javalin HTTP context
-   */
-  public void getNoteById(Context ctx) {
-    String id = ctx.pathParam("id");
-    String ownerID = ctx.queryParam("ownerid");
-    Note note;
-
-    try {
-      note = noteCollection.find(eq("_id", new ObjectId(id))).first();
-    } catch(IllegalArgumentException e) {
-      throw new BadRequestResponse("The requested note id wasn't a legal Mongo Object ID.");
-    }
-    if (note == null) {
-      throw new NotFoundResponse("The requested note was not found.");
-    } else if (note.ownerID != ownerID) {
-      throw new NotFoundResponse("The requested note does not belong to this owner.");
-    } else {
-      ctx.json(note);
-    }
-  }
-
-  /**
    * Delete a note belonging to a specific owner.
    * Uses the following parameters in the request:
    *
