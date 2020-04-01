@@ -65,6 +65,9 @@ public class Server {
     // Get specific note
     server.get("api/notes/:id", noteController::getNoteById);
 
+    // List notes, filtered using query parameters
+    server.get("api/notes", noteController::getNotesByOwner);
+
     // Delete specific note
     server.delete("api/notes/:id", noteController::deleteNote);
 
