@@ -578,19 +578,19 @@ public class NoteControllerSpec {
   }
 
   // Internal helper functions
-    @Test
-    public void FlagSinglePost() throws IOException {
-      noteController.flagOneForDeletion(samsNoteId.toHexString());
+  @Test
+  public void FlagSinglePost() throws IOException {
+    noteController.flagOneForDeletion(samsNoteId.toHexString());
 
-      assertEquals("deleted", db.getCollection("notes").find(eq("_id", samsNoteId)).first().getString("status"));
-      verify(dtMock).updateTimerStatus(any(Note.class));
-    }
+    assertEquals("deleted", db.getCollection("notes").find(eq("_id", samsNoteId)).first().getString("status"));
+    verify(dtMock).updateTimerStatus(any(Note.class));
+  }
 
-    @Test
-    public void PurgeSinglePost() throws IOException {
-      noteController.singleDelete(samsNoteId.toHexString());
+  @Test
+  public void PurgeSinglePost() throws IOException {
+    noteController.singleDelete(samsNoteId.toHexString());
 
-      assertEquals(0, db.getCollection("notes").countDocuments(eq("_id", samsNoteId)));
-      verify(dtMock).clearKey(samsNoteId.toHexString());
-    }
+    assertEquals(0, db.getCollection("notes").countDocuments(eq("_id", samsNoteId)));
+    verify(dtMock).clearKey(samsNoteId.toHexString());
+  }
 }
