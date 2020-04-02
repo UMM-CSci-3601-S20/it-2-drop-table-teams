@@ -44,7 +44,10 @@ public class Server {
     database = mongoClient.getDatabase(databaseName);
 
     // Initialize dependencies
-    NoteController noteController = new NoteController(database, DeathTimer.getDeathTimerInstance());
+    NoteController noteController = new NoteController(
+      database,
+      DeathTimer.getDeathTimerInstance(),
+      JwtProcessor.INSTANCE);
 
     Javalin server = Javalin.create().start(4567);
 
