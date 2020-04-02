@@ -21,7 +21,7 @@ public class TimerTasksSpec {
   @Mock(name = "noteController") NoteController mockNoteController;
 
   @InjectMocks
-   DeathTimer deathTimer;
+  DeathTimer deathTimer;
 
   private static ObjectId samsNoteId;
 

@@ -36,7 +36,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
@@ -65,7 +64,6 @@ public class NoteControllerSpec {
   // I'll be honest this is some real bullshit to make myself able to inject
   // dtMock.
 
-  @InjectMocks
   NoteController noteController;
 
   static ObjectMapper jsonMapper = new ObjectMapper();
