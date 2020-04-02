@@ -6,6 +6,7 @@ import { AddOwnerComponent } from './owner/add-owner.component';
 import { OwnerPageComponent } from './owner/owner-page.component';
 import { EditNoteComponent } from './notes/edit-note.component';
 import { AddNoteComponent } from './notes/add-note.component';
+import { AccountComponent } from './account/account.component';
 
 
 
@@ -16,11 +17,15 @@ const routes: Routes = [
   {path: 'owners/:id', component: OwnerPageComponent},
   {path: 'notes', component: OwnerPageComponent},
   {path: 'notes/new', component: AddNoteComponent},
-  {path: 'notes/edit', component: EditNoteComponent}
+  {path: 'notes/edit', component: EditNoteComponent},
+  {path: 'account', component: AccountComponent}
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {
+
+
+ }
