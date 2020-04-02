@@ -43,6 +43,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { LayoutModule } from '@angular/cdk/layout';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 
+// Account
+import { AccountComponent } from './account/account.component';
+
+// Authentication
+import { NavBarComponent } from './nav-bar/nav-bar.component';
+
 const MATERIAL_MODULES: any[] = [
   MatListModule,
   MatButtonModule,
@@ -71,6 +77,8 @@ const MATERIAL_MODULES: any[] = [
     OwnerPageComponent,
     EditNoteComponent,
     AddNoteComponent,
+    AccountComponent,
+    NavBarComponent
   ],
   imports: [
     BrowserModule,
