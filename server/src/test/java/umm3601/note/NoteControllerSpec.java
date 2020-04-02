@@ -117,8 +117,6 @@ public class NoteControllerSpec {
 
     noteDocuments.insertMany(testNotes);
     noteDocuments.insertOne(Document.parse(sam.toJson()));
-
-    noteController = new NoteController(db, dtMock, jwtProcessorMock);
   }
 
   @AfterAll
