@@ -47,6 +47,7 @@ import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.http.util.ContextUtil;
 import io.javalin.plugin.json.JavalinJson;
+import umm3601.JwtProcessor;
 import umm3601.UnprocessableResponse;
 
 public class NoteControllerSpec {
@@ -64,6 +65,9 @@ public class NoteControllerSpec {
   static MongoDatabase db;
   // I'll be honest this is some real bullshit to make myself able to inject
   // dtMock.
+
+  @Mock(name = "jwtProcessor")
+  JwtProcessor jwtProcessorMock;
 
   @InjectMocks
   NoteController noteController;
@@ -114,7 +118,7 @@ public class NoteControllerSpec {
     noteDocuments.insertMany(testNotes);
     noteDocuments.insertOne(Document.parse(sam.toJson()));
 
-    noteController = new NoteController(db, dtMock);
+    noteController = new NoteController(db, dtMock, jwtProcessorMock);
   }
 
   @AfterAll
