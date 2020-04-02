@@ -94,26 +94,48 @@ public class NoteControllerSpec {
     MongoCollection<Document> noteDocuments = db.getCollection("notes");
     noteDocuments.drop();
     List<Document> testNotes = new ArrayList<>();
-    testNotes.add(Document
-        .parse("{ " + "ownerID: \"owner1_ID\", " + "body: \"I am running 5 minutes late to my non-existent office\", "
-            + "addDate: \"2020-03-07T22:03:38+0000\", " + "expireDate: \"2021-03-20T22:03:38+0000\", "
-            + "status: \"active\"" + "}"));
-    testNotes.add(Document.parse("{ " + "ownerID: \"owner1_ID\", " + "body: \"I am never coming to my office again\", "
-        + "addDate: \"2020-03-07T22:03:38+0000\", " + "expireDate: \"2099-03-07T22:03:38+0000\", "
-        + "status: \"active\"" + "}"));
-    testNotes.add(Document.parse("{ " + "ownerID: \"owner2_ID\", " + "body: \"I am on sabbatical no office hours\", "
-        + "addDate: \"2020-03-07T22:03:38+0000\", " + "expireDate: \"2021-03-07T22:03:38+0000\", "
-        + "status: \"active\"" + "}"));
-    testNotes.add(Document.parse("{ " + "ownerID: \"owner2_ID\", " + "body: \"Go to owner3's office\", "
-        + "addDate: \"2020-03-07T22:03:38+0000\", " + "expireDate: \"2020-03-21T22:03:38+0000\", "
-        + "status: \"active\"" + "}"));
-    testNotes.add(Document.parse("{ " + "ownerID: \"owner3_ID\", "
-        + "body: \"Not many come to my office I offer donuts\", " + "addDate: \"2020-03-07T22:03:38+0000\", "
-        + "expireDate: \"2021-03-07T22:03:38+0000\", " + "status: \"active\"" + "}"));
+    testNotes.add(Document.parse("{ "
+      + "ownerID: \"owner1_ID\", "
+      + "body: \"I am running 5 minutes late to my non-existent office\", "
+      + "addDate: \"2020-03-07T22:03:38+0000\", "
+      + "expireDate: \"2021-03-20T22:03:38+0000\", "
+      + "status: \"active\""
+      + "}"));
+    testNotes.add(Document.parse("{ "
+      + "ownerID: \"owner1_ID\", "
+      + "body: \"I am never coming to my office again\", "
+      + "addDate: \"2020-03-07T22:03:38+0000\", "
+      + "expireDate: \"2099-03-07T22:03:38+0000\", "
+      + "status: \"active\""
+      + "}"));
+    testNotes.add(Document.parse("{ "
+      + "ownerID: \"owner2_ID\", "
+      + "body: \"I am on sabbatical no office hours\", "
+      + "addDate: \"2020-03-07T22:03:38+0000\", "
+      + "expireDate: \"2021-03-07T22:03:38+0000\", "
+      + "status: \"active\""
+      + "}"));
+    testNotes.add(Document.parse("{ "
+      + "ownerID: \"owner2_ID\", "
+      + "body: \"Go to owner3's office\", "
+      + "addDate: \"2020-03-07T22:03:38+0000\", "
+      + "expireDate: \"2020-03-21T22:03:38+0000\", "
+      + "status: \"active\""
+      + "}"));
+    testNotes.add(Document.parse("{ "
+      + "ownerID: \"owner3_ID\", "
+      + "body: \"Not many come to my office I offer donuts\", "
+      + "addDate: \"2020-03-07T22:03:38+0000\", "
+      + "expireDate: \"2021-03-07T22:03:38+0000\", "
+      + "status: \"active\""
+      + "}"));
     samsNoteId = new ObjectId();
     BasicDBObject sam = new BasicDBObject("_id", samsNoteId);
-    sam = sam.append("ownerID", "owner3_ID").append("body", "I am sam").append("addDate", "2020-03-07T22:03:38+0000")
-        .append("expireDate", "2100-03-07T22:03:38+0000").append("status", "active");
+    sam = sam.append("ownerID", "owner3_ID")
+      .append("body", "I am sam")
+      .append("addDate", "2020-03-07T22:03:38+0000")
+      .append("expireDate", "2100-03-07T22:03:38+0000")
+      .append("status", "active");
 
     noteDocuments.insertMany(testNotes);
     noteDocuments.insertOne(Document.parse(sam.toJson()));
@@ -148,9 +170,13 @@ public class NoteControllerSpec {
 
   public void addNote() throws IOException {
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
-    String testNewNote = "{ " + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", " + "\"body\": \"Test Body\", "
-        + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
-        + "\"status\": \"active\" }";
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
@@ -346,8 +372,12 @@ public class NoteControllerSpec {
 
   @Test
   public void AddNoteWithoutExpiration() throws IOException {
-    String testNewNote = "{ " + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", " + "\"body\": \"Test Body\", "
-        + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"status\": \"active\" }";
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
@@ -414,8 +444,12 @@ public class NoteControllerSpec {
 
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
 
-    String testNewNote = "{ " + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", " + "\"body\": \"Test Body\", "
-        + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"status\": \"active\" }";
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\" "
+      + "}";
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
@@ -482,9 +516,12 @@ public class NoteControllerSpec {
 
   @Test
   public void AddNewInactiveWithExpiration() throws IOException {
-    String testNewNote = "{ " + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", " + "\"body\": \"Test Body\", "
-        + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
-        + "\"status\": \"draft\" }";
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"draft\""
+      + "}";
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
@@ -499,8 +536,12 @@ public class NoteControllerSpec {
   @Test
   public void AddExpirationToInactive() throws IOException {
 
-    String testNewNote = "{ " + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", " + "\"body\": \"Test Body\", "
-        + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"status\": \"template\" }";
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"status\": \"template\""
+      + "}";
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
