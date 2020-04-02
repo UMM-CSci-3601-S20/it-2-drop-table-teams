@@ -1,11 +1,12 @@
-// Server side build.gradle
-// Builds the server side of the project
+// Server side build.gradle.
+// Builds the server side of the project.
 
 plugins {
-  // Apply the java plugin to add support for Java
+  // Apply the java plugin to add support for Java.
   id 'java'
 
-  // Apply the application plugin to add support for building a CLI application
+  // Apply the application plugin to add support for building a CLI
+  // application.
   id 'application'
 
   // Apply the Jacoco plugin to add suppport for JUnit test coverage
@@ -13,7 +14,7 @@ plugins {
   id 'jacoco'
 }
 
-// In this section you declare where to find the dependencies of your project
+// In this section you declare where to find the dependencies of your project.
 repositories {
   // Use jcenter for resolving most dependencies.
   jcenter()
@@ -21,44 +22,47 @@ repositories {
   // We get the javalin-jwt from JitPack.
   maven { url 'https://jitpack.io' }
 
-  // We get jwks-rsa from Maven Central
+  // We get jwks-rsa from Maven Central.
   mavenCentral()
 
   // You can declare any Maven/Ivy/file repository here.
 }
 
-// The class where our server is located
+// The class where our server is located.
 mainClassName = 'umm3601.Server'
 
-// External dependencies that our application utilizes
+// External dependencies that our application utilizes.
 dependencies {
-  // Google core libraries for Java, various useful utilities
+  // Google core libraries for Java, various useful utilities.
   implementation 'com.google.guava:guava:28.2-jre'
 
-  // Javalin, a simple web framework for Java
+  // Javalin, a simple web framework for Java.
   implementation 'io.javalin:javalin:3.7.0'
 
-  // Mongo DB Driver for Java
+  // Mongo DB Driver for Java.
   implementation 'org.mongodb:mongodb-driver:3.12.1'
 
-  // Jackson, a JSON library for Java
+  // Jackson, a JSON library for Java.
   implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.2'
 
-  // MongoJack, MongoDB integration for Jackson
+  // MongoJack, MongoDB integration for Jackson.
   implementation 'org.mongojack:mongojack:2.10.0'
 
-  // Jackson support modules for Java 8 datatypes
+  // Jackson support modules for Java 8 datatypes.
   implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.10.2'
   implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.10.2'
   implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.1'
 
-  // Simple Logging Facade for Java
+  // Simple Logging Facade for Java.
   implementation 'org.slf4j:slf4j-simple:1.7.30'
 
-  // JSON Web Tokens (JWT) for Javalin
+  // Annotations for dependency injection.
+  implementation 'javax.inject:javax.inject:1'
+
+  // JSON Web Tokens (JWT) for Javalin.
   implementation 'com.github.kmehrunes:javalin-jwt:v0.2'
 
-  // JSON Web Key Set (JWKS) for Java
+  // JSON Web Key Set (JWKS) for Java.
   implementation 'com.auth0:jwks-rsa:0.11.0'
 
   // JUnit Jupiter API for testing.
@@ -69,22 +73,21 @@ dependencies {
 
   testImplementation 'com.mockrunner:mockrunner-servlet:2.0.1'
 
-  implementation 'javax.inject:javax.inject:1'
   testImplementation 'org.mockito:mockito-core:2.28.2'
 }
 
 application {
-  // Define the main class for the application
+  // Define the main class for the application.
   mainClassName = 'umm3601.Server'
 }
 
 test {
-  // Use junit platform for unit tests
+  // Use junit platform for unit tests.
   useJUnitPlatform()
 
 }
 
-// We want our source code to be compatible with Java 1.8
+// We want our source code to be compatible with Java 1.8.
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
