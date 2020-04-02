@@ -26,6 +26,8 @@ import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.NotFoundResponse;
+
+import umm3601.JwtProcessor;
 import umm3601.UnprocessableResponse;
 
 
@@ -47,7 +49,10 @@ public class NoteController {
    */
 
   @Inject
-  public NoteController(MongoDatabase database, DeathTimer dt) {
+  public NoteController(
+      MongoDatabase database,
+      DeathTimer dt,
+      JwtProcessor jwtProcessor) {
     jacksonCodecRegistry.addCodecForClass(Note.class);
     noteCollection = database.getCollection("notes").withDocumentClass(Note.class)
         .withCodecRegistry(jacksonCodecRegistry);
