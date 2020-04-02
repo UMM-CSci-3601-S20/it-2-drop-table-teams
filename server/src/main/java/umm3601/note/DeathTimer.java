@@ -25,11 +25,6 @@ public class DeathTimer extends Timer {
   private NoteController noteController;
 
   @Inject
-  void NoteControllerSetup(MongoDatabase db) {
-    noteController = new NoteController(db, this);
-  }
-
-  @Inject
   private static DeathTimer deathTimerInstance = new DeathTimer();
 
   protected DeathTimer() {
