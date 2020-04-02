@@ -1,3 +1,4 @@
+
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #drawer class="sidenav" fixedInViewport mode="over">
     <mat-toolbar>Menu</mat-toolbar>
@@ -13,15 +14,22 @@
       Home
       </mat-list-item>
 
-
       <mat-list-item routerLink="/owners" routerLinkActive="drawer-list-item-active"
       (click)="drawer.close()">
         <mat-icon matListIcon>group</mat-icon>
         Owners
+     </mat-list-item>
+
+    <mat-list-item routerLink="/account" routerLinkActive="drawer-list-item-active"
+    (click)="drawer.close()">
+      <mat-icon matListIcon>settings</mat-icon>
+      Account Settings
     </mat-list-item>
+
 
     </mat-nav-list>
   </mat-sidenav>
+
 
   <mat-sidenav-content>
     <mat-toolbar color="primary">
@@ -32,7 +40,17 @@
       <span class="app-title">{{title}}</span>
     </mat-toolbar>
     <div class="main-content mat-typography">
-      <router-outlet></router-outlet>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
+
+
+
+
+
+
+
+
+
+
+
