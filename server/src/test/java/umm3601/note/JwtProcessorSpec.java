@@ -24,7 +24,7 @@ import org.bson.types.ObjectId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -59,10 +59,7 @@ public class JwtProcessorSpec {
   public JwtProcessor jwtProcessor;
 
   // Generated using jwt.io's debugger tool.
-  public String encodedTestToken =
-    "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImZvbyJ9"
-    + ".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0"
-    + ".R4ZHIEqY7-c6zVzRD5e3VTxT3mi3agF5wbtXKiJktUk5uQU-x2jJEaEQg_1LPr9n1_4zpzOQecO-AFnk-A9frwmHMdZDMstvLZ4CXQhxe0mveXuIE-BkMNjtK91psuCbks080AKCW-YAsCtB1N5KNFLEbblY9ywAqjXZ5exU7MViRaaUKBXwNJuZx-KURdSdT-VKZ62IiSR2hhg4OjNnbF6_sPMCKoHErrHZHICGNGyjQyqL-HudMi9lTA2Uyktj8i2hlSjhquMgYGGj1lcfKoi1yx9MHwbqKjjrUMwzdRyU68L7TJnwUa5ewhh8X3XP5L8LWoNLVAi7Mt2URqwpkg";
+  public String encodedTestToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImZvbyJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiaXNzIjoiYXV0aDAifQ.eL7VDmh4h85bhTgDFEuK5jqMouv4b8Vf74aztL50xR6_08jtrMErLlWtgNO9eZcpiQ1mI9zfDDSxEsE_DfDM1FGszy23a1l4Wm9A_fLNakz4lJd6-6xppMuAIejZyEHv0jqBMh5v1AJx6dCQnn9noLVpD00ABl-qsaDsUhLJejdNPSlzQX8lh6O_Py4S8CIQgHj5S9y3WsRrIEhqi0dXAQHz6GZY5Aw1mJJjiKp6TEY5vlINYPoTUqLdZ8Y31vm1Ydmq0LABEAW0qYmOavID_-AJTEs48EvJAAcTPkcWMagaY7WeJDEBTqZrpv-Jr9vITz8uE6BGdGq6pZ6nHG8Dug";
 
   public String testKeyID = "foo";
 
@@ -74,9 +71,6 @@ public class JwtProcessorSpec {
     + "e+lf4s4OxQawWD79J9/5d3Ry0vbV3Am1FtGJiJvOwRsIfVChDpYStTcHTCMqtvWb"
     + "V6L11BWkpzGXSW4Hv43qa+GSYOD2QU68Mb59oSk2OB+BtOLpJofmbGEGgvmwyCI9"
     + "MwIDAQAB";
-
-  public String modulus = "AgABAAEHCQAJCQMCAAgGBAQHBAUIAAcJBwYHAgkBCAIFCQcJBAEJAgkDBQUGAQIBBgIDBQQDBgAACQkEAwUCBgkIAgUACAcGBwgDBwEJCQMCBAQIBAQCAwQICQMAAQMFBQgFBQUGCAYAAQUIAwEDAwUHAgUDCQgGAwcEAgMDCQkDAAQCAAUBAQUCBgEACAMJCQEAAgIDBQUIAQMCAAEJCQcBBQQECQkABQMABgQDAQgEBwcGAQQJAAkGBAYJBQMJBQkIBQUJAAcGBgMCAAYGCQIJAgcDAAAAAQYIAAAABQMGAwYGAggFBwMCBwUCBwEEAAQACAkBAgIEAAUJCAUGCAUBBgICCAUFBQkBBgIHAAABBwQDAgADAQgDAgYIAgEEAwYJBAkGCAkJBQYJBwQHAgQCBgABCAIBAQUJAwgHBgcIAQICBAkDCQEFBwUGAwkHCAAJBwMGBgQFBwIFBQcHAgkIBAIBAAcFBwgFAgQHAAgFAgUBCQEHBwYJBQYBBQABCQQJAQcGCQYHAwgDCQUJAgIAAQgGAAIHAQAHBwIEBwUHBQECAgkGBwEDBgAEAQMGBAgJBwYCCQYJBAIHAAcIAwcIBQAHCAADAQYFAAkFBQkAAAgJAgAACAcFAwIIAgUFBgQGBgMGAgEECAIABgQDBAQBBQMEBQAIAgYHAwkFBgEFBAgFAAIGBgIHAAgIAQQIAgQIBAIDBQgIBgkDCAkFAwABBgQBBgkCCQACCAgBBQYDCAAAAgcEBAkBAAMHAAIABgkBBwcBCQYFBQgFAwEFCAgFAQUACQcDBAMECAcAAAcCAwcHBQAABgc=";
-  public String exponent = "BgUFAwc=";
 
   // Just for testing--please don't use this in production ;)
   public String testPrivateKey =
@@ -118,6 +112,26 @@ public class JwtProcessorSpec {
   // The 'iat' (issued-at-time) claim.
   public int testIat = 1516239022;
 
+  private PublicKey publicKeyFromBase64String(String str) {
+    byte[] publicBytes = Base64.getDecoder().decode(str);
+    X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
+    KeyFactory keyFactory;
+    try {
+      keyFactory = KeyFactory.getInstance("RSA");
+    } catch (NoSuchAlgorithmException e) {
+      fail("Couldn't get the 'RSA' algorithm.");
+      return null;
+    }
+    PublicKey publicKey;
+    try {
+      publicKey = keyFactory.generatePublic(keySpec);
+    } catch (InvalidKeySpecException e) {
+      fail("Couldn't read the public key from the string.");
+      return null;
+    }
+    return publicKey;
+  }
+
   @BeforeEach
   public void setupEach() throws IOException {
     MockitoAnnotations.initMocks(this);
@@ -132,23 +146,10 @@ public class JwtProcessorSpec {
     when(mockJwtGetter.getTokenFromHeader(any()))
       .thenReturn(Optional.of(encodedTestToken));
 
+    Jwk mockJwk = Mockito.mock(Jwk.class);
 
-    Map<String, Object> additionalAttributes = new HashMap<>();
-    additionalAttributes.put("n", modulus);
-    additionalAttributes.put("e", exponent);
-
-    when(mockJwkProvider.get(testKeyID)).thenReturn(new Jwk(
-      "foo",
-      "RSA",
-      "RSA",
-      // Don't bother filling in attributes like "toolchain"--we aren't going
-      // to use those.
-      null,
-      new ArrayList<>(),
-      null,
-      null,
-      null,
-      additionalAttributes));
+    when(mockJwkProvider.get(testKeyID)).thenReturn(mockJwk);
+    when(mockJwk.getPublicKey()).thenReturn(publicKeyFromBase64String(testPublicKey));
   }
 
   /**
@@ -165,7 +166,7 @@ public class JwtProcessorSpec {
     try {
       setUpGoodMocks();
     } catch (JwkException e) {
-      assertTrue(false, "Wasn't able to set up a JWK mock");
+      fail("Wasn't able to set up a JWK mock");
     }
 
     Context ctx = ContextUtil.init(
