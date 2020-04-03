@@ -47,6 +47,7 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.http.UnauthorizedResponse;
 import io.javalin.http.util.ContextUtil;
 import io.javalin.plugin.json.JavalinJson;
 import umm3601.JwtProcessor;
@@ -216,6 +217,28 @@ public class NoteControllerSpec {
     assertEquals("2020-03-07T22:03:38+0000", newNote.addDate);
     assertEquals("2021-03-07T22:03:38+0000", newNote.expireDate);
     assertEquals("active", newNote.status);
+  }
+
+  @Test
+  public void addNoteWithInvalidTokenFails() throws IOException {
+    String testNewNote = "{ "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
+
+    mockReq.setBodyContent(testNewNote);
+    mockReq.setMethod("POST");
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenThrow(new UnauthorizedResponse());
+
+    noteController.addNewNote(ctx);
+
+    assertEquals(401, mockRes.getStatus());
   }
 
   @Test
