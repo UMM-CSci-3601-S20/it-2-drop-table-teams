@@ -29,7 +29,7 @@ public class Server {
   public static void main(String[] args) {
 
     // Get the MongoDB address and database name from environment variables and
-    // if they aren't set, use the defaults of "localhost" and "dev".
+    // if they aren't set, use the defaults of "localhost" and "team4IterationDev".
     String mongoAddr = System.getenv().getOrDefault("MONGO_ADDR", "localhost");
     String databaseName = System.getenv().getOrDefault("MONGO_DB", "team4IterationDev");
 

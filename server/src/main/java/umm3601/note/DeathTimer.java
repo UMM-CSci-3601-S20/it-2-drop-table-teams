@@ -6,15 +6,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.mongodb.client.MongoDatabase;
 
 
 
-@Singleton
 public class DeathTimer extends Timer {
 
   public final long ONE_WEEK_MILLIS = 604800000; // 1 week, in milliseconds
@@ -24,7 +21,6 @@ public class DeathTimer extends Timer {
 
   private NoteController noteController;
 
-  @Inject
   private static DeathTimer deathTimerInstance = new DeathTimer();
 
   protected DeathTimer() {
