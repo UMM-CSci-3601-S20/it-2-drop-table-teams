@@ -33,7 +33,7 @@ public enum JwtProcessor {
    *   decoded and validated. (For example, if the JWT doesn't exist, or if
    *   Auth0 isn't talking to us.)
    */
-  public static DecodedJWT verifyJwtFromHeader(Context ctx) {
+  public DecodedJWT verifyJwtFromHeader(Context ctx) {
     // Get the JWT from the header.
     String encodedToken;
     try {
