@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
@@ -167,11 +169,9 @@ public class NoteControllerSpec {
   }
 
   @Test
-
   public void addNote() throws IOException {
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
     String testNewNote = "{ "
-      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
       + "\"body\": \"Test Body\", "
       + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
       + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
@@ -182,6 +182,13 @@ public class NoteControllerSpec {
     mockReq.setMethod("POST");
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    // Make a fake DecodedJWT for jwtProcessorMock to return.
+    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
+    when(mockDecodedJWT.getSubject()).thenReturn("some_new_owner");
+
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
 
     noteController.addNewNote(ctx);
 
@@ -195,7 +202,7 @@ public class NoteControllerSpec {
 
     Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
     assertNotNull(addedNote);
-    assertEquals("e7fd674c72b76596c75d9f1e", addedNote.getString("ownerID"));
+    assertEquals("some_new_owner", addedNote.getString("ownerID"));
     assertEquals("Test Body", addedNote.getString("body"));
     assertEquals("2020-03-07T22:03:38+0000", addedNote.getString("addDate"));
     assertEquals("2021-03-07T22:03:38+0000", addedNote.getString("expireDate"));
@@ -204,7 +211,7 @@ public class NoteControllerSpec {
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note newNote = noteCaptor.getValue();
     assertEquals(id, newNote._id);
-    assertEquals("e7fd674c72b76596c75d9f1e", newNote.ownerID);
+    assertEquals("some_new_owner", newNote.ownerID);
     assertEquals("Test Body", newNote.body);
     assertEquals("2020-03-07T22:03:38+0000", newNote.addDate);
     assertEquals("2021-03-07T22:03:38+0000", newNote.expireDate);
