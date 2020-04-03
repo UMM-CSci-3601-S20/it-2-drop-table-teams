@@ -241,6 +241,40 @@ public class NoteControllerSpec {
     assertEquals(401, mockRes.getStatus());
   }
 
+  // Our API doesn't allow setting the owner of a note in the request body
+  // (if we did, you could just post notes for whoever you want.)
+  // Instead, we get the owner's ID from the JWT that Auth0 gives us,
+  // and attach the new note to that user.
+  @Test
+  public void addNoteWithOwnerIdInTheRequestBodyFails() throws IOException {
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
+
+    mockReq.setBodyContent(testNewNote);
+    mockReq.setMethod("POST");
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    // Put the owner ID in the JWT, just to try to trick NoteController.
+    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
+    when(mockDecodedJWT.getSubject()).thenReturn("e7fd674c72b76596c75d9f1e");
+
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
+
+    noteController.addNewNote(ctx);
+
+    assertEquals(400, mockRes.getStatus());
+
+    assert
+  }
+
+
   @Test
   public void editSingleField() throws IOException {
     String reqBody = "{\"body\": \"I am not sam anymore\"}";
