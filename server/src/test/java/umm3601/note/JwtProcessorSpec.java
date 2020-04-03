@@ -2,6 +2,8 @@ package umm3601.note;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import com.auth0.jwk.Jwk;
@@ -104,5 +106,42 @@ public class JwtProcessorSpec {
   @BeforeEach
   public void setupEach() throws IOException {
     MockitoAnnotations.initMocks(this);
+  }
+
+  /**
+   * Tell all of the mocks to give us back good values (as if we
+   * were passing them a valid token)
+   */
+  public void setUpGoodMocks() throws JwkException {
+
+    when(mockJwtGetter.getTokenFromHeader(any()))
+      .thenReturn(Optional.of(encodedTestToken));
+
+
+    Map<String, Object> additionalAttributes = new HashMap<>();
+    additionalAttributes.put("n", modulus);
+    additionalAttributes.put("e", exponent);
+
+    when(mockJwkProvider.get(testKeyID)).thenReturn(new Jwk(
+      "foo",
+      "RSA",
+      "RSA",
+      // Don't bother filling in attributes like "toolchain"--we aren't going
+      // to use those.
+      null,
+      new ArrayList<>(),
+      null,
+      null,
+      null,
+      additionalAttributes));
+  }
+
+  /**
+   * Tell all of the mocks to give us back bad values (as if we
+   * didn't pass a token in the header)
+   */
+  public void setUpBadMocks() throws JwkException {
+    when(mockJwtGetter.getTokenFromHeader(any()))
+      .thenReturn(Optional.empty());
   }
 }
