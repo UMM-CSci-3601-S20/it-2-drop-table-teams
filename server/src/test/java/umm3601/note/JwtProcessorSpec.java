@@ -1,7 +1,11 @@
 package umm3601.note;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Optional;
 
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkException;
 import com.auth0.jwk.JwkProvider;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,12 +16,17 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+
 
 import umm3601.JwtGetter;
 import umm3601.JwtProcessor;
@@ -49,6 +58,9 @@ public class JwtProcessorSpec {
     + "V6L11BWkpzGXSW4Hv43qa+GSYOD2QU68Mb59oSk2OB+BtOLpJofmbGEGgvmwyCI9"
     + "MwIDAQAB";
 
+  public String modulus = "AgABAAEHCQAJCQMCAAgGBAQHBAUIAAcJBwYHAgkBCAIFCQcJBAEJAgkDBQUGAQIBBgIDBQQDBgAACQkEAwUCBgkIAgUACAcGBwgDBwEJCQMCBAQIBAQCAwQICQMAAQMFBQgFBQUGCAYAAQUIAwEDAwUHAgUDCQgGAwcEAgMDCQkDAAQCAAUBAQUCBgEACAMJCQEAAgIDBQUIAQMCAAEJCQcBBQQECQkABQMABgQDAQgEBwcGAQQJAAkGBAYJBQMJBQkIBQUJAAcGBgMCAAYGCQIJAgcDAAAAAQYIAAAABQMGAwYGAggFBwMCBwUCBwEEAAQACAkBAgIEAAUJCAUGCAUBBgICCAUFBQkBBgIHAAABBwQDAgADAQgDAgYIAgEEAwYJBAkGCAkJBQYJBwQHAgQCBgABCAIBAQUJAwgHBgcIAQICBAkDCQEFBwUGAwkHCAAJBwMGBgQFBwIFBQcHAgkIBAIBAAcFBwgFAgQHAAgFAgUBCQEHBwYJBQYBBQABCQQJAQcGCQYHAwgDCQUJAgIAAQgGAAIHAQAHBwIEBwUHBQECAgkGBwEDBgAEAQMGBAgJBwYCCQYJBAIHAAcIAwcIBQAHCAADAQYFAAkFBQkAAAgJAgAACAcFAwIIAgUFBgQGBgMGAgEECAIABgQDBAQBBQMEBQAIAgYHAwkFBgEFBAgFAAIGBgIHAAgIAQQIAgQIBAIDBQgIBgkDCAkFAwABBgQBBgkCCQACCAgBBQYDCAAAAgcEBAkBAAMHAAIABgkBBwcBCQYFBQgFAwEFCAgFAQUACQcDBAMECAcAAAcCAwcHBQAABgc=";
+  public String exponent = "BgUFAwc=";
+
   // Just for testing--please don't use this in production ;)
   public String testPrivateKey =
     "MIIEogIBAAKCAQEAnzyis1ZjfNB0bBgKFMSvvkTtwlvBsaJq7S5wA+kzeVOVpVWw"
@@ -77,9 +89,20 @@ public class JwtProcessorSpec {
     + "y18Ae9n7dHVueyslrb6weq7dTkYDi3iOYRW8HRkIQh06wEdbxt0shTzAJvvCQfrB"
     + "jg/3747WSsf/zBTcHihTRBdAv6OmdhV4/dD5YBfLAkLrd+mX7iE=";
 
+
+  // This is the data inside our test token.
+
+  // The 'sub' (subject) claim.
+  public String testSub = "1234567890";
+  // The 'name' claim.
+  public String testName = "John Doe";
+  // The 'admin' claim.
+  public boolean testAdmin = true;
+  // The 'iat' (issued-at-time) claim.
+  public int testIat = 1516239022;
+
   @BeforeEach
   public void setupEach() throws IOException {
     MockitoAnnotations.initMocks(this);
   }
-
 }
