@@ -47,7 +47,7 @@ public class Server {
     NoteController noteController = new NoteController(
       database,
       DeathTimer.getDeathTimerInstance(),
-      JwtProcessor.INSTANCE);
+      new JwtProcessor(new JwtGetter(), auth0JwkProvider));
 
     Javalin server = Javalin.create().start(4567);
 

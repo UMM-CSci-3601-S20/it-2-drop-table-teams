@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import com.auth0.jwk.InvalidPublicKeyException;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkException;
+import com.auth0.jwk.JwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -15,13 +16,18 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
-import javalinjwt.JavalinJWT;
 
 /**
- * This class, a singleton, contains methods for processing and verifying JWTs.
+ * This class, contains methods for processing and verifying JWTs.
  */
-public enum JwtProcessor {
-  INSTANCE;
+public class JwtProcessor {
+  private JwtGetter jwtGetter;
+  private JwkProvider auth0JwkProvider;
+
+  public JwtProcessor(JwtGetter jwtGetter, JwkProvider auth0JwkProvider) {
+    this.jwtGetter = jwtGetter;
+    this.auth0JwkProvider = auth0JwkProvider;
+  }
 
   /**
    * Verifies a JSON Web Token (JWT) from the header of the HTTP request,
@@ -37,7 +43,7 @@ public enum JwtProcessor {
     // Get the JWT from the header.
     String encodedToken;
     try {
-      encodedToken = JavalinJWT.getTokenFromHeader(ctx).get();
+      encodedToken = jwtGetter.getTokenFromHeader(ctx).get();
     } catch (NoSuchElementException e) {
       throw new UnauthorizedResponse("Missing token");
     }
@@ -64,7 +70,7 @@ public enum JwtProcessor {
     // Using the public key, we can verify that the token was legitimate.
     Jwk jsonWebKey;
     try {
-      jsonWebKey = Server.auth0JwkProvider.get(keyID);
+      jsonWebKey = auth0JwkProvider.get(keyID);
     } catch (JwkException e) {
       throw new UnauthorizedResponse(
         "Token doesn't refer to one of Auth0's public keys");
