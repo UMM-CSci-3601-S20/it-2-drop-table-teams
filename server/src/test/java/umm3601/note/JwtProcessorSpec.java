@@ -1,7 +1,13 @@
 package umm3601.note;
 
 import java.io.IOException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -9,11 +15,17 @@ import java.util.Optional;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkException;
 import com.auth0.jwk.JwkProvider;
-
-import org.junit.jupiter.api.BeforeEach;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.mockrunner.mock.web.MockHttpServletRequest;
+import com.mockrunner.mock.web.MockHttpServletResponse;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +41,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import io.javalin.http.Context;
+import io.javalin.http.UnauthorizedResponse;
+import io.javalin.http.util.ContextUtil;
 
 import umm3601.JwtGetter;
 import umm3601.JwtProcessor;
@@ -140,8 +155,50 @@ public class JwtProcessorSpec {
    * Tell all of the mocks to give us back bad values (as if we
    * didn't pass a token in the header)
    */
-  public void setUpBadMocks() throws JwkException {
+  public void setUpBadMocks() {
     when(mockJwtGetter.getTokenFromHeader(any()))
       .thenReturn(Optional.empty());
+  }
+
+  @Test
+  public void jwtProcessorAcceptsGoodToken() {
+    try {
+      setUpGoodMocks();
+    } catch (JwkException e) {
+      assertTrue(false, "Wasn't able to set up a JWK mock");
+    }
+
+    Context ctx = ContextUtil.init(
+      new MockHttpServletRequest(),
+      new MockHttpServletResponse(),
+      "api/notes");
+
+    // This shouldn't throw.
+    DecodedJWT token = jwtProcessor.verifyJwtFromHeader(ctx);
+
+    assertEquals(
+      token.getSubject(),
+      testSub,
+      "Decoded token has the wrong subject.");
+
+    assertEquals(
+      token.getClaim("name").asString(),
+      testName,
+      "Decoded token has the wrong value in the 'name' claim.");
+
+  }
+
+  @Test
+  public void jwtProcessorAcceptsMissingToken() {
+    setUpBadMocks();
+
+    Context ctx = ContextUtil.init(
+      new MockHttpServletRequest(),
+      new MockHttpServletResponse(),
+      "api/notes");
+
+    assertThrows(UnauthorizedResponse.class, () -> {
+      DecodedJWT token = jwtProcessor.verifyJwtFromHeader(ctx);
+    });
   }
 }
