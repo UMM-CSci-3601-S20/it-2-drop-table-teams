@@ -48,6 +48,9 @@ import { AccountComponent } from './account/account.component';
 
 // Authentication
 import { NavBarComponent } from './nav-bar/nav-bar.component';
+import { AuthService } from './auth/auth.service';
+import { InterceptorService } from './auth/interceptor.service';
+import { Router, RouterModule } from '@angular/router';
 
 const MATERIAL_MODULES: any[] = [
   MatListModule,
@@ -96,6 +99,9 @@ const MATERIAL_MODULES: any[] = [
   providers: [
     OwnerService,
     NoteService,
+    AuthService,
+    InterceptorService,
+    Router
   ],
   bootstrap: [AppComponent]
 })
