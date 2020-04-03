@@ -222,7 +222,7 @@ public class NoteControllerSpec {
   @Test
   public void addNoteWithInvalidTokenFails() throws IOException {
     String testNewNote = "{ "
-      + "\"body\": \"Test Body\", "
+      + "\"body\": \"Faily McFailface\", "
       + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
       + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
       + "\"status\": \"active\""
@@ -239,6 +239,7 @@ public class NoteControllerSpec {
     noteController.addNewNote(ctx);
 
     assertEquals(401, mockRes.getStatus());
+    assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
   }
 
   // Our API doesn't allow setting the owner of a note in the request body
@@ -249,9 +250,9 @@ public class NoteControllerSpec {
   public void addNoteWithOwnerIdInTheRequestBodyFails() throws IOException {
     String testNewNote = "{ "
       + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
-      + "\"body\": \"Test Body\", "
+      + "\"body\": \"Faily McFailface\", "
       + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
-      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"expireDate\": 2021-03-07T22:03:38+0000, "
       + "\"status\": \"active\""
       + "}";
 
@@ -269,9 +270,8 @@ public class NoteControllerSpec {
 
     noteController.addNewNote(ctx);
 
-    assertEquals(400, mockRes.getStatus());
-
-    assert
+    // assertEquals(400, mockRes.getStatus());
+    assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
   }
 
 
