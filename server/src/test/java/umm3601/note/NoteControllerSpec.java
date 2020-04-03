@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
@@ -45,6 +47,7 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.http.UnauthorizedResponse;
 import io.javalin.http.util.ContextUtil;
 import io.javalin.plugin.json.JavalinJson;
 import umm3601.JwtProcessor;
@@ -68,6 +71,38 @@ public class NoteControllerSpec {
 
   @Mock(name = "jwtProcessor")
   JwtProcessor jwtProcessorMock;
+
+  private void useJwtForOwner1() {
+    // Make a fake DecodedJWT for jwtProcessorMock to return.
+    // (Sam's owner ID is "owner3_ID".)
+    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
+    when(mockDecodedJWT.getSubject()).thenReturn("owner1_ID");
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
+  }
+
+  private void useJwtForSam() {
+    // Make a fake DecodedJWT for jwtProcessorMock to return.
+    // (Sam's owner ID is "owner3_ID".)
+    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
+    when(mockDecodedJWT.getSubject()).thenReturn("owner3_ID");
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
+  }
+
+  private void useJwtForNewUser() {
+    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
+    when(mockDecodedJWT.getSubject()).thenReturn("e7fd674c72b76596c75d9f1e");
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
+  }
+
+  private void useInvalidJwt() {
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenThrow(new UnauthorizedResponse());
+  }
+
+
 
   @InjectMocks
   NoteController noteController;
@@ -131,8 +166,11 @@ public class NoteControllerSpec {
       + "}"));
     samsNoteId = new ObjectId();
     BasicDBObject sam = new BasicDBObject("_id", samsNoteId);
-    sam = sam.append("ownerID", "owner3_ID").append("body", "I am sam").append("addDate", "2020-03-07T22:03:38+0000")
-        .append("expireDate", "2100-03-07T22:03:38+0000").append("status", "active");
+    sam = sam.append("ownerID", "owner3_ID")
+      .append("body", "I am sam")
+      .append("addDate", "2020-03-07T22:03:38+0000")
+      .append("expireDate", "2100-03-07T22:03:38+0000")
+      .append("status", "active");
 
     noteDocuments.insertMany(testNotes);
     noteDocuments.insertOne(Document.parse(sam.toJson()));
@@ -147,6 +185,8 @@ public class NoteControllerSpec {
   @Test
   public void getAllNotesForOwner1() {
     mockReq.setQueryString("ownerid=owner1_ID");
+
+    useJwtForOwner1();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
@@ -164,17 +204,25 @@ public class NoteControllerSpec {
   }
 
   @Test
-
   public void addNote() throws IOException {
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
-    String testNewNote = "{ " + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", " + "\"body\": \"Test Body\", "
-        + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
-        + "\"status\": \"active\" }";
+    String testNewNote = "{ "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
+    when(mockDecodedJWT.getSubject()).thenReturn("some_new_owner");
+
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
 
     noteController.addNewNote(ctx);
 
@@ -188,7 +236,7 @@ public class NoteControllerSpec {
 
     Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
     assertNotNull(addedNote);
-    assertEquals("e7fd674c72b76596c75d9f1e", addedNote.getString("ownerID"));
+    assertEquals("some_new_owner", addedNote.getString("ownerID"));
     assertEquals("Test Body", addedNote.getString("body"));
     assertEquals("2020-03-07T22:03:38+0000", addedNote.getString("addDate"));
     assertEquals("2021-03-07T22:03:38+0000", addedNote.getString("expireDate"));
@@ -197,12 +245,67 @@ public class NoteControllerSpec {
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note newNote = noteCaptor.getValue();
     assertEquals(id, newNote._id);
-    assertEquals("e7fd674c72b76596c75d9f1e", newNote.ownerID);
+    assertEquals("some_new_owner", newNote.ownerID);
     assertEquals("Test Body", newNote.body);
     assertEquals("2020-03-07T22:03:38+0000", newNote.addDate);
     assertEquals("2021-03-07T22:03:38+0000", newNote.expireDate);
     assertEquals("active", newNote.status);
   }
+
+  @Test
+  public void addNoteWithInvalidTokenFails() throws IOException {
+    String testNewNote = "{ "
+      + "\"body\": \"Faily McFailface\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
+
+    mockReq.setBodyContent(testNewNote);
+    mockReq.setMethod("POST");
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    useInvalidJwt();
+
+    noteController.addNewNote(ctx);
+
+    assertEquals(401, mockRes.getStatus());
+    assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
+  }
+
+  // Our API doesn't allow setting the owner of a note in the request body
+  // (if we did, you could just post notes for whoever you want.)
+  // Instead, we get the owner's ID from the JWT that Auth0 gives us,
+  // and attach the new note to that user.
+  @Test
+  public void addNoteWithOwnerIdInTheRequestBodyFails() throws IOException {
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Faily McFailface\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"expireDate\": 2021-03-07T22:03:38+0000, "
+      + "\"status\": \"active\""
+      + "}";
+
+    mockReq.setBodyContent(testNewNote);
+    mockReq.setMethod("POST");
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    // Put the owner ID in the JWT, just to try to trick NoteController.
+    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
+    when(mockDecodedJWT.getSubject()).thenReturn("e7fd674c72b76596c75d9f1e");
+
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
+
+    noteController.addNewNote(ctx);
+
+    // assertEquals(400, mockRes.getStatus());
+    assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
+  }
+
 
   @Test
   public void editSingleField() throws IOException {
@@ -211,6 +314,8 @@ public class NoteControllerSpec {
     mockReq.setMethod("PATCH");
     // Because we're partially altering an object, we make a body with just the
     // alteration and use the PATCH (not PUT) method
+
+    useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
     noteController.editNote(ctx);
@@ -245,6 +350,8 @@ public class NoteControllerSpec {
     String reqBody = "{\"body\": \"I am still sam\", \"expireDate\": \"2025-03-07T22:03:38+0000\"}";
     mockReq.setBodyContent(reqBody);
     mockReq.setMethod("PATCH");
+
+    useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
     noteController.editNote(ctx);
@@ -281,6 +388,8 @@ public class NoteControllerSpec {
     mockReq.setBodyContent(reqBody);
     mockReq.setMethod("PATCH");
 
+    useJwtForSam();
+
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id",
         ImmutableMap.of("id", "58af3a600343927e48e87335"));
 
@@ -295,6 +404,8 @@ public class NoteControllerSpec {
     mockReq.setBodyContent(reqBody);
     mockReq.setMethod("PATCH");
 
+    useJwtForSam();
+
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id",
         ImmutableMap.of("id", "this garbage isn't an id!"));
 
@@ -308,6 +419,8 @@ public class NoteControllerSpec {
     mockReq.setBodyContent("This isn't parsable as a document");
     mockReq.setMethod("PATCH");
 
+    useJwtForSam();
+
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
 
     assertThrows(BadRequestResponse.class, () -> {
@@ -319,6 +432,8 @@ public class NoteControllerSpec {
   public void editIdWithInvalidValue() throws IOException {
     mockReq.setBodyContent("{\"expireDate\": \"not actually a date\"}");
     mockReq.setMethod("PATCH");
+
+    useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
 
@@ -337,6 +452,8 @@ public class NoteControllerSpec {
     mockReq.setBodyContent("{\"badKey\": \"irrelevant value\"}");
     mockReq.setMethod("PATCH");
 
+    useJwtForSam();
+
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
 
     assertThrows(ConflictResponse.class, () -> {
@@ -350,6 +467,8 @@ public class NoteControllerSpec {
   public void editIdWithIllegalKeys() throws IOException {
     mockReq.setBodyContent("{\"ownerID\": \"Charlie\"}");
     mockReq.setMethod("PATCH");
+
+    useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
 
@@ -365,11 +484,19 @@ public class NoteControllerSpec {
 
   @Test
   public void AddNoteWithoutExpiration() throws IOException {
-    String testNewNote = "{ " + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", " + "\"body\": \"Test Body\", "
-        + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"status\": \"active\" }";
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
+
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
+
+    useJwtForNewUser();
+
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
 
@@ -398,6 +525,8 @@ public class NoteControllerSpec {
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
     mockReq.setBodyContent("{\"expireDate\": null}");
     mockReq.setMethod("PATCH");
+
+    useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
 
@@ -433,11 +562,17 @@ public class NoteControllerSpec {
 
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
 
-    String testNewNote = "{ " + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", " + "\"body\": \"Test Body\", "
-        + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"status\": \"active\" }";
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\" "
+      + "}";
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
+
+    useJwtForNewUser();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
 
@@ -445,6 +580,9 @@ public class NoteControllerSpec {
 
     String id = jsonMapper.readValue(ctx.resultString(), ObjectNode.class).get("id").asText();
     mockRes.resetAll();
+
+    // We don't need to re-mock the JwtProcessor; the old mock should
+    // still work fine.
 
     mockReq.setBodyContent("{\"expireDate\": \"2021-03-07T22:03:38+0000\"}");
     mockReq.setMethod("PATCH");
@@ -478,7 +616,9 @@ public class NoteControllerSpec {
     mockReq.setBodyContent(reqBody);
     mockReq.setMethod("PATCH");
 
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
+    useJwtForSam();
+
+      Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
     noteController.editNote(ctx);
 
     assertEquals(204, mockRes.getStatus());
@@ -501,12 +641,17 @@ public class NoteControllerSpec {
 
   @Test
   public void AddNewInactiveWithExpiration() throws IOException {
-    String testNewNote = "{ " + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", " + "\"body\": \"Test Body\", "
-        + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
-        + "\"status\": \"draft\" }";
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"draft\""
+      + "}";
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
+
+    useJwtForNewUser();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
 
@@ -518,11 +663,17 @@ public class NoteControllerSpec {
   @Test
   public void AddExpirationToInactive() throws IOException {
 
-    String testNewNote = "{ " + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", " + "\"body\": \"Test Body\", "
-        + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"status\": \"template\" }";
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"status\": \"template\""
+      + "}";
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
+
+    useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
 
@@ -547,6 +698,11 @@ public class NoteControllerSpec {
     mockReq.setBodyContent("{\"expireDate\": \"2021-03-07T22:03:38+0000\", \"status\": \"draft\"}");
     mockReq.setMethod("PATCH");
 
+    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
+    when(mockDecodedJWT.getSubject()).thenReturn("owner");
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
+
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
 
     assertThrows(ConflictResponse.class, () -> {
@@ -556,19 +712,19 @@ public class NoteControllerSpec {
   }
 
   // Internal helper functions
-    @Test
-    public void FlagSinglePost() throws IOException {
-      noteController.flagOneForDeletion(samsNoteId.toHexString());
+  @Test
+  public void FlagSinglePost() throws IOException {
+    noteController.flagOneForDeletion(samsNoteId.toHexString());
 
-      assertEquals("deleted", db.getCollection("notes").find(eq("_id", samsNoteId)).first().getString("status"));
-      verify(dtMock).updateTimerStatus(any(Note.class));
-    }
+    assertEquals("deleted", db.getCollection("notes").find(eq("_id", samsNoteId)).first().getString("status"));
+    verify(dtMock).updateTimerStatus(any(Note.class));
+  }
 
-    @Test
-    public void PurgeSinglePost() throws IOException {
-      noteController.singleDelete(samsNoteId.toHexString());
+  @Test
+  public void PurgeSinglePost() throws IOException {
+    noteController.singleDelete(samsNoteId.toHexString());
 
-      assertEquals(0, db.getCollection("notes").countDocuments(eq("_id", samsNoteId)));
-      verify(dtMock).clearKey(samsNoteId.toHexString());
-    }
+    assertEquals(0, db.getCollection("notes").countDocuments(eq("_id", samsNoteId)));
+    verify(dtMock).clearKey(samsNoteId.toHexString());
+  }
 }
