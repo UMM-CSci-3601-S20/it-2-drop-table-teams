@@ -7,7 +7,7 @@ import { OwnerPageComponent } from './owner/owner-page.component';
 import { EditNoteComponent } from './notes/edit-note.component';
 import { AddNoteComponent } from './notes/add-note.component';
 import { AccountComponent } from './account/account.component';
-
+import { AuthGuard } from './auth.guard';
 
 
 const routes: Routes = [
@@ -18,7 +18,7 @@ const routes: Routes = [
   {path: 'notes', component: OwnerPageComponent},
   {path: 'notes/new', component: AddNoteComponent},
   {path: 'notes/edit', component: EditNoteComponent},
-  {path: 'account', component: AccountComponent}
+  {path: 'account', component: AccountComponent, canActivate: [AuthGuard]}
 ];
 
 @NgModule({
