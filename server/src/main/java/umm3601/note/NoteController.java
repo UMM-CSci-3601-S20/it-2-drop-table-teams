@@ -10,9 +10,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-
-import javax.inject.Inject;
-
 import com.google.common.collect.ImmutableMap;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -43,13 +40,12 @@ public class NoteController {
 
   JacksonCodecRegistry jacksonCodecRegistry = JacksonCodecRegistry.withDefaultObjectMapper();
 
-  @Inject private final MongoCollection<Note> noteCollection;
+  private final MongoCollection<Note> noteCollection;
 
   /**
    * @param database the database containing the note data
    */
 
-  @Inject
   public NoteController(MongoDatabase database, DeathTimer dt) {
     jacksonCodecRegistry.addCodecForClass(Note.class);
     noteCollection = database.getCollection("notes").withDocumentClass(Note.class)
