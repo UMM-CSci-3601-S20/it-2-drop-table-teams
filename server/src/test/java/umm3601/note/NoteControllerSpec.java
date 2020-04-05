@@ -593,6 +593,39 @@ public class NoteControllerSpec {
     verify(dtMock).clearKey(anyString());
   }
 
+  @Test
+  public void deleteNoteWithoutJwtFails() throws IOException {
+    mockReq.setMethod("DELETE");
+
+    useInvalidJwt();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
+    noteController.deleteNote(ctx);
+
+    assertEquals(401, mockRes.getStatus());
+
+    // Make sure that the database is unchanged
+    assertEquals(1, db.getCollection("notes").countDocuments(eq("_id", samsNoteId)));
+    verify(dtMock, never()).clearKey(anyString());
+  }
+
+  @Test
+  public void deleteNoteLoggedInAsWrongUserFails() throws IOException {
+    mockReq.setMethod("DELETE");
+
+    useJwtForNewUser();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
+    noteController.deleteNote(ctx);
+
+    assertEquals(403, mockRes.getStatus());
+
+    // Make sure that the database is unchanged
+    assertEquals(1, db.getCollection("notes").countDocuments(eq("_id", samsNoteId)));
+    verify(dtMock, never()).clearKey(anyString());
+  }
+
+
   /*
    * Tests for editing notes.
    */
