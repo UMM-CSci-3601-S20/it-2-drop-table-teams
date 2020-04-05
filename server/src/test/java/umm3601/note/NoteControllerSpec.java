@@ -47,6 +47,7 @@ import org.mockito.Spy;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
+import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.http.UnauthorizedResponse;
 import io.javalin.http.util.ContextUtil;
@@ -260,9 +261,9 @@ public class NoteControllerSpec {
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
-
-    assertEquals(401, mockRes.getStatus());
+    assertThrows(UnauthorizedResponse.class, () -> {
+      noteController.getNotesByOwner(ctx);
+    });
   }
 
   @Test
@@ -273,9 +274,9 @@ public class NoteControllerSpec {
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
-
-    assertEquals(401, mockRes.getStatus());
+    assertThrows(UnauthorizedResponse.class, () -> {
+      noteController.getNotesByOwner(ctx);
+    });
   }
 
   // Active notes are public.
@@ -313,9 +314,9 @@ public class NoteControllerSpec {
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
-
-    assertEquals(403, mockRes.getStatus());
+    assertThrows(ForbiddenResponse.class, () -> {
+      noteController.getNotesByOwner(ctx);
+    });
   }
 
   @Test
@@ -326,9 +327,9 @@ public class NoteControllerSpec {
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
-
-    assertEquals(403, mockRes.getStatus());
+    assertThrows(ForbiddenResponse.class, () -> {
+      noteController.getNotesByOwner(ctx);
+    });
   }
 
 
@@ -372,9 +373,9 @@ public class NoteControllerSpec {
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
-
-    assertEquals(401, mockRes.getStatus());
+    assertThrows(UnauthorizedResponse.class, () -> {
+      noteController.getNotesByOwner(ctx);
+    });
   }
 
   @Test
@@ -385,9 +386,9 @@ public class NoteControllerSpec {
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
-
-    assertEquals(403, mockRes.getStatus());
+    assertThrows(ForbiddenResponse.class, () -> {
+      noteController.getNotesByOwner(ctx);
+    });
   }
 
   @Test
@@ -478,9 +479,10 @@ public class NoteControllerSpec {
 
     useInvalidJwt();
 
-    noteController.addNewNote(ctx);
+    assertThrows(UnauthorizedResponse.class, () -> {
+      noteController.addNewNote(ctx);
+    });
 
-    assertEquals(401, mockRes.getStatus());
     assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
   }
 
@@ -510,9 +512,10 @@ public class NoteControllerSpec {
     when(jwtProcessorMock.verifyJwtFromHeader(any()))
       .thenReturn(mockDecodedJWT);
 
-    noteController.addNewNote(ctx);
+    assertThrows(BadRequestResponse.class, () -> {
+      noteController.addNewNote(ctx);
+    });
 
-    // assertEquals(400, mockRes.getStatus());
     assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
   }
 
@@ -600,9 +603,9 @@ public class NoteControllerSpec {
     useInvalidJwt();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
-    noteController.deleteNote(ctx);
-
-    assertEquals(401, mockRes.getStatus());
+    assertThrows(UnauthorizedResponse.class, () -> {
+      noteController.deleteNote(ctx);
+    });
 
     // Make sure that the database is unchanged
     assertEquals(1, db.getCollection("notes").countDocuments(eq("_id", samsNoteId)));
@@ -616,9 +619,9 @@ public class NoteControllerSpec {
     useJwtForNewUser();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
-    noteController.deleteNote(ctx);
-
-    assertEquals(403, mockRes.getStatus());
+    assertThrows(ForbiddenResponse.class, () -> {
+      noteController.deleteNote(ctx);
+    });
 
     // Make sure that the database is unchanged
     assertEquals(1, db.getCollection("notes").countDocuments(eq("_id", samsNoteId)));
@@ -713,9 +716,9 @@ public class NoteControllerSpec {
     useInvalidJwt();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
-    noteController.editNote(ctx);
-
-    assertEquals(401, mockRes.getStatus());
+    assertThrows(UnauthorizedResponse.class, () -> {
+      noteController.editNote(ctx);
+    });
 
     // Make sure the note was not changed.
     Document samsNote = db.getCollection("notes").find(eq("_id", samsNoteId)).first();
@@ -731,9 +734,9 @@ public class NoteControllerSpec {
     useJwtForNewUser();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
-    noteController.editNote(ctx);
-
-    assertEquals(403, mockRes.getStatus());
+    assertThrows(ForbiddenResponse.class, () -> {
+      noteController.editNote(ctx);
+    });
 
     // Make sure the note was not changed.
     Document samsNote = db.getCollection("notes").find(eq("_id", samsNoteId)).first();
