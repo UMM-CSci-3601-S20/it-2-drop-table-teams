@@ -218,7 +218,7 @@ public class NoteControllerSpec {
     String result = ctx.resultString();
     Note[] resultNotes = JavalinJson.fromJson(result, Note[].class);
 
-    assertEquals(2, resultNotes.length);
+    assertEquals(0, resultNotes.length);
   }
 
 
