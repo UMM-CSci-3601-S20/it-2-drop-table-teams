@@ -24,7 +24,7 @@ public class Server {
   // JSON Web Keys, or JWKs.) We'll use these JWKs to verify the tokens that
   // Auth0 sends us.
   public static JwkProvider auth0JwkProvider =
-    new UrlJwkProvider("https://doorboard.auth0.com/");
+    new UrlJwkProvider("https://doorbboard-dev.auth0.com/");
 
   public static void main(String[] args) {
 
