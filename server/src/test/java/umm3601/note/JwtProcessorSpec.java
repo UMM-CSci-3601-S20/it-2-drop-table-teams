@@ -72,6 +72,15 @@ public class JwtProcessorSpec {
     + "V6L11BWkpzGXSW4Hv43qa+GSYOD2QU68Mb59oSk2OB+BtOLpJofmbGEGgvmwyCI9"
     + "MwIDAQAB";
 
+  public String completelyDifferentPublicKey =
+    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAonSWc4DYbFG/ZSYDk8EH"
+    + "YMdTmInDw8ZsfGLAXXgQdWVrrkHi8Cgthcn9epkcvk6sciQr+qJp8GvoVOVW5Kgl"
+    + "z4C8c5eCa+iikVmhFYhb5ks9Jvjh3Pm4vbUYIJw75kK0hv7xl/dZkP7SAxJBDcz8"
+    + "FuetFuGb8G+zoBTSAl/9mn/qg9+tpqHFy+lVXjgjh9XQZ+z4NcS5v+6wvwSBheYO"
+    + "E2bBshKIy8wY4MpeB4ku3VH74UDCBPSx26bIP+TeyimOdWDOM9mKG1PYtKl3TreC"
+    + "E3AVySPlfH1m5M660j9cCaqYA90fWTZIlaH0KIFbig9nOdbTrKF5UbVajvOTy6pv"
+    + "TwIDAQAB";
+
   // Just for testing--please don't use this in production ;)
   public String testPrivateKey =
     "MIIEogIBAAKCAQEAnzyis1ZjfNB0bBgKFMSvvkTtwlvBsaJq7S5wA+kzeVOVpVWw"
@@ -142,7 +151,6 @@ public class JwtProcessorSpec {
    * were passing them a valid token)
    */
   public void setUpGoodMocks() throws JwkException {
-
     when(mockJwtGetter.getTokenFromHeader(any()))
       .thenReturn(Optional.of(encodedTestToken));
 
@@ -152,11 +160,22 @@ public class JwtProcessorSpec {
     when(mockJwk.getPublicKey()).thenReturn(publicKeyFromBase64String(testPublicKey));
   }
 
+  public void setUpBadMocks() throws JwkException {
+    when(mockJwtGetter.getTokenFromHeader(any()))
+      .thenReturn(Optional.of(encodedTestToken));
+
+    Jwk mockJwk = Mockito.mock(Jwk.class);
+
+    when(mockJwkProvider.get(testKeyID)).thenReturn(mockJwk);
+    when(mockJwk.getPublicKey()).thenReturn(publicKeyFromBase64String(completelyDifferentPublicKey));
+  }
+
+
   /**
    * Tell all of the mocks to give us back bad values (as if we
    * didn't pass a token in the header)
    */
-  public void setUpBadMocks() {
+  public void setUpMocksWithMissingJwt () {
     when(mockJwtGetter.getTokenFromHeader(any()))
       .thenReturn(Optional.empty());
   }
@@ -186,12 +205,29 @@ public class JwtProcessorSpec {
       token.getClaim("name").asString(),
       testName,
       "Decoded token has the wrong value in the 'name' claim.");
-
   }
 
   @Test
-  public void jwtProcessorAcceptsMissingToken() {
-    setUpBadMocks();
+  public void jwtProcessorRejectsBadToken() {
+    try {
+      setUpBadMocks();
+    } catch (JwkException e) {
+      fail("Wasn't able to set up a JWK mock");
+    }
+
+    Context ctx = ContextUtil.init(
+      new MockHttpServletRequest(),
+      new MockHttpServletResponse(),
+      "api/notes");
+
+    assertThrows(UnauthorizedResponse.class, () -> {
+      DecodedJWT token = jwtProcessor.verifyJwtFromHeader(ctx);
+    });
+  }
+
+  @Test
+  public void jwtProcessorRejectsMissingToken() {
+    setUpMocksWithMissingJwt();
 
     Context ctx = ContextUtil.init(
       new MockHttpServletRequest(),
