@@ -364,6 +364,19 @@ public class NoteControllerSpec {
    */
 
   @Test
+  public void getAllNotesInTheDatabaseFailsWithoutAJwt() {
+    mockReq.setQueryString("");
+
+    useInvalidJwt();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(401, mockRes.getStatus());
+  }
+
+  @Test
   public void getAllNotesInTheDatabaseFailsEvenWithAJwt() {
     mockReq.setQueryString("");
 
