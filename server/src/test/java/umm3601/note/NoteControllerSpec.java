@@ -204,6 +204,142 @@ public class NoteControllerSpec {
   }
 
   @Test
+  public void getDraftNotesForOwner1() {
+    mockReq.setQueryString("ownerid=owner1_ID&status=draft");
+
+    useJwtForOwner1();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(200, mockRes.getStatus());
+
+    String result = ctx.resultString();
+    Note[] resultNotes = JavalinJson.fromJson(result, Note[].class);
+
+    assertEquals(2, resultNotes.length);
+  }
+
+
+  @Test
+  public void getActiveNotesForOwner1() {
+    mockReq.setQueryString("ownerid=owner1_ID&status=active");
+
+    useJwtForOwner1();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(200, mockRes.getStatus());
+
+    String result = ctx.resultString();
+    Note[] resultNotes = JavalinJson.fromJson(result, Note[].class);
+
+    assertEquals(2, resultNotes.length);
+    for (Note note : resultNotes) {
+      assertEquals("owner1_ID", note.ownerID, "Incorrect ID");
+    }
+  }
+
+  @Test
+  public void getAllNotesForOwner1WithoutJwtFails() {
+    mockReq.setQueryString("ownerid=owner1_ID");
+
+    useInvalidJwt();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(401, mockRes.getStatus());
+  }
+
+  @Test
+  public void getDraftNotesForOwner1WithoutJwtFails() {
+    mockReq.setQueryString("ownerid=owner1_ID&status=draft");
+
+    useInvalidJwt();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(401, mockRes.getStatus());
+  }
+
+  @Test
+  public void getActiveNotesForOwner1WithoutJwtIsFine() {
+    mockReq.setQueryString("ownerid=owner1_ID&status=active");
+
+    useInvalidJwt();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(200, mockRes.getStatus());
+
+    String result = ctx.resultString();
+    Note[] resultNotes = JavalinJson.fromJson(result, Note[].class);
+
+    assertEquals(2, resultNotes.length);
+    for (Note note : resultNotes) {
+      assertEquals("owner1_ID", note.ownerID, "Incorrect ID");
+    }
+  }
+
+  @Test
+  public void getAllNotesForOwner1LoggedInAsWrongOwnerFails() {
+    mockReq.setQueryString("ownerid=owner1_ID");
+
+    useJwtForSam();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(403, mockRes.getStatus());
+  }
+
+  @Test
+  public void getDraftNotesForOwner1LoggedInAsWrongOwnerFails() {
+    mockReq.setQueryString("ownerid=owner1_ID&status=draft");
+
+    useJwtForSam();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(403, mockRes.getStatus());
+  }
+
+
+  @Test
+  public void getActiveNotesForOwner1LoggedInAsWrongOwnerIsFine() {
+    mockReq.setQueryString("ownerid=owner1_ID&status=active");
+
+    useJwtForSam();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(200, mockRes.getStatus());
+
+    String result = ctx.resultString();
+    Note[] resultNotes = JavalinJson.fromJson(result, Note[].class);
+
+    assertEquals(2, resultNotes.length);
+    for (Note note : resultNotes) {
+      assertEquals("owner1_ID", note.ownerID, "Incorrect ID");
+    }
+  }
+
+
+  @Test
   public void addNote() throws IOException {
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
     String testNewNote = "{ "
