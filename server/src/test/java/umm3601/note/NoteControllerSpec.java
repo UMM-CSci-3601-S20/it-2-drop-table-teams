@@ -338,6 +338,43 @@ public class NoteControllerSpec {
     }
   }
 
+  //// Tests for GET api/notes without the ownerid query parameter. ////
+  // This is always allowed if you specify status=active; anyone is allowed
+  // to view any active notes.
+  // Without status=active, it's always forbidden; no-one can view *all* notes
+  // in the database, including draft and deleted notes.
+
+  @Test
+  public void getAllNotesInTheDatabaseFailsEvenWithAJwt() {
+    mockReq.setQueryString("");
+
+    useJwtForOwner1();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(403, mockRes.getStatus());
+  }
+
+  @Test
+  public void getAllActiveNotesInTheDatabaseIsFineEvenWithoutJwt() {
+    mockReq.setQueryString("status=active");
+
+    useInvalidJwt();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
+
+    noteController.getNotesByOwner(ctx);
+
+    assertEquals(200, mockRes.getStatus());
+
+    String result = ctx.resultString();
+    Note[] resultNotes = JavalinJson.fromJson(result, Note[].class);
+
+    assertEquals(6, resultNotes.length);
+  }
+
 
   @Test
   public void addNote() throws IOException {
