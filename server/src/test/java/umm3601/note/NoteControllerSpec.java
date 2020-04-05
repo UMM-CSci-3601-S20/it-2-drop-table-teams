@@ -505,7 +505,6 @@ public class NoteControllerSpec {
   @Test
   public void AddNoteWithoutExpiration() throws IOException {
     String testNewNote = "{ "
-      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
       + "\"body\": \"Test Body\", "
       + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
       + "\"status\": \"active\""
@@ -543,7 +542,6 @@ public class NoteControllerSpec {
   @Test
   public void AddNewInactiveWithExpiration() throws IOException {
     String testNewNote = "{ "
-      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
       + "\"body\": \"Test Body\", "
       + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
       + "\"status\": \"draft\""
@@ -783,7 +781,6 @@ public class NoteControllerSpec {
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
 
     String testNewNote = "{ "
-      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
       + "\"body\": \"Test Body\", "
       + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
       + "\"status\": \"active\" "
@@ -863,7 +860,6 @@ public class NoteControllerSpec {
   public void AddExpirationToInactive() throws IOException {
 
     String testNewNote = "{ "
-      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
       + "\"body\": \"Test Body\", "
       + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
       + "\"status\": \"template\""
