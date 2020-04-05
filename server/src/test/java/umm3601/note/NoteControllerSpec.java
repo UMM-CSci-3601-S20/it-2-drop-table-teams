@@ -389,7 +389,7 @@ public class NoteControllerSpec {
   }
 
   @Test
-  public void addNoteWithInvalidTokenFails() throws IOException {
+  public void addNoteWithInvalidJwtFails() throws IOException {
     String testNewNote = "{ "
       + "\"body\": \"Faily McFailface\", "
       + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
