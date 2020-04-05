@@ -182,6 +182,10 @@ public class NoteControllerSpec {
     mongoClient.close();
   }
 
+  /*
+   * Tests for GET api/notes when you're logged in with the right credentials.
+   */
+
   @Test
   public void getAllNotesForOwner1() {
     mockReq.setQueryString("ownerid=owner1_ID");
@@ -243,6 +247,10 @@ public class NoteControllerSpec {
     }
   }
 
+  /*
+   * Tests for GET api/notes when you aren't logged in.
+   */
+
   @Test
   public void getAllNotesForOwner1WithoutJwtFails() {
     mockReq.setQueryString("ownerid=owner1_ID");
@@ -269,6 +277,8 @@ public class NoteControllerSpec {
     assertEquals(401, mockRes.getStatus());
   }
 
+  // Active notes are public.
+  // You're allowed to see them even if you aren't logged in.
   @Test
   public void getActiveNotesForOwner1WithoutJwtIsFine() {
     mockReq.setQueryString("ownerid=owner1_ID&status=active");
@@ -289,6 +299,10 @@ public class NoteControllerSpec {
       assertEquals("owner1_ID", note.ownerID, "Incorrect ID");
     }
   }
+
+  /*
+   * Tests for GET api/notes when you're logged in as a different owner.
+   */
 
   @Test
   public void getAllNotesForOwner1LoggedInAsWrongOwnerFails() {
@@ -338,11 +352,16 @@ public class NoteControllerSpec {
     }
   }
 
-  //// Tests for GET api/notes without the ownerid query parameter. ////
-  // This is always allowed if you specify status=active; anyone is allowed
-  // to view any active notes.
-  // Without status=active, it's always forbidden; no-one can view *all* notes
-  // in the database, including draft and deleted notes.
+  /*
+   * Tests for GET api/notes without the ownerid query parameter.
+   *
+   * This is always allowed if you specify status=active; anyone is allowed
+   * to view any active notes.
+   *
+   * Without status=active, it's always forbidden; no-one can view *all* notes
+   * in the database, including draft, deleted, and template notes. It doesn't
+   * matter who you're logged in as; you can still only see your own stuff.
+   */
 
   @Test
   public void getAllNotesInTheDatabaseFailsEvenWithAJwt() {
@@ -374,6 +393,10 @@ public class NoteControllerSpec {
 
     assertEquals(6, resultNotes.length);
   }
+
+  /*
+   * Tests for adding notes.
+   */
 
 
   @Test
@@ -479,6 +502,68 @@ public class NoteControllerSpec {
     assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
   }
 
+  @Test
+  public void AddNoteWithoutExpiration() throws IOException {
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
+
+
+    mockReq.setBodyContent(testNewNote);
+    mockReq.setMethod("POST");
+
+    useJwtForNewUser();
+
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    noteController.addNewNote(ctx);
+
+    assertEquals(201, mockRes.getStatus());
+
+    String result = ctx.resultString();
+    String id = jsonMapper.readValue(result, ObjectNode.class).get("id").asText();
+    assertNotEquals("", id);
+
+    assertEquals(1, db.getCollection("notes").countDocuments(eq("_id", new ObjectId(id))));
+
+    Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
+    assertNotNull(addedNote);
+    assertEquals("e7fd674c72b76596c75d9f1e", addedNote.getString("ownerID"));
+    assertEquals("Test Body", addedNote.getString("body"));
+    assertEquals("2020-03-07T22:03:38+0000", addedNote.getString("addDate"));
+    assertNull(addedNote.getString("expireDate"));
+    assertEquals("active", addedNote.getString("status"));
+    verify(dtMock, never()).updateTimerStatus(any(Note.class));
+  }
+
+  @Test
+  public void AddNewInactiveWithExpiration() throws IOException {
+    String testNewNote = "{ "
+      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"body\": \"Test Body\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"draft\""
+      + "}";
+
+    mockReq.setBodyContent(testNewNote);
+    mockReq.setMethod("POST");
+
+    useJwtForNewUser();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    assertThrows(ConflictResponse.class, () -> {
+      noteController.addNewNote(ctx);
+    });
+  }
+
+  /*
+   * Tests for editing notes.
+   */
 
   @Test
   public void editSingleField() throws IOException {
@@ -656,44 +741,6 @@ public class NoteControllerSpec {
   // addDate) throw a 422, 409, 400, or 403?
 
   @Test
-  public void AddNoteWithoutExpiration() throws IOException {
-    String testNewNote = "{ "
-      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
-      + "\"body\": \"Test Body\", "
-      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
-      + "\"status\": \"active\""
-      + "}";
-
-
-    mockReq.setBodyContent(testNewNote);
-    mockReq.setMethod("POST");
-
-    useJwtForNewUser();
-
-
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
-
-    noteController.addNewNote(ctx);
-
-    assertEquals(201, mockRes.getStatus());
-
-    String result = ctx.resultString();
-    String id = jsonMapper.readValue(result, ObjectNode.class).get("id").asText();
-    assertNotEquals("", id);
-
-    assertEquals(1, db.getCollection("notes").countDocuments(eq("_id", new ObjectId(id))));
-
-    Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
-    assertNotNull(addedNote);
-    assertEquals("e7fd674c72b76596c75d9f1e", addedNote.getString("ownerID"));
-    assertEquals("Test Body", addedNote.getString("body"));
-    assertEquals("2020-03-07T22:03:38+0000", addedNote.getString("addDate"));
-    assertNull(addedNote.getString("expireDate"));
-    assertEquals("active", addedNote.getString("status"));
-    verify(dtMock, never()).updateTimerStatus(any(Note.class));
-  }
-
-  @Test
   public void RemoveExpirationFromNote() throws IOException {
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
     mockReq.setBodyContent("{\"expireDate\": null}");
@@ -810,27 +857,6 @@ public class NoteControllerSpec {
 
     verify(dtMock).updateTimerStatus(any(Note.class));
 
-  }
-
-  @Test
-  public void AddNewInactiveWithExpiration() throws IOException {
-    String testNewNote = "{ "
-      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
-      + "\"body\": \"Test Body\", "
-      + "\"addDate\": \"2020-03-07T22:03:38+0000\", " + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
-      + "\"status\": \"draft\""
-      + "}";
-
-    mockReq.setBodyContent(testNewNote);
-    mockReq.setMethod("POST");
-
-    useJwtForNewUser();
-
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
-
-    assertThrows(ConflictResponse.class, () -> {
-      noteController.addNewNote(ctx);
-    });
   }
 
   @Test
