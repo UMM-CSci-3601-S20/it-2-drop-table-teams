@@ -648,8 +648,44 @@ public class NoteControllerSpec {
     assertEquals("active", updatedNote.status);
     assertEquals("owner3_ID", updatedNote.ownerID);
     assertEquals("2020-03-07T22:03:38+0000", updatedNote.addDate);
-
   }
+
+  @Test
+  public void editWithoutJwtFails() throws IOException {
+    String reqBody = "{\"body\": \"I am not sam anymore\"}";
+    mockReq.setBodyContent(reqBody);
+    mockReq.setMethod("PATCH");
+
+    useInvalidJwt();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
+    noteController.editNote(ctx);
+
+    assertEquals(401, mockRes.getStatus());
+
+    // Make sure the note was not changed.
+    Document samsNote = db.getCollection("notes").find(eq("_id", samsNoteId)).first();
+    assertEquals("I am sam", samsNote.getString("body"));
+  }
+
+  @Test
+  public void editLoggedInAsWrongOwnerFails() throws IOException {
+    String reqBody = "{\"body\": \"I am not sam anymore\"}";
+    mockReq.setBodyContent(reqBody);
+    mockReq.setMethod("PATCH");
+
+    useJwtForNewUser();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
+    noteController.editNote(ctx);
+
+    assertEquals(403, mockRes.getStatus());
+
+    // Make sure the note was not changed.
+    Document samsNote = db.getCollection("notes").find(eq("_id", samsNoteId)).first();
+    assertEquals("I am sam", samsNote.getString("body"));
+  }
+
 
   @Test
   public void editMissingId() throws IOException {
