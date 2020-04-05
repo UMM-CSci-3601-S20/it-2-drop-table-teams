@@ -74,7 +74,7 @@ public class NoteController {
     }
     if (note == null) {
       throw new NotFoundResponse("The requested note was not found.");
-    } else if (note.ownerID != ownerID) {
+    } else if (!note.ownerID.equals(ownerID)) {
       throw new NotFoundResponse("The requested note does not belong to this owner.");
     } else {
       ctx.json(note);
