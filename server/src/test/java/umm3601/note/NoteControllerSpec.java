@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -570,6 +571,26 @@ public class NoteControllerSpec {
     assertThrows(ConflictResponse.class, () -> {
       noteController.addNewNote(ctx);
     });
+  }
+
+  /*
+   * Tests for deleting notes.
+   */
+
+  @Test
+  public void deleteNote() throws IOException {
+    mockReq.setMethod("DELETE");
+
+    useJwtForSam();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
+    noteController.deleteNote(ctx);
+
+    assertEquals(204, mockRes.getStatus());
+
+    assertEquals(0, db.getCollection("notes").countDocuments(eq("_id", samsNoteId)));
+    // Make sure we stop the Death Timer
+    verify(dtMock).clearKey(anyString());
   }
 
   /*
