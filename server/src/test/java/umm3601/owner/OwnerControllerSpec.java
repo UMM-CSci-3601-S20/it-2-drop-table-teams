@@ -80,6 +80,7 @@ public class OwnerControllerSpec{
       " building: \"Wild \" ,\n" +
       " officeNumber: \"1234 \" ,\n" +
       " email: \"billythekid@this.that \" \n" +
+      " sub: \"ABC\" ,\n"+
       "}"
     ));
     testOwners.add(Document.parse(
@@ -88,6 +89,7 @@ public class OwnerControllerSpec{
       " building: \"White House \" ,\n" +
       " officeNumber: \"1789 \" ,\n" +
       " email: \"revolution@freedom.us.fake \" \n" +
+      " sub: \"DEF\" ,\n"+
       "}"
     ));
     testOwners.add(Document.parse(
@@ -96,6 +98,7 @@ public class OwnerControllerSpec{
       " building: \"Building for people\" ,\n" +
       " officeNumber: \"1111 \", \n" +
       " email: \"totallynotacat@eatmice.com \" \n" +
+      " sub: \"GHI\" ,\n"+
       "}"
     ));
 
@@ -104,7 +107,9 @@ public class OwnerControllerSpec{
     sam = sam.append("name", "Sam")
     .append("building", "HFA")
     .append("officeNumber", "23")
-    .append("email", "sam@frogs.com");
+    .append("email", "sam@frogs.com")
+    .append("sub", "JKL");
+
 
     ownerDocuments.insertMany(testOwners);
     ownerDocuments.insertOne(Document.parse(sam.toJson()));
@@ -176,7 +181,8 @@ public class OwnerControllerSpec{
     String testNewOwner = "{\"name\": \"Test Owner\", "
     + "\"building\": \"place\", "
     + "\"officeNumber\": \"0000\", "
-    + "\"email\": \"test@example.com\" }";
+    + "\"email\": \"test@example.com\","
+    + "\"sub\": \"MNO\" }";
 
     mockReq.setBodyContent(testNewOwner);
     mockReq.setMethod("POST");
@@ -200,10 +206,11 @@ public class OwnerControllerSpec{
     assertEquals("place", addedOwner.getString("building"));
     assertEquals("0000", addedOwner.getString("officeNumber"));
     assertEquals("test@example.com", addedOwner.getString("email"));
+    assertEquals("MNO", addedOwner.getString("sub"));
   }
   @Test
   public void AddInvalidEmailOwner() throws IOException {
-    String testNewOwner = "{\n\t\"name\": \"Test Owner\",\n\t\"building\": \"place\",\n\t\"officeNumber\": \"5432\",\n\t\"email\": \"invalidemail\" }";
+    String testNewOwner = "{\n\t\"name\": \"Test Owner\",\n\t\"building\": \"place\",\n\t\"officeNumber\": \"5432\",\n\t\"email\": \"invalidemail\", \n\t\"sub\": \"ABC\"}";
     mockReq.setBodyContent(testNewOwner);
     mockReq.setMethod("POST");
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/owners/new");
@@ -217,7 +224,8 @@ public class OwnerControllerSpec{
     String testNewOwner = "{"
     + "\"building\": \"place\", "
     + "\"officeNumber\": \"0000\", "
-    + "\"email\": \"test@example.com\" }";
+    + "\"email\": \"test@example.com\","
+    + "\"sub\": \"MNO\" }";
 
     mockReq.setBodyContent(testNewOwner);
     mockReq.setMethod("POST");
