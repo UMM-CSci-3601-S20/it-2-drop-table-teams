@@ -9,6 +9,7 @@ import { Subscription, forkJoin } from 'rxjs';
 import { NoteService } from '../notes/note.service';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { AuthService } from '../auth.service';
 import { HttpParameterCodec } from "@angular/common/http";
 import { async } from '@angular/core/testing';
 @Component({
@@ -21,7 +22,7 @@ import { async } from '@angular/core/testing';
 export class OwnerPageComponent implements OnInit, OnDestroy {
 
   constructor(private ownerService: OwnerService, private noteService: NoteService,
-              private route: ActivatedRoute, private sanitizer: DomSanitizer) { }
+              private route: ActivatedRoute, private sanitizer: DomSanitizer, private auth: AuthService) { }
 
   public notes: Note[];
   public serverFilteredNotes: Note[];
@@ -38,6 +39,10 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
   public noteAddDate: Date;
   public noteExpireDate: Date;
   public noteBody: string;
+  public getCurrentSub: Subscription;
+  public currentSub: string = 'invalid';
+
+
 
 
   public getNotesFromServer(): void {
@@ -86,6 +91,24 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
   public getEmail(): string {
     return this.owner.email;
   }
+
+  public getSub(): string {
+    // console.log('From ID: ' + this.owner.sub);
+    return this.owner.sub;
+  }
+
+
+  public getLoginSub(): string {
+    this.getCurrentSub =
+        this.auth.userProfile$.subscribe(userProfile => {
+          this.currentSub = JSON.stringify(userProfile.sub);
+          this.currentSub = this.currentSub.replace(/['"]+/g, '');
+          // console.log('From Sign In: ' + this.currentSub);
+      });
+    return this.currentSub;
+    }
+
+
 
   ngOnInit(): void {
     // Subscribe owner's notes
