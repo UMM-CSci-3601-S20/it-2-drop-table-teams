@@ -99,6 +99,10 @@ public class OwnerController {
       filters.add(regex("officenumber", ctx.queryParam("officenumber"), "i"));
     }
 
+    if (ctx.queryParamMap().containsKey("sub")) {
+      filters.add(regex("sub", ctx.queryParam("sub"), "i"));
+    }
+
     String sortBy = ctx.queryParam("sortby", "name"); // Sort by query param, default is name
     String sortOrder = ctx.queryParam("sortorder", "asc"); // Sort order query param, default is ascending
 
@@ -118,6 +122,7 @@ public class OwnerController {
       .check((owner) -> owner.building != null && owner.building.length() > 0)  // Make sure the `building` field was supplied and non-empty
       .check((owner) -> owner.officeNumber != null && owner.officeNumber.length() > 0)  // Make sure the `officeNumber` field was supplied and non-empty
       .check((owner) -> owner.email.matches(emailRegex))  // Make sure the `email` field was supplied and valid
+      .check((owner) -> owner.sub != null && owner.sub.length() > 0)  // Make sure the `sub` field was supplied and non-empty
       .get();
 
     ownerCollection.insertOne(newOwner);
