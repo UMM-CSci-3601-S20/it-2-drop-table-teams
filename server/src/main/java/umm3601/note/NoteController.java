@@ -165,27 +165,27 @@ public class NoteController {
    */
   public void addNewNote(Context ctx) {
     Note newNote = ctx.bodyValidator(Note.class)
-      .check((note) -> note.ownerID != null && note.ownerID.length() == 24) // 24 character hex ID
+      .check((note) -> note.ownerID == null) // The ownerID shouldn't be present; you can't choose who you're posting the note as.
       .check((note) -> note.body != null && note.body.length() > 0) // Make sure the body is not empty
       .check((note) -> note.addDate != null && note.addDate.matches(ISO_8601_REGEX))
       .check((note) -> note.expireDate == null || note.expireDate.matches(ISO_8601_REGEX))
       .check((note) -> note.status.matches("^(active|draft|deleted|template)$")) // Status should be one of these
       .get();
 
-      if(newNote.expireDate != null && !(newNote.status.equals("active"))) {
-        throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
-      }
+    // This will throw an UnauthorizedResponse if the user isn't logged in.
+    newNote.ownerID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
 
-      if(newNote.expireDate != null || newNote.status.equals("deleted")) {
-        deathTimer.updateTimerStatus(newNote); //only make a timer if needed
-      }
-      noteCollection.insertOne(newNote);
+    if(newNote.expireDate != null && !(newNote.status.equals("active"))) {
+      throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
+    }
 
+    if(newNote.expireDate != null || newNote.status.equals("deleted")) {
+      deathTimer.updateTimerStatus(newNote); //only make a timer if needed
+    }
+    noteCollection.insertOne(newNote);
 
-
-
-      ctx.status(201);
-      ctx.json(ImmutableMap.of("id", newNote._id));
+    ctx.status(201);
+    ctx.json(ImmutableMap.of("id", newNote._id));
   }
 
   /**
