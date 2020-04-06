@@ -15,7 +15,7 @@ export class MockOwnerService extends OwnerService {
       building: 'Science Hall',
       email: 'robi1467@morris.umn.edu',
       officeNumber: '1001',
-      sub: 'A'
+      sub: 'ABC'
     },
     {
       _id: 'richard_id',
@@ -23,7 +23,7 @@ export class MockOwnerService extends OwnerService {
       building: 'HFA',
       email: 'robi1467@morris.umn.edu',
       officeNumber: '2022',
-      sub: 'B'
+      sub: 'DEF'
     },
     {
       _id: 'jamie_id',
@@ -31,7 +31,7 @@ export class MockOwnerService extends OwnerService {
       building: 'Humanities',
       email: 'robi1467@morris.umn.edu',
       officeNumber: '111',
-      sub: 'C'
+      sub: 'GHI'
     }
   ];
 
@@ -39,7 +39,7 @@ export class MockOwnerService extends OwnerService {
     super(null);
   }
 
-  getOwners(filters?: { name?: string, email?: string, building?: string, officeNumber?: string }): Observable<Owner[]> {
+  getOwners(filters?: { name?: string, email?: string, building?: string, officeNumber?: string , sub?: string}): Observable<Owner[]> {
     return of(MockOwnerService.testOwners);
   }
 
