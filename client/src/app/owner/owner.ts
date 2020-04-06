@@ -5,5 +5,6 @@ export interface Owner {
   email: string;
   building: string;
   officeNumber: string;
+  sub: string;
 
 }
