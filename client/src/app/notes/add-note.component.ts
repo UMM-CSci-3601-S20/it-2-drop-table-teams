@@ -1,9 +1,10 @@
-import { Component, OnInit, Input, SystemJsNgModuleLoader} from '@angular/core';
+import { Component, OnInit, Input, SystemJsNgModuleLoader, Output} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Note } from './note';
 import { NoteService } from './note.service';
+import { OwnerService } from '../owner/owner.service';
 import { Owner } from '../owner/owner';
 
 
@@ -19,9 +20,17 @@ export class AddNoteComponent implements OnInit {
 
   addNoteForm: FormGroup;
   note: Note;
-  constructor(private fb: FormBuilder,
-              private noteService: NoteService, private snackBar: MatSnackBar, private router: Router, ) {
+  constructor(private fb: FormBuilder, private noteService: NoteService,
+              private snackBar: MatSnackBar, private router: Router, public ownerService: OwnerService) {
   }
+
+  @Input() owner: Owner;
+  public serverFilteredOwners: Owner[];
+  sub: string;
+  name: string;
+  email: string;
+  building: string;
+  officeNumber: string;
 
   add_note_validation_messages = {
     status: [
