@@ -12,21 +12,24 @@ describe('Owner service: ', () => {
       name: 'Chris',
       building: 'Science Hall',
       email: 'chris@this.that',
-      officeNumber: '1001'
+      officeNumber: '1001',
+      sub: 'ABC'
     },
     {
       _id: 'richard_id',
       name: 'Richard Mars',
       building: 'HFA',
       email: 'mars@this.that',
-      officeNumber: '2022'
+      officeNumber: '2022',
+      sub: 'BCD'
     },
     {
       _id: 'william_id',
       name: 'William',
       building: 'Humanities',
       email: 'enterprise@this.that',
-      officeNumber: '111'
+      officeNumber: '111',
+      sub: 'CDE'
     }
   ];
   let ownerService: OwnerService;
@@ -107,7 +110,7 @@ describe('Owner service: ', () => {
 
   it('getOwners() calls api/owners with multiple filter parameters', () => {
 
-    ownerService.getOwners({ name: 'william', building: 'Humanities', officeNumber: '111' }).subscribe(
+    ownerService.getOwners({ name: 'william', building: 'Humanities', officeNumber: '111', sub: 'CED' }).subscribe(
       owners => expect(owners).toBe(testOwners)
     );
 
@@ -124,6 +127,7 @@ describe('Owner service: ', () => {
     expect(req.request.params.get('name')).toEqual('william');
     expect(req.request.params.get('building')).toEqual('Humanities');
     expect(req.request.params.get('officenumber')).toEqual('111');
+    expect(req.request.params.get('sub')).toEqual('CED');
 
     req.flush(testOwners);
   });
