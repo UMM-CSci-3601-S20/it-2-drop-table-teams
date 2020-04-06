@@ -7,11 +7,14 @@ import { map } from 'rxjs/operators';
 
 @Injectable()
 export class OwnerService {
+  getRegisteredSub(sub: string) {
+    throw new Error("Method not implemented.");
+  }
   readonly ownerUrl: string = environment.API_URL + 'owners';
 
   constructor(private httpClient: HttpClient) {
   }
-  getOwners(filters?: { name?: string, email?: string, building?: string, officeNumber?: string }): Observable<Owner[]> {
+  getOwners(filters?: { name?: string, email?: string, building?: string, officeNumber?: string, sub?: string  }): Observable<Owner[]> {
     let httpParams: HttpParams = new HttpParams();
     if (filters) {
       if (filters.name) {
@@ -23,8 +26,11 @@ export class OwnerService {
       if (filters.building) {
         httpParams = httpParams.set('building', filters.building);
       }
-      if (filters.officeNumber){
+      if (filters.officeNumber) {
         httpParams = httpParams.set('officenumber', filters.officeNumber);
+      }
+      if (filters.sub) {
+        httpParams = httpParams.set('sub', filters.sub);
       }
     }
     return this.httpClient.get<Owner[]>(this.ownerUrl, {
@@ -36,7 +42,8 @@ export class OwnerService {
     return owner;
   }
 
-  filterOwners(owners: Owner[], filters: { name?: string, email?: string, building?: string, officeNumber?: string }): Owner[] {
+  filterOwners(owners: Owner[], filters: { name?: string, email?: string, building?: string, officeNumber?: string, sub?: string}):
+   Owner[] {
 
     let filteredOwners = owners;
 
@@ -73,6 +80,15 @@ export class OwnerService {
 
       filteredOwners = filteredOwners.filter(owner => {
         return owner.officeNumber.toLowerCase().includes(filters.officeNumber);
+      });
+    }
+
+    // Filter by sub
+    if (filters.sub) {
+      filters.sub = filters.sub.toLowerCase();
+
+      filteredOwners = filteredOwners.filter(owner => {
+        return owner.sub.toLowerCase().includes(filters.sub);
       });
     }
 
