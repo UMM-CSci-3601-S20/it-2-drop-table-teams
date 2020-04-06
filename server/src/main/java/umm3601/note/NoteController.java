@@ -24,7 +24,7 @@ import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.NotFoundResponse;
-
+import io.javalin.http.UnauthorizedResponse;
 import umm3601.JwtProcessor;
 import umm3601.UnprocessableResponse;
 
@@ -37,6 +37,8 @@ public class NoteController {
   private final String ISO_8601_REGEX = "([+-]\\d\\d)?\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d([+, -.])\\d\\d\\d[\\dZ]";
 
   private static DeathTimer deathTimer;
+
+  private final JwtProcessor jwtProcessor;
 
   JacksonCodecRegistry jacksonCodecRegistry = JacksonCodecRegistry.withDefaultObjectMapper();
 
@@ -53,7 +55,8 @@ public class NoteController {
     jacksonCodecRegistry.addCodecForClass(Note.class);
     noteCollection = database.getCollection("notes").withDocumentClass(Note.class)
         .withCodecRegistry(jacksonCodecRegistry);
-        deathTimer = dt;
+    deathTimer = dt;
+    this.jwtProcessor = jwtProcessor;
   }
 
   /**
@@ -93,6 +96,11 @@ public class NoteController {
    * @param ctx a Javalin HTTP context
    */
   public void getNotesByOwner(Context ctx) {
+    checkCredentialsForGetNotesRequest(ctx);
+
+    // If we've gotten this far without throwing an exception,
+    // the client has the proper credentials to make the get request.
+
     List<Bson> filters = new ArrayList<Bson>(); // start with a blank JSON document
     if (ctx.queryParamMap().containsKey("ownerid")) {
       String targetOwnerID = ctx.queryParam("ownerid");
@@ -112,6 +120,43 @@ public class NoteController {
       .sort(sortOrder.equals("desc") ?  Sorts.descending(sortBy) : Sorts.ascending(sortBy))
       .into(new ArrayList<>()));
   }
+
+  /**
+   * Check whether the user is allowed to perform this get request, or if
+   * we should abort and send back some sort of error response.
+   *
+   * As a precondition, `ctx` should be a GET request to /api/notes.
+   *
+   * If the user has the right credentials, this method does nothing, and you
+   * can proceed as normal
+   *
+   * If the user doesn't have the right credentials, this method will throw
+   * some subclass of HttpResponseException.
+   */
+  private void checkCredentialsForGetNotesRequest(Context ctx) {
+    if (ctx.queryParamMap().containsKey("status")
+        && ctx.queryParam("status").equals("active")) {
+      // Anyone is allowed to view active notes, even if they aren't logged in.
+      return;
+    }
+
+    // For any other request, you have to be logged in.
+    String currentUserId;
+    try {
+      currentUserId = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+    } catch (UnauthorizedResponse e) {
+      throw e;
+      // Catch and rethrow, just to be explicit.
+    }
+
+    // You're only allowed to view your own notes.
+    if (!ctx.queryParamMap().containsKey("ownerid")
+        || !ctx.queryParam("ownerid").equals(currentUserId)) {
+      throw new ForbiddenResponse(
+        "Request not allowed; users can only view their own notes.");
+    }
+  }
+
 
   /**
    * Add a new note and confirm with a successful JSON response
