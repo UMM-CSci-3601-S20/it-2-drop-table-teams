@@ -19,7 +19,8 @@ export class OwnerListComponent implements OnInit, OnDestroy  {
   public ownerEmail: string;
   public ownerBuilding: string;
   public ownerOfficeNumber: string;
-  public viewType: "list";
+  public ownerSub: string;
+  public viewType: 'list';
   getOwnersSub: Subscription;
 
 
@@ -50,7 +51,9 @@ export class OwnerListComponent implements OnInit, OnDestroy  {
         name: this.ownerName,
         email: this.ownerEmail,
         building: this.ownerBuilding,
-        officeNumber: this.ownerOfficeNumber });
+        officeNumber: this.ownerOfficeNumber,
+        sub: this.ownerSub,
+       });
   }
 
   /**
