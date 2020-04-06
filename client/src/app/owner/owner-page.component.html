@@ -21,7 +21,7 @@
 
     <!-- set active to default-->
     <!---search Card???-->
-    <div *ngIf="(getSub() === getLoginSub())">
+    <div *ngIf="compareSubs() | async">
     <mat-card class="search-card">
       <mat-card-header>
         <!--Note filter-->
