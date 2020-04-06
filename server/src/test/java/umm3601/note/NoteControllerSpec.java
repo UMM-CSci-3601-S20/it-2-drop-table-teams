@@ -999,10 +999,7 @@ public class NoteControllerSpec {
     mockReq.setBodyContent("{\"expireDate\": \"2021-03-07T22:03:38+0000\", \"status\": \"draft\"}");
     mockReq.setMethod("PATCH");
 
-    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
-    when(mockDecodedJWT.getSubject()).thenReturn("owner");
-    when(jwtProcessorMock.verifyJwtFromHeader(any()))
-      .thenReturn(mockDecodedJWT);
+    useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
 
