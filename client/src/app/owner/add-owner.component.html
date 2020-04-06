@@ -1,18 +1,20 @@
 <!-- example from
 https://github.com/AngularTemplates/angular-forms-and-validations/blob/master/src/app/form-component/form.component.html
 is potentially helpful and contributed to the shaping of this example -->
+<div *ngIf="auth.userProfile$ | async as profile">
+
 <div fxLayout="row">
   <div fxFlex fxFlex.gt-sm="80" fxFlexOffset.gt-sm="10">
     <form [formGroup]="addOwnerForm" (ngSubmit)="submitForm();">
     <mat-card class="add-owner-card">
         <mat-card-header>
-          <mat-card-title class="add-owner-title">New Owner</mat-card-title>
+          <mat-card-title class="add-owner-title">Create DoorBoard</mat-card-title>
         </mat-card-header>
         <mat-card-content fxLayout="column">
           <mat-form-field>
-            <mat-label>Name</mat-label>
+            <mat-label>Edit Name</mat-label>
             <input matInput id="nameField" placeholder="Name" formControlName="name"
-                  required>
+            [(ngModel)]= "profile.name"  required>
             <mat-error *ngFor="let validation of add_owner_validation_messages.name">
               <mat-error class="error-message" id="name-error"
                         *ngIf="addOwnerForm.get('name').hasError(validation.type) && (addOwnerForm.get('name').dirty || addOwnerForm.get('name').touched)">
@@ -46,9 +48,9 @@ is potentially helpful and contributed to the shaping of this example -->
           </mat-form-field>
 
           <mat-form-field >
-            <mat-label>Email</mat-label>
+            <mat-label>Edit Email</mat-label>
             <input matInput #input id="emailField" placeholder="Email"
-                  formControlName="email" required>
+                  formControlName="email"  [(ngModel)]= "profile.email"  required>
             <mat-error *ngFor="let validation of add_owner_validation_messages.email">
               <mat-error class="error-message" id='email-error'
                         *ngIf="addOwnerForm.get('email').hasError(validation.type) && (addOwnerForm.get('email').dirty || addOwnerForm.get('email').touched)">
@@ -57,14 +59,27 @@ is potentially helpful and contributed to the shaping of this example -->
             </mat-error>
           </mat-form-field>
 
+          <mat-form-field>
+            <mat-label>Sub</mat-label>
+            <input matInput #input id="subField" placeholder="sub"
+                  formControlName="sub" [(ngModel)]= "profile.sub" required>
+            <mat-error *ngFor="let validation of add_owner_validation_messages.sub">
+              <mat-error class="error-message" id="sub-error"
+                        *ngIf="addOwnerForm.get('sub').hasError(validation.type) && (addOwnerForm.get('sub').dirty || addOwnerForm.get('sub').touched)">
+                {{validation.message}}
+                </mat-error>
+              </mat-error>
+          </mat-form-field>
+
         </mat-card-content>
         <mat-card-actions align="end">
           <button mat-button id="confirmAddOwnerButton" type="button" color="primary"
                   [disabled]="!addOwnerForm.valid" type="submit">
-                  ADD OWNER
+                  SUBMIT
           </button>
         </mat-card-actions>
     </mat-card>
   </form>
   </div>
+</div>
 </div>
