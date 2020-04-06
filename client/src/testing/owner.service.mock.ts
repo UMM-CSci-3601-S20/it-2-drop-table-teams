@@ -14,21 +14,24 @@ export class MockOwnerService extends OwnerService {
       name: 'Chris',
       building: 'Science Hall',
       email: 'robi1467@morris.umn.edu',
-      officeNumber: '1001'
+      officeNumber: '1001',
+      sub: 'A'
     },
     {
       _id: 'richard_id',
       name: 'Richard Mars',
       building: 'HFA',
       email: 'robi1467@morris.umn.edu',
-      officeNumber: '2022'
+      officeNumber: '2022',
+      sub: 'B'
     },
     {
       _id: 'jamie_id',
       name: 'Jamie',
       building: 'Humanities',
       email: 'robi1467@morris.umn.edu',
-      officeNumber: '111'
+      officeNumber: '111',
+      sub: 'C'
     }
   ];
 
