@@ -6,7 +6,8 @@
     "name": "Harry Zorander",
     "email": "harry@blob.com",
     "building": "White House",
-    "officeNumber": 112
+    "officeNumber": 112,
+    "sub": "testSubA"
   },
   {
    "_id": {
@@ -15,7 +16,8 @@
     "name": "Eric Flagg",
     "email": "eric@blob.com",
     "building": "Taj Mahal",
-    "officeNumber": 55
+    "officeNumber": 55,
+    "sub": "testSubB"
   },
   {
    "_id": {
@@ -24,7 +26,8 @@
     "name": "Prospero Bruce",
     "email": "prospero@blob.com",
     "building": "Hagia Sophia",
-    "officeNumber": 7
+    "officeNumber": 7,
+    "sub": "testSubC"
   },
   {
    "_id": {
@@ -33,7 +36,8 @@
     "name": "Richard Tudor",
     "email": "richard@blob.com",
     "building": "The Guggenheim",
-    "officeNumber": 13
+    "officeNumber": 13,
+    "sub": "testSubD"
   },
   {
    "_id": {
@@ -42,6 +46,7 @@
     "name": "Oscar Yaztromo",
     "email": "oscar@blob.com",
     "building": "Dancing House",
-    "officeNumber": 251
+    "officeNumber": 251,
+    "sub": "testSubE"
   }
 ]
