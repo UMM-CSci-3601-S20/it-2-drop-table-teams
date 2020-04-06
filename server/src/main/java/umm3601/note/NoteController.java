@@ -219,6 +219,13 @@ public class NoteController {
       throw new NotFoundResponse("The requested note does not exist.");
     }
 
+    // verifyJwtFromHeader will throw an UnauthorizedResponse if the user isn't logged in.
+    String currentUserID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+
+    if (!note.ownerID.equals(currentUserID)) {
+      throw new ForbiddenResponse("Request not allowed; users can only edit their own notes");
+    }
+
     HashSet<String> validKeys = new HashSet<String>(Arrays.asList("body", "expireDate", "status"));
     HashSet<String> forbiddenKeys = new HashSet<String>(Arrays.asList("ownerID", "addDate", "_id"));
     HashSet<String> validStatuses = new HashSet<String>(Arrays.asList("active", "draft", "deleted", "template"));
