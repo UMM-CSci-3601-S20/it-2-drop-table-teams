@@ -5,13 +5,14 @@ import { Note, NoteStatus } from '../notes/note';
 import { OnInit, Component, OnDestroy, SecurityContext } from '@angular/core';
 import { OwnerService } from './owner.service';
 import { Owner } from './owner';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, forkJoin, Observable } from 'rxjs';
 import { NoteService } from '../notes/note.service';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../auth.service';
 import { HttpParameterCodec } from "@angular/common/http";
 import { async } from '@angular/core/testing';
+import { map } from 'rxjs/operators';
 @Component({
   selector: 'app-owner-page-component',
   templateUrl: 'owner-page.component.html',
@@ -98,16 +99,17 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
   }
 
 
-  public getLoginSub(): string {
-    this.getCurrentSub =
-        this.auth.userProfile$.subscribe(userProfile => {
-          this.currentSub = JSON.stringify(userProfile.sub);
-          this.currentSub = this.currentSub.replace(/['"]+/g, '');
-          // console.log('From Sign In: ' + this.currentSub);
-      });
-    return this.currentSub;
-    }
+  public getLoginSub(): Observable<string> {
+    const currentSub = this.auth.userProfile$.pipe(
+      map(profile => JSON.stringify(profile.sub).replace(/['"]+/g, ''))
+    );
+    return currentSub;
+  }
 
+
+  public compareSubs(): Observable<boolean> {
+    return this.getLoginSub().pipe(map(val => val === this.getSub()));
+  }
 
 
   ngOnInit(): void {
