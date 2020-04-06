@@ -32,6 +32,7 @@ import { OwnerListComponent } from './owner/owner-list.component';
 import { OwnerService } from './owner/owner.service';
 import { AddOwnerComponent } from './owner/add-owner.component';
 import { OwnerPageComponent } from './owner/owner-page.component';
+import { OwnerCardComponent } from './owner/owner-card.component';
 
 // Note
 import { NoteService } from './notes/note.service';
@@ -43,8 +44,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { LayoutModule } from '@angular/cdk/layout';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 
-// Account
-import { AccountComponent } from './account/account.component';
+// DoorBoard
+import { DoorBoardComponent } from './your-doorboard/your-doorboard.component';
 
 // Authentication
 import { NavBarComponent } from './nav-bar/nav-bar.component';
@@ -77,8 +78,9 @@ const MATERIAL_MODULES: any[] = [
     OwnerPageComponent,
     EditNoteComponent,
     AddNoteComponent,
-    AccountComponent,
-    NavBarComponent
+    DoorBoardComponent,
+    NavBarComponent,
+    OwnerCardComponent
   ],
   imports: [
     BrowserModule,
