@@ -6,19 +6,19 @@ import { AddOwnerComponent } from './owner/add-owner.component';
 import { OwnerPageComponent } from './owner/owner-page.component';
 import { EditNoteComponent } from './notes/edit-note.component';
 import { AddNoteComponent } from './notes/add-note.component';
-import { AccountComponent } from './account/account.component';
+import { DoorBoardComponent} from './your-doorboard/your-doorboard.component';
 import { AuthGuard } from './auth.guard';
 
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'owners', component: OwnerListComponent},
-  {path: 'owners/new', component: AddOwnerComponent},
+  {path: 'owners/new', component: AddOwnerComponent, canActivate: [AuthGuard]},
   {path: 'owners/:id', component: OwnerPageComponent},
   {path: 'notes', component: OwnerPageComponent},
   {path: 'notes/new', component: AddNoteComponent},
   {path: 'notes/edit', component: EditNoteComponent},
-  {path: 'account', component: AccountComponent, canActivate: [AuthGuard]}
+  {path: 'your-doorboard', component: DoorBoardComponent, canActivate: [AuthGuard]},
 ];
 
 @NgModule({
