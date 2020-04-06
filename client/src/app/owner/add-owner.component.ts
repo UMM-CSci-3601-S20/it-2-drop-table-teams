@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Owner } from './owner';
 import { OwnerService } from './owner.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-add-owner',
@@ -16,7 +17,8 @@ export class AddOwnerComponent implements OnInit {
 
   owner: Owner;
 
-  constructor(private fb: FormBuilder, private ownerService: OwnerService, private snackBar: MatSnackBar, private router: Router) {
+  constructor(private fb: FormBuilder, private ownerService: OwnerService, private snackBar: MatSnackBar, private router: Router,
+              public auth: AuthService) {
   }
 
   // not sure if this name is magical and making it be found or if I'm missing something,
@@ -45,7 +47,13 @@ export class AddOwnerComponent implements OnInit {
       {type: 'minlength', message: 'Office number must be at least 1 characters long'},
       {type: 'maxlength', message: 'Office number cannot be more than 25 characters long'},
       {type: 'pattern', message: 'Office number must contain only numbers and letters'},
-    ]
+    ],
+    sub: [
+      {type: 'required', message: 'Sub is required' },
+      {type: 'minlength', message: 'Sub must be at least 1 characters long'},
+      {type: 'maxlength', message: 'Sub cannot be more than 25 characters long'},
+      {type: 'pattern', message: 'Sub must contain only numbers and letters'},
+    ],
   };
 
   createForms() {
@@ -83,6 +91,12 @@ export class AddOwnerComponent implements OnInit {
         Validators.minLength(1),
         Validators.maxLength(50),
         Validators.pattern('^[\\w\\s]+$')
+      ])),
+
+      sub: new FormControl('', Validators.compose([
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(50)
       ])),
 
     });
