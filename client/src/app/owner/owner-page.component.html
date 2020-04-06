@@ -21,6 +21,7 @@
 
     <!-- set active to default-->
     <!---search Card???-->
+    <div *ngIf="(getSub() === getLoginSub())">
     <mat-card class="search-card">
       <mat-card-header>
         <!--Note filter-->
@@ -41,9 +42,10 @@
       </mat-card-content>
     </mat-card>
 
+
     <!--New Note-->
     <app-add-note [owner_id]="this.id" class="add-note">
-    </app-add-note>
+    </app-add-note >
     <!--Notes-->
     <div fxFlex>
       <mat-card class="list">
@@ -59,6 +61,7 @@
         </mat-card-content>
       </mat-card>
     </div>
+  </div>
   </div>
 
   <div fxFlex fxLayoutAlign="end center">
