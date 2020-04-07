@@ -27,12 +27,12 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 // Home
 import { HomeComponent } from './home/home.component';
 
-// Owner
-import { OwnerListComponent } from './owner/owner-list.component';
-import { OwnerService } from './owner/owner.service';
-import { AddOwnerComponent } from './owner/add-owner.component';
-import { OwnerPageComponent } from './owner/owner-page.component';
-import { OwnerCardComponent } from './owner/owner-card.component';
+// DoorBoard
+import { DoorBoardListComponent } from './doorBoard/doorBoard-list.component';
+import { DoorBoardService } from './doorBoard/doorBoard.service';
+import { AddDoorBoardComponent } from './doorBoard/add-doorBoard.component';
+import { DoorBoardPageComponent } from './doorBoard/doorBoard-page.component';
+import { DoorBoardCardComponent } from './doorBoard/doorBoard-card.component';
 
 // Note
 import { NoteService } from './notes/note.service';
@@ -45,7 +45,7 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 
 // DoorBoard
-import { DoorBoardComponent } from './your-doorboard/your-doorboard.component';
+import { DoorBoardComponent } from './your-doorBoard/your-doorBoard.component';
 
 // Authentication
 import { NavBarComponent } from './nav-bar/nav-bar.component';
@@ -73,14 +73,14 @@ const MATERIAL_MODULES: any[] = [
   declarations: [
     AppComponent,
     HomeComponent,
-    OwnerListComponent,
-    AddOwnerComponent,
-    OwnerPageComponent,
+    DoorBoardListComponent,
+    AddDoorBoardComponent,
+    DoorBoardPageComponent,
     EditNoteComponent,
     AddNoteComponent,
     DoorBoardComponent,
     NavBarComponent,
-    OwnerCardComponent
+    DoorBoardCardComponent
   ],
   imports: [
     BrowserModule,
@@ -96,7 +96,7 @@ const MATERIAL_MODULES: any[] = [
     OwlNativeDateTimeModule,
   ],
   providers: [
-    OwnerService,
+    DoorBoardService,
     NoteService,
   ],
   bootstrap: [AppComponent]

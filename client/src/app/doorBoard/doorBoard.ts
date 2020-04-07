@@ -1,4 +1,4 @@
-export interface Owner {
+export interface DoorBoard {
 
   _id: string;
   name: string;

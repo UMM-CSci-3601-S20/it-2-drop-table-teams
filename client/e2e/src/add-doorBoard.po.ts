@@ -1,15 +1,15 @@
 import {browser, by, element, Key, ElementFinder} from 'protractor';
 
-export interface TestOwner {
+export interface TestDoorBoard {
   name: string;
   email: string;
   building: string;
   officeNumber: string;
 }
 
-export class AddOwnerPage {
+export class AddDoorBoardPage {
   navigateTo() {
-    return browser.get('/owners/new');
+    return browser.get('/doorBoards/new');
   }
 
   getUrl() {
@@ -17,7 +17,7 @@ export class AddOwnerPage {
   }
 
   getTitle() {
-    const title = element(by.className('add-owner-title')).getText();
+    const title = element(by.className('add-doorBoard-title')).getText();
     return title;
   }
 
@@ -34,15 +34,15 @@ export class AddOwnerPage {
     });
   }
 
-  clickAddOwner() {
-    return element(by.buttonText('ADD OWNER')).click();
+  clickAddDoorBoard() {
+    return element(by.buttonText('ADD DOORBOARD')).click();
   }
 
-  async addOwner(newOwner: TestOwner) {
-    await this.typeInput('nameField', newOwner.name);
-    await this.typeInput('buildingField', newOwner.building);
-    await this.typeInput('officeNumberField', newOwner.officeNumber);
-    await this.typeInput('emailField', newOwner.email);
-    return this.clickAddOwner();
+  async addDoorBoard(newDoorBoard: TestDoorBoard) {
+    await this.typeInput('nameField', newDoorBoard.name);
+    await this.typeInput('buildingField', newDoorBoard.building);
+    await this.typeInput('officeNumberField', newDoorBoard.officeNumber);
+    await this.typeInput('emailField', newDoorBoard.email);
+    return this.clickAddDoorBoard();
   }
 }

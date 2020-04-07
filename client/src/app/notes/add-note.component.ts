@@ -2,10 +2,10 @@ import { Component, OnInit, Input, SystemJsNgModuleLoader, Output} from '@angula
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { NewNote } from './note';
+import { NewNote, Note } from './note';
 import { NoteService } from './note.service';
-import { OwnerService } from '../owner/owner.service';
-import { Owner } from '../owner/owner';
+import { DoorBoardService } from '../doorBoard/doorBoard.service';
+import { DoorBoard } from '../doorBoard/doorBoard';
 
 
 @Component({
@@ -16,16 +16,16 @@ import { Owner } from '../owner/owner';
 export class AddNoteComponent implements OnInit {
 
 
-  @Input() owner_id: string;
+  @Input() doorBoard_id: string;
 
   addNoteForm: FormGroup;
   note: Note;
   constructor(private fb: FormBuilder, private noteService: NoteService,
-              private snackBar: MatSnackBar, private router: Router, public ownerService: OwnerService) {
+              private snackBar: MatSnackBar, private router: Router, public doorBoardService: DoorBoardService) {
   }
 
-  @Input() owner: Owner;
-  public serverFilteredOwners: Owner[];
+  @Input() doorBoard: DoorBoard;
+  public serverFilteredDoorBoards: DoorBoard[];
   sub: string;
   name: string;
   email: string;
@@ -73,14 +73,14 @@ export class AddNoteComponent implements OnInit {
 
   submitForm() {
     const noteToAdd: NewNote = this.addNoteForm.value;
-    //const owner_id = this.router.url.substring(9); // trim off "/notes/new/"
-    noteToAdd.ownerID = this.owner_id;
+    //const doorBoard_id = this.router.url.substring(9); // trim off "/notes/new/"
+    noteToAdd.doorBoardID = this.doorBoard_id;
     this.noteService.addNewNote(noteToAdd).subscribe(newID => {
 
       this.snackBar.open('Added Note ', null, {
         duration: 2000,
       });
-      this.router.navigate(['/owners/', this.owner_id]);
+      this.router.navigate(['/doorBoards/', this.doorBoard_id]);
       location.reload();
     }, err => {
       this.snackBar.open('Failed to add the note', null, {

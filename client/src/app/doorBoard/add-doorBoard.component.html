@@ -5,19 +5,19 @@ is potentially helpful and contributed to the shaping of this example -->
 
 <div fxLayout="row">
   <div fxFlex fxFlex.gt-sm="80" fxFlexOffset.gt-sm="10">
-    <form [formGroup]="addOwnerForm" (ngSubmit)="submitForm();">
-    <mat-card class="add-owner-card">
+    <form [formGroup]="addDoorBoardForm" (ngSubmit)="submitForm();">
+    <mat-card class="add-doorBoard-card">
         <mat-card-header>
-          <mat-card-title class="add-owner-title">Create DoorBoard</mat-card-title>
+          <mat-card-title class="add-doorBoard-title">Create DoorBoard</mat-card-title>
         </mat-card-header>
         <mat-card-content fxLayout="column">
           <mat-form-field>
             <mat-label>Edit Name</mat-label>
             <input matInput id="nameField" placeholder="Name" formControlName="name"
             [(ngModel)]= "profile.name"  required>
-            <mat-error *ngFor="let validation of add_owner_validation_messages.name">
+            <mat-error *ngFor="let validation of add_doorBoard_validation_messages.name">
               <mat-error class="error-message" id="name-error"
-                        *ngIf="addOwnerForm.get('name').hasError(validation.type) && (addOwnerForm.get('name').dirty || addOwnerForm.get('name').touched)">
+                        *ngIf="addDoorBoardForm.get('name').hasError(validation.type) && (addDoorBoardForm.get('name').dirty || addDoorBoardForm.get('name').touched)">
                 {{validation.message}}
               </mat-error>
             </mat-error>
@@ -27,9 +27,9 @@ is potentially helpful and contributed to the shaping of this example -->
             <mat-label>Building</mat-label>
             <input matInput #input id="buildingField" placeholder="Building"
                   formControlName="building" required>
-            <mat-error *ngFor="let validation of add_owner_validation_messages.building">
+            <mat-error *ngFor="let validation of add_doorBoard_validation_messages.building">
               <mat-error class="error-message" id="building-error"
-                        *ngIf="addOwnerForm.get('building').hasError(validation.type) && (addOwnerForm.get('building').dirty || addOwnerForm.get('building').touched)">
+                        *ngIf="addDoorBoardForm.get('building').hasError(validation.type) && (addDoorBoardForm.get('building').dirty || addDoorBoardForm.get('building').touched)">
                 {{validation.message}}
               </mat-error>
             </mat-error>
@@ -39,9 +39,9 @@ is potentially helpful and contributed to the shaping of this example -->
             <mat-label>Office Number</mat-label>
             <input matInput #input id="officeNumberField" placeholder="Office Number"
                   formControlName="officeNumber" required>
-            <mat-error *ngFor="let validation of add_owner_validation_messages.officeNumber">
+            <mat-error *ngFor="let validation of add_doorBoard_validation_messages.officeNumber">
               <mat-error class="error-message" id="officeNumber-error"
-                        *ngIf="addOwnerForm.get('officeNumber').hasError(validation.type) && (addOwnerForm.get('officeNumber').dirty || addOwnerForm.get('officeNumber').touched)">
+                        *ngIf="addDoorBoardForm.get('officeNumber').hasError(validation.type) && (addDoorBoardForm.get('officeNumber').dirty || addDoorBoardForm.get('officeNumber').touched)">
                 {{validation.message}}
                 </mat-error>
               </mat-error>
@@ -51,9 +51,9 @@ is potentially helpful and contributed to the shaping of this example -->
             <mat-label>Edit Email</mat-label>
             <input matInput #input id="emailField" placeholder="Email"
                   formControlName="email"  [(ngModel)]= "profile.email"  required>
-            <mat-error *ngFor="let validation of add_owner_validation_messages.email">
+            <mat-error *ngFor="let validation of add_doorBoard_validation_messages.email">
               <mat-error class="error-message" id='email-error'
-                        *ngIf="addOwnerForm.get('email').hasError(validation.type) && (addOwnerForm.get('email').dirty || addOwnerForm.get('email').touched)">
+                        *ngIf="addDoorBoardForm.get('email').hasError(validation.type) && (addDoorBoardForm.get('email').dirty || addDoorBoardForm.get('email').touched)">
                 {{validation.message}}
               </mat-error>
             </mat-error>
@@ -63,9 +63,9 @@ is potentially helpful and contributed to the shaping of this example -->
             <mat-label>Sub</mat-label>
             <input matInput #input id="subField" placeholder="sub"
                   formControlName="sub" [(ngModel)]= "profile.sub" required>
-            <mat-error *ngFor="let validation of add_owner_validation_messages.sub">
+            <mat-error *ngFor="let validation of add_doorBoard_validation_messages.sub">
               <mat-error class="error-message" id="sub-error"
-                        *ngIf="addOwnerForm.get('sub').hasError(validation.type) && (addOwnerForm.get('sub').dirty || addOwnerForm.get('sub').touched)">
+                        *ngIf="addDoorBoardForm.get('sub').hasError(validation.type) && (addDoorBoardForm.get('sub').dirty || addDoorBoardForm.get('sub').touched)">
                 {{validation.message}}
                 </mat-error>
               </mat-error>
@@ -73,8 +73,8 @@ is potentially helpful and contributed to the shaping of this example -->
 
         </mat-card-content>
         <mat-card-actions align="end">
-          <button mat-button id="confirmAddOwnerButton" type="button" color="primary"
-                  [disabled]="!addOwnerForm.valid" type="submit">
+          <button mat-button id="confirmAddDoorBoardButton" type="button" color="primary"
+                  [disabled]="!addDoorBoardForm.valid" type="submit">
                   SUBMIT
           </button>
         </mat-card-actions>

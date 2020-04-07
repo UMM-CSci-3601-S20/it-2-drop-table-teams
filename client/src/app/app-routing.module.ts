@@ -1,24 +1,24 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { OwnerListComponent } from './owner/owner-list.component';
-import { AddOwnerComponent } from './owner/add-owner.component';
-import { OwnerPageComponent } from './owner/owner-page.component';
+import { DoorBoardListComponent } from './doorBoard/doorBoard-list.component';
+import { AddDoorBoardComponent } from './doorBoard/add-doorBoard.component';
+import { DoorBoardPageComponent } from './doorBoard/doorBoard-page.component';
 import { EditNoteComponent } from './notes/edit-note.component';
 import { AddNoteComponent } from './notes/add-note.component';
-import { DoorBoardComponent} from './your-doorboard/your-doorboard.component';
+import { DoorBoardComponent} from './your-doorBoard/your-doorBoard.component';
 import { AuthGuard } from './auth.guard';
 
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
-  {path: 'owners', component: OwnerListComponent},
-  {path: 'owners/new', component: AddOwnerComponent, canActivate: [AuthGuard]},
-  {path: 'owners/:id', component: OwnerPageComponent},
-  {path: 'notes', component: OwnerPageComponent},
+  {path: 'doorBoards', component: DoorBoardListComponent},
+  {path: 'doorBoards/new', component: AddDoorBoardComponent, canActivate: [AuthGuard]},
+  {path: 'doorBoards/:id', component: DoorBoardPageComponent},
+  {path: 'notes', component: DoorBoardPageComponent},
   {path: 'notes/new', component: AddNoteComponent},
   {path: 'notes/edit', component: EditNoteComponent},
-  {path: 'your-doorboard', component: DoorBoardComponent, canActivate: [AuthGuard]},
+  {path: 'your-doorBoard', component: DoorBoardComponent, canActivate: [AuthGuard]},
 ];
 
 @NgModule({

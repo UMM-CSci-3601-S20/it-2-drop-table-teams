@@ -3,8 +3,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Note, NoteStatus } from '../notes/note';
 import { OnInit, Component, OnDestroy, SecurityContext } from '@angular/core';
-import { OwnerService } from './owner.service';
-import { Owner } from './owner';
+import { DoorBoardService } from './doorBoard.service';
+import { DoorBoard } from './doorBoard';
 import { Subscription, forkJoin, Observable } from 'rxjs';
 import { NoteService } from '../notes/note.service';
 import { ActivatedRoute } from '@angular/router';
@@ -14,15 +14,15 @@ import { HttpParameterCodec } from "@angular/common/http";
 import { async } from '@angular/core/testing';
 import { map } from 'rxjs/operators';
 @Component({
-  selector: 'app-owner-page-component',
-  templateUrl: 'owner-page.component.html',
-  styleUrls: ['owner-page.component.scss'],
+  selector: 'app-doorBoard-page-component',
+  templateUrl: 'doorBoard-page.component.html',
+  styleUrls: ['doorBoard-page.component.scss'],
   providers: []
 })
 
-export class OwnerPageComponent implements OnInit, OnDestroy {
+export class DoorBoardPageComponent implements OnInit, OnDestroy {
 
-  constructor(private ownerService: OwnerService, private noteService: NoteService,
+  constructor(private doorBoardService: DoorBoardService, private noteService: NoteService,
               private route: ActivatedRoute, private sanitizer: DomSanitizer, private auth: AuthService) { }
 
   public notes: Note[];
@@ -30,11 +30,11 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
   public filteredNotes: Note[];
   public GcalURL: SafeResourceUrl;
 
-  owner: Owner;
+  doorBoard: DoorBoard;
   id: string;
 
   getNotesSub: Subscription;
-  getOwnerSub: Subscription;
+  getDoorBoardSub: Subscription;
 
   public noteStatus: NoteStatus = 'active';
   public noteAddDate: Date;
@@ -48,7 +48,7 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
 
   public getNotesFromServer(): void {
     this.unsub();
-    this.getNotesSub = this.noteService.getNotesByOwner(
+    this.getNotesSub = this.noteService.getNotesByDoorBoard(
       this.id,{
         status: this.noteStatus,
         body: this.noteBody
@@ -69,8 +69,8 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
       });
 }
 
-  public createGmailConnection(ownerEmail: string): void {
-    let gmailUrl = ownerEmail.replace('@', '%40'); // Convert owner e-mail to acceptable format for connection to gCalendar
+  public createGmailConnection(doorBoardEmail: string): void {
+    let gmailUrl = doorBoardEmail.replace('@', '%40'); // Convert doorBoard e-mail to acceptable format for connection to gCalendar
     console.log('BEING CALLED');
     gmailUrl = 'https://calendar.google.com/calendar/embed?src=' + gmailUrl; // Connection string
     //this.GcalURL = gmailUrl; // Set the global connection string
@@ -81,21 +81,21 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
   // }
 
   public getName(): string {
-    return this.owner.name;
+    return this.doorBoard.name;
   }
   public getBuilding(): string {
-    return this.owner.building;
+    return this.doorBoard.building;
   }
   public getOfficeNumber(): string {
-    return this.owner.officeNumber;
+    return this.doorBoard.officeNumber;
   }
   public getEmail(): string {
-    return this.owner.email;
+    return this.doorBoard.email;
   }
 
   public getSub(): string {
-    // console.log('From ID: ' + this.owner.sub);
-    return this.owner.sub;
+    // console.log('From ID: ' + this.doorBoard.sub);
+    return this.doorBoard.sub;
   }
 
 
@@ -113,20 +113,20 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
-    // Subscribe owner's notes
+    // Subscribe doorBoard's notes
     this.route.paramMap.subscribe((pmap) => {
       this.id = pmap.get('id');
       if (this.getNotesSub){
         this.getNotesSub.unsubscribe();
       }
-      this.getNotesSub = this.noteService.getNotesByOwner(this.id).subscribe( notes => this.notes = notes);
+      this.getNotesSub = this.noteService.getNotesByDoorBoard(this.id).subscribe( notes => this.notes = notes);
       this.getNotesFromServer();
-      if (this.getOwnerSub) {
-        this.getOwnerSub.unsubscribe();
+      if (this.getDoorBoardSub) {
+        this.getDoorBoardSub.unsubscribe();
       }
-      this.getOwnerSub = this.ownerService.getOwnerById(this.id).subscribe( async (owner: Owner) => {
-      this.owner = owner;
-      this.createGmailConnection(this.owner.email);
+      this.getDoorBoardSub = this.doorBoardService.getDoorBoardById(this.id).subscribe( async (doorBoard: DoorBoard) => {
+      this.doorBoard = doorBoard;
+      this.createGmailConnection(this.doorBoard.email);
     });
   });
   }
@@ -136,8 +136,8 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
     if (this.getNotesSub) {
       this.getNotesSub.unsubscribe();
     }
-    if (this.getOwnerSub) {
-      this.getOwnerSub.unsubscribe();
+    if (this.getDoorBoardSub) {
+      this.getDoorBoardSub.unsubscribe();
     }
   }
 
@@ -146,8 +146,8 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
       this.getNotesSub.unsubscribe();
     }
 
-    if (this.getOwnerSub) {
-      this.getOwnerSub.unsubscribe();
+    if (this.getDoorBoardSub) {
+      this.getDoorBoardSub.unsubscribe();
     }
   }
 

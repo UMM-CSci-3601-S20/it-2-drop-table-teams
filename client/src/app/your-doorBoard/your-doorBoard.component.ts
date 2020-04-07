@@ -1,16 +1,16 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
-import { Owner } from '../owner/owner';
-import { OwnerService } from '../owner/owner.service';
-// import { OwnerCardComponent } from '../owner/owner-card.component';
+import { DoorBoard } from '../doorBoard/doorBoard';
+import { DoorBoardService } from '../doorBoard/doorBoard.service';
+// import { DoorBoardCardComponent } from '../doorBoard/doorBoard-card.component';
 import { Subscription } from 'rxjs';
 
 
 @Component({
-  selector: 'app-your-doorboard-component',
-  templateUrl: 'your-doorboard.component.html',
-  styleUrls: ['./your-doorboard.component.scss']
+  selector: 'app-your-doorBoard-component',
+  templateUrl: 'your-doorBoard.component.html',
+  styleUrls: ['./your-doorBoard.component.scss']
 
 })
 
@@ -19,15 +19,15 @@ import { Subscription } from 'rxjs';
 export class DoorBoardComponent implements OnInit, OnDestroy {
 
 
-  constructor(public auth: AuthService, private router: Router, private ownerService: OwnerService) { }
+  constructor(public auth: AuthService, private router: Router, private doorBoardService: DoorBoardService) { }
 
-  @Input() note: Owner;
-  @Input() ownerSub: string = 'invalid';
+  @Input() note: DoorBoard;
+  @Input() doorBoardSub: string = 'invalid';
 
 
 
-  public serverFilteredOwners: Owner[];
-  public filteredOwners: Owner[];
+  public serverFilteredDoorBoards: DoorBoard[];
+  public filteredDoorBoards: DoorBoard[];
   name: string;
   email: string;
   building: string;
@@ -40,7 +40,7 @@ export class DoorBoardComponent implements OnInit, OnDestroy {
 
 
 
-  getOwnerBoards(): void {
+  getDoorBoardBoards(): void {
     this.unsub();
     this.getCurrentSub =
     this.auth.userProfile$.subscribe(userProfile => {
@@ -48,10 +48,10 @@ export class DoorBoardComponent implements OnInit, OnDestroy {
       // console.log(this.currentSub);
   });
     this.unsub();
-    this.getDoorBoardsSub = this.ownerService.getOwners({
+    this.getDoorBoardsSub = this.doorBoardService.getDoorBoards({
       sub: this.sub,
-    }).subscribe(returnedOwners => {
-      this.serverFilteredOwners = returnedOwners;
+    }).subscribe(returnedDoorBoards => {
+      this.serverFilteredDoorBoards = returnedDoorBoards;
       this.updateFilter();
     }, err => {
       console.log(err);
@@ -59,8 +59,8 @@ export class DoorBoardComponent implements OnInit, OnDestroy {
   }
 
   public updateFilter(): void {
-    this.filteredOwners = this.ownerService.filterOwners(
-      this.serverFilteredOwners, {sub: this.sub = this.currentSub});
+    this.filteredDoorBoards = this.doorBoardService.filterDoorBoards(
+      this.serverFilteredDoorBoards, {sub: this.sub = this.currentSub});
   }
 
   /**
@@ -68,7 +68,7 @@ export class DoorBoardComponent implements OnInit, OnDestroy {
    *
    */
   ngOnInit(): void {
-    this.getOwnerBoards();
+    this.getDoorBoardBoards();
   }
 
   ngOnDestroy(): void {
@@ -82,7 +82,7 @@ export class DoorBoardComponent implements OnInit, OnDestroy {
   }
 
   createBoard() {
-    this.router.navigate(['owners/new']);
+    this.router.navigate(['doorBoards/new']);
 }
 
 

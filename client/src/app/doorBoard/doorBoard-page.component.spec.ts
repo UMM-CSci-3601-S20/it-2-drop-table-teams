@@ -4,11 +4,11 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRouteStub } from '../../testing/activated-route-stub';
 
-// Owner imports
-import { Owner } from './owner';
-import { OwnerService } from './owner.service';
-import { OwnerPageComponent } from './owner-page.component';
-import { MockOwnerService } from '../../testing/owner.service.mock';
+// DoorBoard imports
+import { DoorBoard } from './doorBoard';
+import { DoorBoardService } from './doorBoard.service';
+import { DoorBoardPageComponent } from './doorBoard-page.component';
+import { MockDoorBoardService } from '../../testing/doorBoard.service.mock';
 
 // Note imports
 import { Note } from '../notes/note';
@@ -46,9 +46,9 @@ const COMMON_IMPORTS: any[] = [
   RouterTestingModule,
 ];
 
-describe('OwnerPageComponent', () => {
-  let component: OwnerPageComponent;
-  let fixture: ComponentFixture<OwnerPageComponent>;
+describe('DoorBoardPageComponent', () => {
+  let component: DoorBoardPageComponent;
+  let fixture: ComponentFixture<DoorBoardPageComponent>;
   const activatedRoute: ActivatedRouteStub = new ActivatedRouteStub();
 
 
@@ -58,9 +58,9 @@ describe('OwnerPageComponent', () => {
         RouterTestingModule,
         MatCardModule
       ],
-      declarations: [OwnerPageComponent],
+      declarations: [DoorBoardPageComponent],
       providers: [
-        {provide: OwnerService, useValue: new MockOwnerService()},
+        {provide: DoorBoardService, useValue: new MockDoorBoardService()},
         {provide: NoteService, useValue: new MockNoteService()},
         {provide: activatedRoute, useValue: activatedRoute}
       ]
@@ -69,7 +69,7 @@ describe('OwnerPageComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(OwnerPageComponent);
+    fixture = TestBed.createComponent(DoorBoardPageComponent);
     fixture.detectChanges();
 
     component = fixture.componentInstance;
