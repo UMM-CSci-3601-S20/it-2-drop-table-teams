@@ -32,6 +32,15 @@ describe('Note service: ', () => {
       status: 'template'
     }
   ];
+
+  const newNote: Note = {
+      ownerID: 'test-id',
+      body: 'Fourth body.',
+      addDate: new Date().toISOString(),
+      expireDate: '2025-03-06T22:03:38+0000',
+      status: 'active'
+  };
+
   let noteService: NoteService;
 
   let httpClient: HttpClient;
@@ -92,3 +101,22 @@ describe('Note service: ', () => {
       req.flush(testNotes);
     });
   });
+
+  describe('the addNewNote() method', () => {
+    it('calls /api/notes/new', () => {
+      noteService.addNewNote(newNote).subscribe(id => {
+        expect(id).toBe('foo');
+      });
+
+      const req = httpTestingController.expectOne(request =>
+        request.url.startsWith(noteService.noteUrl + '/new')
+      );
+
+      expect(req.request.method).toEqual('GET');
+
+      expect(req.request.body).toEqual(newNote);
+
+      req.flush({id: 'foo'});
+    });
+  });
+});
