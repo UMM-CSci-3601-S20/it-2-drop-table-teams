@@ -1,16 +1,12 @@
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-
 import { Note, NoteStatus } from '../notes/note';
-import { OnInit, Component, OnDestroy, SecurityContext } from '@angular/core';
+import { OnInit, Component, OnDestroy } from '@angular/core';
 import { OwnerService } from './owner.service';
 import { Owner } from './owner';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { NoteService } from '../notes/note.service';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { HttpParameterCodec } from "@angular/common/http";
-import { async } from '@angular/core/testing';
+
 @Component({
   selector: 'app-owner-page-component',
   templateUrl: 'owner-page.component.html',
@@ -67,7 +63,7 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
     let gmailUrl = ownerEmail.replace(/@/g, '%40'); // Convert owner e-mail to acceptable format for connection to gCalendar
     console.log('BEING CALLED');
     gmailUrl = 'https://calendar.google.com/calendar/embed?src=' + gmailUrl; // Connection string
-    //this.GcalURL = gmailUrl; // Set the global connection string
+    // this.GcalURL = gmailUrl; // Set the global connection string
     this.GcalURL = this.sanitizer.bypassSecurityTrustResourceUrl(gmailUrl);
   }
   // public returnSafeLink(): SafeResourceUrl{
