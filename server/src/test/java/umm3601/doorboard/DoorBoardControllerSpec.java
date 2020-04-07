@@ -40,6 +40,7 @@ import org.mockito.Spy;
 
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
+import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.http.UnauthorizedResponse;
 import io.javalin.http.util.ContextUtil;
@@ -66,6 +67,8 @@ public class DoorBoardControllerSpec{
 
   static ObjectMapper jsonMapper = new ObjectMapper();
 
+  private static final String NEW_USER_SUB = "I, Don Quixote, the Lord of La Mancha!";
+
   private void useJwtForSam() {
     // Make a fake DecodedJWT for jwtProcessorMock to return.
     // (Sam's sub is "frogs are the best")
@@ -77,7 +80,7 @@ public class DoorBoardControllerSpec{
 
   private void useJwtForNewUser() {
     DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
-    when(mockDecodedJWT.getSubject()).thenReturn("I, Don Quixote, the Lord of La Mancha!");
+    when(mockDecodedJWT.getSubject()).thenReturn(NEW_USER_SUB);
     when(jwtProcessorMock.verifyJwtFromHeader(any()))
       .thenReturn(mockDecodedJWT);
   }
@@ -260,61 +263,93 @@ public class DoorBoardControllerSpec{
     });
   }
 
-//   @Test
-//   public void AddOwner() throws IOException {
+  @Test
+  public void AddDoorBoardWithJwt() throws IOException {
 
-//     String testNewOwner = "{\"name\": \"Test Owner\", "
-//     + "\"building\": \"place\", "
-//     + "\"officeNumber\": \"0000\", "
-//     + "\"email\": \"test@example.com\" }";
+    String testNewDoorBoard = "{\"name\": \"Test Owner\", "
+    + "\"building\": \"place\", "
+    + "\"officeNumber\": \"0000\", "
+    + "\"email\": \"test@example.com\", "
+    + "\"sub\": \"" + NEW_USER_SUB + "\" }";
 
-//     mockReq.setBodyContent(testNewOwner);
-//     mockReq.setMethod("POST");
+    mockReq.setBodyContent(testNewDoorBoard);
+    mockReq.setMethod("POST");
 
-//     Context ctx = ContextUtil.init(mockReq, mockRes, "api/owners/new");
+    useJwtForNewUser();
 
-//     ownerController.addNewOwner(ctx);
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/new");
 
-//     assertEquals(201, mockRes.getStatus());
+    doorBoardController.addNewDoorBoard(ctx);
 
-//     String result = ctx.resultString();
-//     String id = jsonMapper.readValue(result, ObjectNode.class).get("id").asText();
-//     assertNotEquals("", id);
+    assertEquals(201, mockRes.getStatus());
 
-//     assertEquals(1, db.getCollection("owners").countDocuments(eq("_id", new ObjectId(id))));
+    String result = ctx.resultString();
+    String id = jsonMapper.readValue(result, ObjectNode.class).get("id").asText();
+    assertNotEquals("", id);
 
-//     //verify owner was added to the database and the correct ID
-//     Document addedOwner = db.getCollection("owners").find(eq("_id", new ObjectId(id))).first();
-//     assertNotNull(addedOwner);
-//     assertEquals("Test Owner", addedOwner.getString("name"));
-//     assertEquals("place", addedOwner.getString("building"));
-//     assertEquals("0000", addedOwner.getString("officeNumber"));
-//     assertEquals("test@example.com", addedOwner.getString("email"));
-//   }
-//   @Test
-//   public void AddInvalidEmailOwner() throws IOException {
-//     String testNewOwner = "{\n\t\"name\": \"Test Owner\",\n\t\"building\": \"place\",\n\t\"officeNumber\": \"5432\",\n\t\"email\": \"invalidemail\" }";
-//     mockReq.setBodyContent(testNewOwner);
-//     mockReq.setMethod("POST");
-//     Context ctx = ContextUtil.init(mockReq, mockRes, "api/owners/new");
+    assertEquals(1, db.getCollection("doorboards").countDocuments(eq("_id", new ObjectId(id))));
 
-//     assertThrows(BadRequestResponse.class, () -> {
-//       ownerController.addNewOwner(ctx);
-//     });
-// }
-//   @Test
-//   public void AddInvalidNameOwner() throws IOException{
-//     String testNewOwner = "{"
-//     + "\"building\": \"place\", "
-//     + "\"officeNumber\": \"0000\", "
-//     + "\"email\": \"test@example.com\" }";
+    //verify DoorBoard was added to the database under the correct ID
+    Document addedDoorBoard = db.getCollection("doorboards").find(eq("_id", new ObjectId(id))).first();
+    assertNotNull(addedDoorBoard);
+    assertEquals("Test Owner", addedDoorBoard.getString("name"));
+    assertEquals("place", addedDoorBoard.getString("building"));
+    assertEquals("0000", addedDoorBoard.getString("officeNumber"));
+    assertEquals("test@example.com", addedDoorBoard.getString("email"));
+    assertEquals("test@example.com", addedDoorBoard.getString("email"));
+  }
 
-//     mockReq.setBodyContent(testNewOwner);
-//     mockReq.setMethod("POST");
-//     Context ctx = ContextUtil.init(mockReq, mockRes, "api/owners/new");
+  @Test
+  public void YouCantAddADoorBoardNotLoggedIn() throws IOException {
 
-//     assertThrows(BadRequestResponse.class, () -> {
-//       ownerController.addNewOwner(ctx);
-//     });
-//   }
+    String testNewDoorBoard = "{\"name\": \"Test Owner\", "
+    + "\"building\": \"place\", "
+    + "\"officeNumber\": \"0000\", "
+    + "\"email\": \"test@example.com\", "
+    + "\"sub\": \"" + NEW_USER_SUB + "\" }";
+
+    mockReq.setBodyContent(testNewDoorBoard);
+    mockReq.setMethod("POST");
+
+    useInvalidJwt();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/new");
+
+    assertThrows(UnauthorizedResponse.class, () -> {
+      doorBoardController.addNewDoorBoard(ctx);
+    });
+  }
+
+  @Test
+  public void YouCantAddADoorBoardForAnotherUser() throws IOException {
+
+    String testNewDoorBoard = "{\"name\": \"Test Owner\", "
+    + "\"building\": \"place\", "
+    + "\"officeNumber\": \"0000\", "
+    + "\"email\": \"test@example.com\", "
+    + "\"sub\": \"" + NEW_USER_SUB + "\" }";
+
+    mockReq.setBodyContent(testNewDoorBoard);
+    mockReq.setMethod("POST");
+
+    useJwtForSam();
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/new");
+
+    assertThrows(ForbiddenResponse.class, () -> {
+      doorBoardController.addNewDoorBoard(ctx);
+    });
+  }
+
+  @Test
+  public void AddInvalidEmailDoorBoard() throws IOException {
+    String testNewDoorBoard = "{\n\t\"name\": \"Test Owner\",\n\t\"building\": \"place\",\n\t\"officeNumber\": \"5432\",\n\t\"email\": \"invalidemail\", sub: \"" + NEW_USER_SUB + "\" }";
+    mockReq.setBodyContent(testNewDoorBoard);
+    mockReq.setMethod("POST");
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/new");
+
+    assertThrows(BadRequestResponse.class, () -> {
+      doorBoardController.addNewDoorBoard(ctx);
+    });
+  }
 }
