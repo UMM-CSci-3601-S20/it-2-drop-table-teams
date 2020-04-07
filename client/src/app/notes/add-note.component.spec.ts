@@ -89,7 +89,7 @@ describe('AddNoteComponent', () => {
     });
 
     it('should fail on really long body messages', () => {
-      bodyControl.setValue('moo'.repeat(333));
+      bodyControl.setValue('moo'.repeat(334));
       expect(bodyControl.valid).toBeFalsy();
       // Annoyingly, Angular uses lowercase 'l' here
       // when it's an upper case 'L' in `Validators.maxLength(2)`.
