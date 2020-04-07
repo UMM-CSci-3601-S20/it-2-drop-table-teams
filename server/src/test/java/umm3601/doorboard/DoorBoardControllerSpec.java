@@ -160,7 +160,7 @@ public class DoorBoardControllerSpec{
 
   @Test
   public void GetAllDoorBoardsWithJwt() {
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards");
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards");
 
     useJwtForSam();
 
@@ -180,7 +180,7 @@ public class DoorBoardControllerSpec{
   // a JWT.
   @Test
   public void GetAllDoorBoardsWithoutJwt() {
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards");
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards");
 
     useInvalidJwt();
 
@@ -204,7 +204,7 @@ public class DoorBoardControllerSpec{
 
     useJwtForSam();
 
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/:id", ImmutableMap.of("id", testID));
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards/:id", ImmutableMap.of("id", testID));
     doorBoardController.getDoorBoard(ctx);
 
     assertEquals(200, mockRes.getStatus());
@@ -225,7 +225,7 @@ public class DoorBoardControllerSpec{
 
     useInvalidJwt();
 
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/:id", ImmutableMap.of("id", testID));
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards/:id", ImmutableMap.of("id", testID));
     doorBoardController.getDoorBoard(ctx);
 
     assertEquals(200, mockRes.getStatus());
@@ -242,7 +242,7 @@ public class DoorBoardControllerSpec{
   @Test
   public void GetDoorBoardWithBadId() throws IOException {
 
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/:id", ImmutableMap.of("id", "bad"));
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards/:id", ImmutableMap.of("id", "bad"));
 
     useJwtForSam();
 
@@ -277,7 +277,7 @@ public class DoorBoardControllerSpec{
 
     useJwtForNewUser();
 
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/new");
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards/new");
 
     doorBoardController.addNewDoorBoard(ctx);
 
@@ -287,10 +287,10 @@ public class DoorBoardControllerSpec{
     String id = jsonMapper.readValue(result, ObjectNode.class).get("id").asText();
     assertNotEquals("", id);
 
-    assertEquals(1, db.getCollection("doorboards").countDocuments(eq("_id", new ObjectId(id))));
+    assertEquals(1, db.getCollection("doorBoards").countDocuments(eq("_id", new ObjectId(id))));
 
     //verify DoorBoard was added to the database under the correct ID
-    Document addedDoorBoard = db.getCollection("doorboards").find(eq("_id", new ObjectId(id))).first();
+    Document addedDoorBoard = db.getCollection("doorBoards").find(eq("_id", new ObjectId(id))).first();
     assertNotNull(addedDoorBoard);
     assertEquals("Test Owner", addedDoorBoard.getString("name"));
     assertEquals("place", addedDoorBoard.getString("building"));
@@ -313,7 +313,7 @@ public class DoorBoardControllerSpec{
 
     useInvalidJwt();
 
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/new");
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards/new");
 
     assertThrows(UnauthorizedResponse.class, () -> {
       doorBoardController.addNewDoorBoard(ctx);
@@ -334,7 +334,7 @@ public class DoorBoardControllerSpec{
 
     useJwtForSam();
 
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/new");
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards/new");
 
     assertThrows(ForbiddenResponse.class, () -> {
       doorBoardController.addNewDoorBoard(ctx);
@@ -346,7 +346,7 @@ public class DoorBoardControllerSpec{
     String testNewDoorBoard = "{\n\t\"name\": \"Test Owner\",\n\t\"building\": \"place\",\n\t\"officeNumber\": \"5432\",\n\t\"email\": \"invalidemail\", sub: \"" + NEW_USER_SUB + "\" }";
     mockReq.setBodyContent(testNewDoorBoard);
     mockReq.setMethod("POST");
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/new");
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards/new");
 
     assertThrows(BadRequestResponse.class, () -> {
       doorBoardController.addNewDoorBoard(ctx);
