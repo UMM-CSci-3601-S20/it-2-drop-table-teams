@@ -53,7 +53,7 @@ public class DeathTimer extends Timer {
   public boolean updateTimerStatus(Note n) {
     String noteStatus = n.status;
     String noteId = n._id;
-    Boolean output = false;
+    boolean output = false;
     TimerTask timerTask;
     clearKey(noteId);
 
