@@ -14,15 +14,15 @@ export class NoteService {
 
   /**
    *
-   * @param ownerID: _id of the owner
+   * @param doorBoardID: _id of the doorBoard
    * whose notes are being retrieved.
    *
-   * @returns a list of the notes belonging to this owner, filtered by body and status
+   * @returns a list of the notes belonging to this doorBoard, filtered by body and status
    *
    */
-  getNotesByOwner(ownerID: string, filters?: { body?: string, status?: NoteStatus} ): Observable<Note[]> {
+  getNotesByDoorBoard(doorBoardID: string, filters?: { body?: string, status?: NoteStatus} ): Observable<Note[]> {
     let httpParams: HttpParams = new HttpParams();
-    httpParams = httpParams.set('ownerid', ownerID);  // Ensure we are getting notes belonging to this owner
+    httpParams = httpParams.set('doorBoardid', doorBoardID);  // Ensure we are getting notes belonging to this doorBoard
     if (filters) {
       if (filters.body) {
         httpParams = httpParams.set('body', filters.body);

@@ -1,4 +1,4 @@
-$oid,ownerID,body,addDate,expireDate,status
+$oid,doorBoardID,body,addDate,expireDate,status
 8cc129a1889dc2e57835a6ef,2fe01d6c5f1ab7afd60f375b,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",2020-03-06T22:03:38+0000,2021-03-06T22:03:38+0000,active
 7ffd0f6f447b23f273223e2a,2fe01d6c5f1ab7afd60f375b,Viverra nibh cras pulvinar mattis. Ipsum a arcu cursus vitae congue mauris rhoncus aenean.,2020-03-07T22:03:38+0000,2021-03-06T22:03:38+0000,active
 dd672e30151f1f9eded250c0,2fe01d6c5f1ab7afd60f375b,Duis ut diam quam nulla porttitor massa id.,2020-03-08T22:03:38+0000,2021-03-06T22:03:38+0000,active

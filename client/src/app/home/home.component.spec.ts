@@ -28,7 +28,7 @@ describe('Home', () => {
 
   it('It has the basic home page text', () => {
     fixture.detectChanges();
-    expect(el.textContent).toContain('Welcome to Doorboard! Navigate to your owner page through the sidebar on the left. (For now)');
+    expect(el.textContent).toContain('Welcome to Doorboard! Navigate to your doorBoard page through the sidebar on the left. (For now)');
   });
 
 });

@@ -9,7 +9,7 @@ describe('Note service: ', () => {
   const testNotes: Note[] = [
     {
       _id: 'first_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'This is the body of the first test id. It is somewhat long.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -17,7 +17,7 @@ describe('Note service: ', () => {
     },
     {
       _id: 'second_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'This is the second test id.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -25,7 +25,7 @@ describe('Note service: ', () => {
     },
     {
       _id: 'third_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'Third test id body.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -53,37 +53,37 @@ describe('Note service: ', () => {
     httpTestingController.verify();
   });
 
-  it('getNotesByOwner() calls api/notes',() => {
-    noteService.getNotesByOwner('test-id').subscribe(
+  it('getNotesByDoorBoard() calls api/notes',() => {
+    noteService.getNotesByDoorBoard('test-id').subscribe(
       notes => expect(notes).toBe(testNotes)
     );
 
 
     const req = httpTestingController.expectOne(
-      (request) => request.url.startsWith(noteService.noteUrl) && request.params.has('ownerid')
+      (request) => request.url.startsWith(noteService.noteUrl) && request.params.has('doorBoardid')
     );
 
     expect(req.request.method).toEqual('GET');
 
    // Check that the name parameter was 'Chris'
-    expect(req.request.params.get('ownerid')).toEqual('test-id');
+    expect(req.request.params.get('doorBoardid')).toEqual('test-id');
 
     req.flush(testNotes);
   } );
 
-  it('getNotesByOwnerAndStatus calls api/notes', () => {
-    noteService.getNotesByOwner('test-id',{ status: 'active' }).subscribe(
+  it('getNotesByDoorBoardAndStatus calls api/notes', () => {
+    noteService.getNotesByDoorBoard('test-id',{ status: 'active' }).subscribe(
       notes => expect(notes).toBe(testNotes)
     );
 
     const req = httpTestingController.expectOne(
-      (request) => request.url.startsWith(noteService.noteUrl) && request.params.has('ownerid')
+      (request) => request.url.startsWith(noteService.noteUrl) && request.params.has('doorBoardid')
        && request.params.has('status')
     );
 
     expect(req.request.method).toEqual('GET');
 
-    expect(req.request.params.get('ownerid')).toEqual('test-id');
+    expect(req.request.params.get('doorBoardid')).toEqual('test-id');
     expect(req.request.params.get('status')).toEqual('active');
 
     req.flush(testNotes);
