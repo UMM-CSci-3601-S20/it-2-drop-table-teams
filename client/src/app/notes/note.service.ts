@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { map } from 'rxjs/operators';
-import { Note, NoteStatus } from './note';
+import { Note, NoteStatus, NewNote } from './note';
 
 @Injectable()
 export class NoteService {
@@ -36,21 +36,6 @@ export class NoteService {
     });
   }
 
-
-  /**
-   * @param id: _id of the note being retrieved
-   * @param ownerID: _id of the owner who is requesting this note (fails if not a match in the note)
-   *
-   * @returns a single note with `id` belonging to `ownerID`
-   */
-  getNoteById(id: string, ownerID: string): Observable<Note> {
-    let httpParams: HttpParams = new HttpParams();
-    httpParams = httpParams.set('ownerid', ownerID); // Ensure we are getting a note that belongs to this owner
-    return this.httpClient.get<Note>(this.noteUrl + '/' + id, {
-      params: httpParams,
-    });
-  }
-
   /**
    *
    * @param notes: the list of notes being filtered
@@ -76,7 +61,7 @@ export class NoteService {
     return filteredNotes;
   }
 
-  addNewNote(newNote: Note): Observable<string> {
+  addNewNote(newNote: NewNote): Observable<string> {
     // Send a post request to add a new note with the note data as the body.
     // const test = this.httpClient.post<{id: string}>(this.noteUrl + '/new', newNote).pipe(map(res => res.id));
     return this.httpClient.post<{id: string}>(this.noteUrl + '/new', newNote).pipe(map(res => res.id));
