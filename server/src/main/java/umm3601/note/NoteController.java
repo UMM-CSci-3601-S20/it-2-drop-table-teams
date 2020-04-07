@@ -4,7 +4,6 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.regex;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,6 +24,8 @@ import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.http.UnauthorizedResponse;
+import umm3601.JwtProcessor;
 import umm3601.UnprocessableResponse;
 
 
@@ -33,10 +34,11 @@ import umm3601.UnprocessableResponse;
  */
 public class NoteController {
 
-
   private final String ISO_8601_REGEX = "([+-]\\d\\d)?\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d([+, -.])\\d\\d\\d[\\dZ]";
 
   private static DeathTimer deathTimer;
+
+  private final JwtProcessor jwtProcessor;
 
   JacksonCodecRegistry jacksonCodecRegistry = JacksonCodecRegistry.withDefaultObjectMapper();
 
@@ -46,39 +48,15 @@ public class NoteController {
    * @param database the database containing the note data
    */
 
-  public NoteController(MongoDatabase database, DeathTimer dt) {
+  public NoteController(
+      MongoDatabase database,
+      DeathTimer dt,
+      JwtProcessor jwtProcessor) {
     jacksonCodecRegistry.addCodecForClass(Note.class);
     noteCollection = database.getCollection("notes").withDocumentClass(Note.class)
         .withCodecRegistry(jacksonCodecRegistry);
-        deathTimer = dt;
-  }
-
-  /**
-   * Get a note belonging to a specific owner.
-   * Uses the following parameters in the request:
-   *
-   * `id` parameter -> note id
-   * `ownerid` -> which owner's notes
-   *
-   * @param ctx a Javalin HTTP context
-   */
-  public void getNoteById(Context ctx) {
-    String id = ctx.pathParam("id");
-    String ownerID = ctx.queryParam("ownerid");
-    Note note;
-
-    try {
-      note = noteCollection.find(eq("_id", new ObjectId(id))).first();
-    } catch(IllegalArgumentException e) {
-      throw new BadRequestResponse("The requested note id wasn't a legal Mongo Object ID.");
-    }
-    if (note == null) {
-      throw new NotFoundResponse("The requested note was not found.");
-    } else if (!note.ownerID.equals(ownerID)) {
-      throw new NotFoundResponse("The requested note does not belong to this owner.");
-    } else {
-      ctx.json(note);
-    }
+    deathTimer = dt;
+    this.jwtProcessor = jwtProcessor;
   }
 
   /**
@@ -92,6 +70,7 @@ public class NoteController {
    */
   public void deleteNote(Context ctx) {
     String id = ctx.pathParam("id");
+
     String ownerID = ctx.queryParam("ownerid");
     Note note;
 
@@ -117,6 +96,11 @@ public class NoteController {
    * @param ctx a Javalin HTTP context
    */
   public void getNotesByOwner(Context ctx) {
+    checkCredentialsForGetNotesRequest(ctx);
+
+    // If we've gotten this far without throwing an exception,
+    // the client has the proper credentials to make the get request.
+
     List<Bson> filters = new ArrayList<Bson>(); // start with a blank JSON document
     if (ctx.queryParamMap().containsKey("ownerid")) {
       String targetOwnerID = ctx.queryParam("ownerid");
@@ -138,33 +122,70 @@ public class NoteController {
   }
 
   /**
+   * Check whether the user is allowed to perform this get request, or if
+   * we should abort and send back some sort of error response.
+   *
+   * As a precondition, `ctx` should be a GET request to /api/notes.
+   *
+   * If the user has the right credentials, this method does nothing, and you
+   * can proceed as normal
+   *
+   * If the user doesn't have the right credentials, this method will throw
+   * some subclass of HttpResponseException.
+   */
+  private void checkCredentialsForGetNotesRequest(Context ctx) {
+    if (ctx.queryParamMap().containsKey("status")
+        && ctx.queryParam("status").equals("active")) {
+      // Anyone is allowed to view active notes, even if they aren't logged in.
+      return;
+    }
+
+    // For any other request, you have to be logged in.
+    String currentUserId;
+    try {
+      currentUserId = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+    } catch (UnauthorizedResponse e) {
+      throw e;
+      // Catch and rethrow, just to be explicit.
+    }
+
+    // You're only allowed to view your own notes.
+    if (!ctx.queryParamMap().containsKey("ownerid")
+        || !ctx.queryParam("ownerid").equals(currentUserId)) {
+      throw new ForbiddenResponse(
+        "Request not allowed; users can only view their own notes.");
+    }
+  }
+
+
+  /**
    * Add a new note and confirm with a successful JSON response
    *
    * @param ctx a Javalin HTTP context
    */
   public void addNewNote(Context ctx) {
     Note newNote = ctx.bodyValidator(Note.class)
-      .check((note) -> note.ownerID != null && note.ownerID.length() == 24) // 24 character hex ID
+      .check((note) -> note.ownerID == null) // The ownerID shouldn't be present; you can't choose who you're posting the note as.
       .check((note) -> note.body != null && note.body.length() > 0) // Make sure the body is not empty
       .check((note) -> note.addDate != null && note.addDate.matches(ISO_8601_REGEX))
       .check((note) -> note.expireDate == null || note.expireDate.matches(ISO_8601_REGEX))
       .check((note) -> note.status.matches("^(active|draft|deleted|template)$")) // Status should be one of these
       .get();
 
-      if(newNote.expireDate != null && !(newNote.status.equals("active"))) {
-        throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
-      }
+    // This will throw an UnauthorizedResponse if the user isn't logged in.
+    newNote.ownerID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
 
-      if(newNote.expireDate != null || newNote.status.equals("deleted")) {
-        deathTimer.updateTimerStatus(newNote); //only make a timer if needed
-      }
-      noteCollection.insertOne(newNote);
+    if(newNote.expireDate != null && !(newNote.status.equals("active"))) {
+      throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
+    }
 
+    if(newNote.expireDate != null || newNote.status.equals("deleted")) {
+      deathTimer.updateTimerStatus(newNote); //only make a timer if needed
+    }
+    noteCollection.insertOne(newNote);
 
-
-
-      ctx.status(201);
-      ctx.json(ImmutableMap.of("id", newNote._id));
+    ctx.status(201);
+    ctx.json(ImmutableMap.of("id", newNote._id));
   }
 
   /**
@@ -193,63 +214,70 @@ public class NoteController {
     } catch(IllegalArgumentException e) {
       throw new BadRequestResponse("The requested note id wasn't a legal Mongo Object ID.");
     }
+
     if (note == null) {
       throw new NotFoundResponse("The requested note does not exist.");
-    } else {
-      HashSet<String> validKeys = new HashSet<String>(Arrays.asList("body", "expireDate", "status"));
-      HashSet<String> forbiddenKeys = new HashSet<String>(Arrays.asList("ownerID", "addDate", "_id"));
-      HashSet<String> validStatuses = new HashSet<String>(Arrays.asList("active", "draft", "deleted", "template"));
-      for (String key: inputDoc.keySet()) {
-        if(forbiddenKeys.contains(key)) {
-          throw new BadRequestResponse("Cannot edit the field " + key + ": this field is not editable and should be considered static.");
-        } else if (!(validKeys.contains(key))){
-          throw new ConflictResponse("Cannot edit the nonexistent field " + key + ".");
+    }
+
+    // verifyJwtFromHeader will throw an UnauthorizedResponse if the user isn't logged in.
+    String currentUserID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+
+    if (!note.ownerID.equals(currentUserID)) {
+      throw new ForbiddenResponse("Request not allowed; users can only edit their own notes");
+    }
+
+    HashSet<String> validKeys = new HashSet<String>(Arrays.asList("body", "expireDate", "status"));
+    HashSet<String> forbiddenKeys = new HashSet<String>(Arrays.asList("ownerID", "addDate", "_id"));
+    HashSet<String> validStatuses = new HashSet<String>(Arrays.asList("active", "draft", "deleted", "template"));
+    for (String key: inputDoc.keySet()) {
+      if(forbiddenKeys.contains(key)) {
+        throw new BadRequestResponse("Cannot edit the field " + key + ": this field is not editable and should be considered static.");
+      } else if (!(validKeys.contains(key))){
+        throw new ConflictResponse("Cannot edit the nonexistent field " + key + ".");
+      }
+    }
+
+
+    String noteStatus = note.status;
+      // At this point, we're taking information from the user and putting it directly into the database.
+      // I'm unsure of how to properly sanitize this; StackOverflow just says to use PreparedStatements instead
+      // of Statements, but thanks to the magic of mongodb I'm not using either.  At this point I'm going to cross
+      // my fingers really hard and pray that this will be fine.
+
+      if(inputDoc.containsKey("body")) {
+        toEdit.append("body", inputDoc.get("body"));
+      }
+      if (inputDoc.containsKey("status")) {
+        if (validStatuses.contains(inputDoc.get("status"))) {
+          toEdit.append("status", inputDoc.get("status"));
+          noteStatus = inputDoc.get("status").toString();
+          if(inputDoc.get("status") != "active") {
+            toReturn.append("$unset", new Document("expireDate", ""));
+            //Only active notices can have expiration dates, so if a notice becomes inactive, it loses
+            //its expiration date.
+          }
+        } else {
+          throw new UnprocessableResponse(
+              "The 'status' field must contain one of 'active', 'draft', 'deleted', or 'template'.");
         }
       }
 
-
-      String noteStatus = note.status;
-        // At this point, we're taking information from the user and putting it directly into the database.
-        // I'm unsure of how to properly sanitize this; StackOverflow just says to use PreparedStatements instead
-        // of Statements, but thanks to the magic of mongodb I'm not using either.  At this point I'm going to cross
-        // my fingers really hard and pray that this will be fine.
-
-        if(inputDoc.containsKey("body")) {
-          toEdit.append("body", inputDoc.get("body"));
+      if(inputDoc.containsKey("expireDate")){
+        if(inputDoc.get("expireDate") == null) {
+          toReturn.append("$unset", new Document("expireDate", "")); //If expireDate is specifically included with a null value, remove the expiration date.
+        } else if (!(noteStatus.equals("active"))) {
+          throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
+          //Order of clauses means we don't mind of someone manually zeroes their expireDate when making something inactive.
+        } else if(inputDoc.get("expireDate").toString() //This assumes that we're using the same string encoding they are, but it's our own API we should be fine.
+        .matches(ISO_8601_REGEX)) {
+          toEdit.append("expireDate", inputDoc.get("expireDate"));
+        } else {
+          throw new UnprocessableResponse("The 'expireDate' field must contain an ISO 8061 time string.");
         }
-        if (inputDoc.containsKey("status")) {
-          if (validStatuses.contains(inputDoc.get("status"))) {
-            toEdit.append("status", inputDoc.get("status"));
-            noteStatus = inputDoc.get("status").toString();
-            if(inputDoc.get("status") != "active") {
-              toReturn.append("$unset", new Document("expireDate", ""));
-              //Only active notices can have expiration dates, so if a notice becomes inactive, it loses
-              //its expiration date.
-            }
-          } else {
-            throw new UnprocessableResponse(
-                "The 'status' field must contain one of 'active', 'draft', 'deleted', or 'template'.");
-          }
-        }
+        //This is not the right error to throw here.  It would probably make more sense to throw a
+        // 400 or 415.  Possibly throw a 422 on attempts to set the expireDate in the past?
 
-        if(inputDoc.containsKey("expireDate")){
-          if(inputDoc.get("expireDate") == null) {
-            toReturn.append("$unset", new Document("expireDate", "")); //If expireDate is specifically included with a null value, remove the expiration date.
-          } else if (!(noteStatus.equals("active"))) {
-            throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
-            //Order of clauses means we don't mind of someone manually zeroes their expireDate when making something inactive.
-          } else if(inputDoc.get("expireDate").toString() //This assumes that we're using the same string encoding they are, but it's our own API we should be fine.
-          .matches(ISO_8601_REGEX)) {
-            toEdit.append("expireDate", inputDoc.get("expireDate"));
-          } else {
-            throw new UnprocessableResponse("The 'expireDate' field must contain an ISO 8061 time string.");
-          }
-          //This is not the right error to throw here.  It would probably make more sense to throw a
-          // 400 or 415.  Possibly throw a 422 on attempts to set the expireDate in the past?
-
-          //This would most likely be done by checking new StdDateFormat().parse(inputDoc.get("expireDate").toString()).isAfter(new StdDateFormate().parse(note.addDate))
-
-        }
+        //This would most likely be done by checking new StdDateFormat().parse(inputDoc.get("expireDate").toString()).isAfter(new StdDateFormate().parse(note.addDate))
 
       }
 
