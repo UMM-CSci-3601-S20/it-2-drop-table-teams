@@ -208,7 +208,7 @@ public class NoteController {
       note = noteCollection.find(eq("_id", new ObjectId(id))).first();
       // This really isn't the right way to do things.  Retrieving the database object
       // in order to check if it exists is inefficient.  We will need to do this at some
-      // point, in order to enfore non-active notices not gaining expiration dates--but
+      // point, in order to enforce non-active notices not gaining expiration dates--but
       // we can probably move that later.  It's a question of: do the expensive thing always;
       // or do the cheap thing always, and sometimes the expensive thing as well.
     } catch(IllegalArgumentException e) {
