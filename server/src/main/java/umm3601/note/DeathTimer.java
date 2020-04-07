@@ -47,7 +47,7 @@ public class DeathTimer extends Timer {
    * set before they are permanently purged from the database. This timer is
    * currently set to one week.
    *
-   * @param n: The note whose timer will be updated.
+   * @param n The note whose timer will be updated.
    * @return true if the note now has a timer attached to it, false otherwise.
    */
   public boolean updateTimerStatus(Note n) {
