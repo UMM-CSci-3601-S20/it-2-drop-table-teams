@@ -64,7 +64,7 @@ export class OwnerPageComponent implements OnInit, OnDestroy {
 }
 
   public createGmailConnection(ownerEmail: string): void {
-    let gmailUrl = ownerEmail.replace('@', '%40'); // Convert owner e-mail to acceptable format for connection to gCalendar
+    let gmailUrl = ownerEmail.replace(/@/g, '%40'); // Convert owner e-mail to acceptable format for connection to gCalendar
     console.log('BEING CALLED');
     gmailUrl = 'https://calendar.google.com/calendar/embed?src=' + gmailUrl; // Connection string
     //this.GcalURL = gmailUrl; // Set the global connection string
