@@ -2,7 +2,7 @@ import { Component, OnInit, Input, SystemJsNgModuleLoader, Output} from '@angula
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { NewNote } from './note';
+import { NewNote, Note } from './note';
 import { NoteService } from './note.service';
 import { DoorBoardService } from '../doorBoard/doorBoard.service';
 import { DoorBoard } from '../doorBoard/doorBoard';
