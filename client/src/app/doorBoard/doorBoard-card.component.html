@@ -1,0 +1,11 @@
+
+<mat-card [routerLink]="['/doorBoards', doorBoard._id]" class="doorBoard-list-item" class="doorBoard-card" *ngIf="this.doorBoard">
+  <mat-card-header>
+    <mat-card-subtitle class="doorBoard-card-building"> Building: {{ this.doorBoard.building }}</mat-card-subtitle>
+    <mat-card-subtitle class="doorBoard-card-building"> Office Number: {{ this.doorBoard.officeNumber }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content *ngIf="!this.simple">
+  </mat-card-content>
+</mat-card>
+
+

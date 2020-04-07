@@ -1,0 +1,74 @@
+<div fxLayout="row wrap">
+  <div fxFlex fxLayoutAlign.gt-sm="start start">
+    <!--doorBoard card-->
+    <mat-card class="doorBoard-card" *ngIf="this.doorBoard">
+      <mat-card-header>
+        <mat-card-title class="doorBoard-card-title">DoorBoard Profile</mat-card-title>
+      </mat-card-header>
+      <mat-card-content id=nameField>
+        Name: {{getName()}}
+      </mat-card-content>
+      <mat-card-content id=buildingField>
+        Building: {{getBuilding()}}
+      </mat-card-content>
+      <mat-card-content id=officeNumberField>
+        Office Number: {{getOfficeNumber()}}
+      </mat-card-content>
+      <mat-card-content id=emailField>
+        E-mail: {{getEmail()}}
+      </mat-card-content>
+    </mat-card>
+
+    <!-- set active to default-->
+    <!---search Card???-->
+    <div *ngIf="compareSubs() | async">
+    <mat-card class="search-card">
+      <mat-card-header>
+        <!--Note filter-->
+        <mat-card-title class="note-list-title">Notes</mat-card-title>
+      </mat-card-header>
+      <mat-card-content fxLayout="column">
+        <div fxLayout="row wrap" fxGap>
+          <mat-form-field class="input-field">
+            <mat-label>Status</mat-label>
+            <mat-select (selectionChange)="getNotesFromServer()" [(ngModel)]="noteStatus" id="note-status-select">
+              <mat-option value="active">Active</mat-option>
+              <mat-option value="template">Template</mat-option>
+              <mat-option value="draft">Draft</mat-option>
+              <mat-option value="deleted">Deleted</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+
+    <!--New Note-->
+    <app-add-note [doorBoard_id]="this.id" class="add-note">
+    </app-add-note >
+  </div>
+    <!--Notes-->
+    <div fxFlex>
+      <mat-card class="list">
+        <mat-card-content>
+          <mat-list class="note-nav-list">
+            <h3 mat-subheader>Notes</h3>
+            <mat-list-item *ngFor="let note of this.filteredNotes" class="note-list-item">
+              <h3 matLine class="note-list-status"> {{note.status}} </h3>
+              <p matLine class="note-list-body"> {{note.body}} </p>
+              <p matLine class="note-list-expiration-date">{{note.expireDate}}</p>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div fxFlex fxLayoutAlign="end center">
+    <!--google calendar and related-->
+    <mat-card class="gcal-embed" *ngIf="this.doorBoard">
+      <iframe [src]="this.GcalURL" style="border: 0" width="800" style="border: 0" height="750" frameborder="0"
+        scrolling="auto"></iframe>
+    </mat-card>
+  </div>
+</div>
