@@ -71,7 +71,7 @@ describe('Note service: ', () => {
     req.flush(testNotes);
   } );
 
-  it('getNotesByOwnerAndStatus calls api/notes', () => {
+  it('getNotesByOwner() with status parameter calls api/notes', () => {
     noteService.getNotesByOwner('test-id', { status: 'active' }).subscribe(
       notes => expect(notes).toBe(testNotes)
     );
