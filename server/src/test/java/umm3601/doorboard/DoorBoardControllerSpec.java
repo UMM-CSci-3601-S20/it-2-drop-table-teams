@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import io.javalin.http.BadRequestResponse;
@@ -103,7 +104,8 @@ public class DoorBoardControllerSpec{
   }
 
   @BeforeEach
-  public void setupEach()throws IOException{
+  public void setupEach() throws IOException {
+    MockitoAnnotations.initMocks(this);
 
     // Reset our mock request and response objects
     mockReq.resetAll();
