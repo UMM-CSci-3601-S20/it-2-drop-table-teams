@@ -53,39 +53,42 @@ describe('Note service: ', () => {
     httpTestingController.verify();
   });
 
-  it('getNotesByOwner() calls api/notes', () => {
-    noteService.getNotesByOwner('test-id').subscribe(
-      notes => expect(notes).toBe(testNotes)
-    );
+  describe('the getNotesByOwner() method', () => {
+    it('calls /api/notes', () => {
+      noteService.getNotesByOwner('test-id').subscribe(notes => {
+        expect(notes).toBe(testNotes);
+      });
 
 
-    const req = httpTestingController.expectOne(
-      (request) => request.url.startsWith(noteService.noteUrl) && request.params.has('ownerid')
-    );
+      const req = httpTestingController.expectOne(request =>
+        request.url.startsWith(noteService.noteUrl)
+          && request.params.has('ownerid')
+      );
 
-    expect(req.request.method).toEqual('GET');
+      expect(req.request.method).toEqual('GET');
 
-   // Check that the name parameter was 'Chris'
-    expect(req.request.params.get('ownerid')).toEqual('test-id');
+     // Check that the name parameter was 'Chris'
+      expect(req.request.params.get('ownerid')).toEqual('test-id');
 
-    req.flush(testNotes);
-  } );
+      req.flush(testNotes);
+    } );
 
-  it('getNotesByOwner() with status parameter calls api/notes', () => {
-    noteService.getNotesByOwner('test-id', { status: 'active' }).subscribe(
-      notes => expect(notes).toBe(testNotes)
-    );
+    it('sends along the status query-parameter', () => {
+      noteService.getNotesByOwner('test-id', { status: 'active' }).subscribe(notes => {
+        expect(notes).toBe(testNotes);
+      });
 
-    const req = httpTestingController.expectOne(
-      (request) => request.url.startsWith(noteService.noteUrl) && request.params.has('ownerid')
-       && request.params.has('status')
-    );
+      const req = httpTestingController.expectOne(request =>
+        request.url.startsWith(noteService.noteUrl)
+          && request.params.has('ownerid')
+          && request.params.has('status')
+      );
 
-    expect(req.request.method).toEqual('GET');
+      expect(req.request.method).toEqual('GET');
 
-    expect(req.request.params.get('ownerid')).toEqual('test-id');
-    expect(req.request.params.get('status')).toEqual('active');
+      expect(req.request.params.get('ownerid')).toEqual('test-id');
+      expect(req.request.params.get('status')).toEqual('active');
 
-    req.flush(testNotes);
+      req.flush(testNotes);
+    });
   });
-});
