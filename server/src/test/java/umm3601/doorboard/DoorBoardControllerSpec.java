@@ -41,6 +41,7 @@ import org.mockito.Spy;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.http.UnauthorizedResponse;
 import io.javalin.http.util.ContextUtil;
 import io.javalin.plugin.json.JavalinJson;
 import umm3601.JwtProcessor;
@@ -146,9 +147,7 @@ public class DoorBoardControllerSpec{
 
     doorBoardDocuments.insertMany(testDoorBoards);
     doorBoardDocuments.insertOne(Document.parse(sam.toJson()));
-
-    doorBoardController = new DoorBoardController(db);
-}
+  }
 
   @AfterAll
   public static void teardown(){
@@ -158,7 +157,7 @@ public class DoorBoardControllerSpec{
 
   @Test
   public void GetAllDoorBoardsWithJwt() {
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards");
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards");
 
     useJwtForSam();
 
@@ -178,7 +177,7 @@ public class DoorBoardControllerSpec{
   // a JWT.
   @Test
   public void GetAllDoorBoardsWithoutJwt() {
-    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoards");
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards");
 
     useInvalidJwt();
 
@@ -195,42 +194,71 @@ public class DoorBoardControllerSpec{
   }
 
 
-//   @Test
-//   public void GetOwnerWithExistentId() throws IOException {
+  @Test
+  public void GetDoorBoardWithExistentIdWithJwt() throws IOException {
 
-//     String testID = samsId.toHexString();
+    String testID = samsId.toHexString();
 
-//     Context ctx = ContextUtil.init(mockReq, mockRes, "api/owners/:id", ImmutableMap.of("id", testID));
-//     ownerController.getOwner(ctx);
+    useJwtForSam();
 
-//     assertEquals(200, mockRes.getStatus());
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/:id", ImmutableMap.of("id", testID));
+    doorBoardController.getDoorBoard(ctx);
 
-//     String result = ctx.resultString();
-//     Owner resultOwner = JavalinJson.fromJson(result, Owner.class);
+    assertEquals(200, mockRes.getStatus());
 
-//     assertEquals(resultOwner._id, samsId.toHexString());
-//     assertEquals(resultOwner.name, "Sam");
-//     assertEquals(resultOwner.email, "sam@frogs.com");
-//   }
-//   @Test
-//   public void GetOwnerWithBadId() throws IOException {
+    String result = ctx.resultString();
+    DoorBoard resultDoorBoard = JavalinJson.fromJson(result, DoorBoard.class);
 
-//     Context ctx = ContextUtil.init(mockReq, mockRes, "api/owners/:id", ImmutableMap.of("id", "bad"));
+    assertEquals(resultDoorBoard._id, samsId.toHexString());
+    assertEquals(resultDoorBoard.name, "Sam");
+    assertEquals(resultDoorBoard.email, "sam@frogs.com");
+  }
 
-//     assertThrows(BadRequestResponse.class, () -> {
-//       ownerController.getOwner(ctx);
-//     });
-//   }
+  // Similarly, you can get an individual DoorBoard without a JWT.
+  @Test
+  public void GetDoorBoardWithExistentIdWithoutJwt() throws IOException {
 
-//   @Test
-//   public void GetOwnerWithNonexistentId() throws IOException {
+    String testID = samsId.toHexString();
 
-//     Context ctx = ContextUtil.init(mockReq, mockRes, "api/owners/:id", ImmutableMap.of("id", "58af3a600343927e48e87335"));
+    useInvalidJwt();
 
-//     assertThrows(NotFoundResponse.class, () -> {
-//       ownerController.getOwner(ctx);
-//     });
-//   }
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/:id", ImmutableMap.of("id", testID));
+    doorBoardController.getDoorBoard(ctx);
+
+    assertEquals(200, mockRes.getStatus());
+
+    String result = ctx.resultString();
+    DoorBoard resultDoorBoard = JavalinJson.fromJson(result, DoorBoard.class);
+
+    assertEquals(resultDoorBoard._id, samsId.toHexString());
+    assertEquals(resultDoorBoard.name, "Sam");
+    assertEquals(resultDoorBoard.email, "sam@frogs.com");
+  }
+
+
+  @Test
+  public void GetDoorBoardWithBadId() throws IOException {
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorboards/:id", ImmutableMap.of("id", "bad"));
+
+    useJwtForSam();
+
+    assertThrows(BadRequestResponse.class, () -> {
+      doorBoardController.getDoorBoard(ctx);
+    });
+  }
+
+  @Test
+  public void GetDoorBoardWithNonexistentId() throws IOException {
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/doorBoard/:id", ImmutableMap.of("id", "58af3a600343927e48e87335"));
+
+    useJwtForSam();
+
+    assertThrows(NotFoundResponse.class, () -> {
+      doorBoardController.getDoorBoard(ctx);
+    });
+  }
 
 //   @Test
 //   public void AddOwner() throws IOException {
