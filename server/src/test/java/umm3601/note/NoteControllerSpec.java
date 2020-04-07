@@ -68,8 +68,6 @@ public class NoteControllerSpec {
   static MongoClient mongoClient;
   @Spy
   static MongoDatabase db;
-  // I'll be honest this is some real bullshit to make myself able to inject
-  // dtMock.
 
   @Mock(name = "jwtProcessor")
   JwtProcessor jwtProcessorMock;
