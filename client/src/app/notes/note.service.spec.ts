@@ -53,7 +53,7 @@ describe('Note service: ', () => {
     httpTestingController.verify();
   });
 
-  it('getNotesByOwner() calls api/notes',() => {
+  it('getNotesByOwner() calls api/notes', () => {
     noteService.getNotesByOwner('test-id').subscribe(
       notes => expect(notes).toBe(testNotes)
     );
@@ -72,7 +72,7 @@ describe('Note service: ', () => {
   } );
 
   it('getNotesByOwnerAndStatus calls api/notes', () => {
-    noteService.getNotesByOwner('test-id',{ status: 'active' }).subscribe(
+    noteService.getNotesByOwner('test-id', { status: 'active' }).subscribe(
       notes => expect(notes).toBe(testNotes)
     );
 
