@@ -1,10 +1,5 @@
 export interface Note extends NewNote {
   _id: string;
-  ownerID: string;
-  body: string;
-  addDate: string;
-  expireDate: string;
-  status: NoteStatus;
 }
 
 /**
