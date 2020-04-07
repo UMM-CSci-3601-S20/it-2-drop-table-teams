@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Note } from './note';
+import { Note, NewNote } from './note';
 import { NoteService } from './note.service';
 
 describe('Note service: ', () => {
@@ -33,7 +33,7 @@ describe('Note service: ', () => {
     }
   ];
 
-  const newNote: Note = {
+  const newNote: NewNote = {
       ownerID: 'test-id',
       body: 'Fourth body.',
       addDate: new Date().toISOString(),
@@ -112,7 +112,7 @@ describe('Note service: ', () => {
         request.url.startsWith(noteService.noteUrl + '/new')
       );
 
-      expect(req.request.method).toEqual('GET');
+      expect(req.request.method).toEqual('POST');
 
       expect(req.request.body).toEqual(newNote);
 
