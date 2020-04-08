@@ -168,7 +168,7 @@ public class NoteController {
     Note newNote = ctx.bodyValidator(Note.class)
       .check((note) -> note.ownerID == null) // The ownerID shouldn't be present; you can't choose who you're posting the note as.
       .check((note) -> note.body != null && note.body.length() > 0) // Make sure the body is not empty
-      .check((note) -> note.addDate == null)
+      //.check((note) -> note.addDate == null)
       .check((note) -> note.expireDate == null || note.expireDate.matches(ISO_8601_REGEX))
       .check((note) -> note.status.matches("^(active|draft|deleted|template)$")) // Status should be one of these
       .get();
@@ -186,13 +186,6 @@ public class NoteController {
       deathTimer.updateTimerStatus(newNote); //only make a timer if needed
     }
     noteCollection.insertOne(newNote);
-
-
-    // Ah, the joys of having datestrings, Dates, and Instants all be totally separate.
-    // This is being done as a separate operation, because _id doesn't seem to exist prior to this
-    // which was leading to IllegalArgumentExceptions
-    noteCollection.updateOne(eq("_id", newNote._id), new Document("addDate",
-    DateTimeFormatter.ISO_ZONED_DATE_TIME.format(new org.bson.types.ObjectId(newNote._id).getDate().toInstant())));
 
     ctx.status(201);
     ctx.json(ImmutableMap.of("id", newNote._id));
