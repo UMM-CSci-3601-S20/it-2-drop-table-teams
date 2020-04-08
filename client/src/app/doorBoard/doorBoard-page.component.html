@@ -3,7 +3,7 @@
     <!--doorBoard card-->
     <mat-card class="doorBoard-card" *ngIf="this.doorBoard">
       <mat-card-header>
-        <mat-card-title class="doorBoard-card-title">DoorBoard Profile</mat-card-title>
+        <mat-card-title class="doorBoard-card-title">doorBoard Profile</mat-card-title>
       </mat-card-header>
       <mat-card-content id=nameField>
         Name: {{getName()}}
@@ -54,9 +54,10 @@
           <mat-list class="note-nav-list">
             <h3 mat-subheader>Notes</h3>
             <mat-list-item *ngFor="let note of this.filteredNotes" class="note-list-item">
-              <h3 matLine class="note-list-status"> {{note.status}} </h3>
+             <mat-card class="note-card">
               <p matLine class="note-list-body"> {{note.body}} </p>
               <p matLine class="note-list-expiration-date">{{note.expireDate}}</p>
+            </mat-card>
             </mat-list-item>
           </mat-list>
         </mat-card-content>
