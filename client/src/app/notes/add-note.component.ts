@@ -19,7 +19,6 @@ export class AddNoteComponent implements OnInit {
   @Input() doorBoard_id: string;
 
   addNoteForm: FormGroup;
-  note: Note;
   constructor(private fb: FormBuilder, private noteService: NoteService,
               private snackBar: MatSnackBar, private router: Router, public doorBoardService: DoorBoardService) {
   }
