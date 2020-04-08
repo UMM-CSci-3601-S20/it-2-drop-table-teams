@@ -1,13 +1,11 @@
-import { Component, OnInit, Input} from '@angular/core';
+import { Component, OnInit, Input, SystemJsNgModuleLoader, Output} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Note } from './note';
+import { NewNote, Note } from './note';
 import { NoteService } from './note.service';
 import { DoorBoardService } from '../doorBoard/doorBoard.service';
 import { DoorBoard } from '../doorBoard/doorBoard';
-import { DoorBoardPageComponent } from '../doorBoard/doorBoard-page.component';
-
 
 
 @Component({
@@ -21,10 +19,8 @@ export class AddNoteComponent implements OnInit {
   @Input() doorBoard_id: string;
 
   addNoteForm: FormGroup;
-  note: Note;
   constructor(private fb: FormBuilder, private noteService: NoteService,
-              private snackBar: MatSnackBar, private router: Router,
-              public doorBoardService: DoorBoardService, private doorBoardPageComponent: DoorBoardPageComponent) {
+              private snackBar: MatSnackBar, private router: Router, public doorBoardService: DoorBoardService) {
   }
 
   @Input() doorBoard: DoorBoard;
@@ -75,16 +71,16 @@ export class AddNoteComponent implements OnInit {
 
 
   submitForm() {
-    const noteToAdd: Note = this.addNoteForm.value;
+    const noteToAdd: NewNote = this.addNoteForm.value;
+    //const doorBoard_id = this.router.url.substring(9); // trim off "/notes/new/"
     noteToAdd.doorBoardID = this.doorBoard_id;
-    noteToAdd.addDate = new Date().toISOString();
     this.noteService.addNewNote(noteToAdd).subscribe(newID => {
 
       this.snackBar.open('Added Note ', null, {
         duration: 2000,
       });
       this.router.navigate(['/doorBoards/', this.doorBoard_id]);
-      this.doorBoardPageComponent.getNotesFromServer();
+      location.reload();
     }, err => {
       this.snackBar.open('Failed to add the note', null, {
         duration: 2000,
