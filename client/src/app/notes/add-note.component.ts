@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, SystemJsNgModuleLoader, Output} from '@angular/core';
+import { Component, OnInit, Input} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
@@ -6,6 +6,8 @@ import { Note } from './note';
 import { NoteService } from './note.service';
 import { OwnerService } from '../owner/owner.service';
 import { Owner } from '../owner/owner';
+import { OwnerPageComponent } from '../owner/owner-page.component';
+
 
 
 @Component({
@@ -21,7 +23,9 @@ export class AddNoteComponent implements OnInit {
   addNoteForm: FormGroup;
   note: Note;
   constructor(private fb: FormBuilder, private noteService: NoteService,
-              private snackBar: MatSnackBar, private router: Router, public ownerService: OwnerService) {
+              private snackBar: MatSnackBar, private router: Router,
+              private ownerService: OwnerService,
+              private ownerPageComponent: OwnerPageComponent) {
   }
 
   @Input() owner: Owner;
@@ -73,7 +77,6 @@ export class AddNoteComponent implements OnInit {
 
   submitForm() {
     const noteToAdd: Note = this.addNoteForm.value;
-    //const owner_id = this.router.url.substring(9); // trim off "/notes/new/"
     noteToAdd.ownerID = this.owner_id;
     noteToAdd.addDate = new Date().toISOString();
     this.noteService.addNewNote(noteToAdd).subscribe(newID => {
@@ -82,7 +85,7 @@ export class AddNoteComponent implements OnInit {
         duration: 2000,
       });
       this.router.navigate(['/owners/', this.owner_id]);
-      location.reload();
+      this.ownerPageComponent.getNotesFromServer();
     }, err => {
       this.snackBar.open('Failed to add the note', null, {
         duration: 2000,
