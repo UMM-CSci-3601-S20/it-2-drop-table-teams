@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../auth/auth.service';
 import { Router } from '@angular/router';
 import { DoorBoard } from '../doorBoard/doorBoard';
 import { DoorBoardService } from '../doorBoard/doorBoard.service';

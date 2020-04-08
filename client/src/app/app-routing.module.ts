@@ -7,7 +7,7 @@ import { DoorBoardPageComponent } from './doorBoard/doorBoard-page.component';
 import { EditNoteComponent } from './notes/edit-note.component';
 import { AddNoteComponent } from './notes/add-note.component';
 import { DoorBoardComponent} from './your-doorBoard/your-doorBoard.component';
-import { AuthGuard } from './auth.guard';
+import { AuthGuard } from './auth/auth.guard';
 
 
 const routes: Routes = [
