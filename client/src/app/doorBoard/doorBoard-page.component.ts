@@ -9,7 +9,7 @@ import { Subscription, forkJoin, Observable } from 'rxjs';
 import { NoteService } from '../notes/note.service';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../auth/auth.service';
 import { HttpParameterCodec } from "@angular/common/http";
 import { async } from '@angular/core/testing';
 import { map } from 'rxjs/operators';
