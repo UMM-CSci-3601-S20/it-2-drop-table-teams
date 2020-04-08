@@ -168,7 +168,7 @@ public class NoteControllerSpec {
 
     samsNoteId = new ObjectId();
     BasicDBObject sam = new BasicDBObject("_id", samsNoteId);
-    sam = sam.append("doorBoardID", samsDoorBoardID)
+    sam = sam.append("doorBoardID", samsDoorBoardID.toHexString())
       .append("body", "I am sam")
       .append("addDate", "2020-03-07T22:03:38+0000")
       .append("expireDate", "2100-03-07T22:03:38+0000")
