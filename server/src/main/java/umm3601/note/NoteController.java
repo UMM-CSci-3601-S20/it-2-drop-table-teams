@@ -73,6 +73,8 @@ public class NoteController {
    *
    * Returns null if the ObjectId doesn't correspond to any DoorBoard in the
    * database.
+   *
+   * Throws an IllegalArgumentException if doorBoardID isn't a valid ObjectId.
    */
   private DoorBoard getDoorBoard(String doorBoardID) {
     return doorBoardCollection
@@ -199,7 +201,7 @@ public class NoteController {
    */
   public void addNewNote(Context ctx) {
     Note newNote = ctx.bodyValidator(Note.class)
-      .check((note) -> note.doorBoardID == null) // The doorBoardID shouldn't be present; you can't choose who you're posting the note as.
+      .check((note) -> note.doorBoardID != null) // The doorBoardID shouldn't be present; you can't choose who you're posting the note as.
       .check((note) -> note.body != null && note.body.length() > 0) // Make sure the body is not empty
       .check((note) -> note.addDate != null && note.addDate.matches(ISO_8601_REGEX))
       .check((note) -> note.expireDate == null || note.expireDate.matches(ISO_8601_REGEX))
@@ -207,7 +209,25 @@ public class NoteController {
       .get();
 
     // This will throw an UnauthorizedResponse if the user isn't logged in.
-    newNote.doorBoardID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+    String currentUserSub = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+
+
+    DoorBoard doorBoard;
+    try {
+      doorBoard = getDoorBoard(newNote.doorBoardID);
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestResponse(
+        newNote.doorBoardID + "does not refer to an existing DoorBoard.");
+    }
+
+    if (doorBoard == null) {
+      throw new BadRequestResponse(
+        newNote.doorBoardID + "does not refer to an existing DoorBoard.");
+    }
+
+    if (!doorBoard.sub.equals(currentUserSub)) {
+      throw new ForbiddenResponse("You can only add notes to your own DoorBoard.");
+    }
 
     if(newNote.expireDate != null && !(newNote.status.equals("active"))) {
       throw new ConflictResponse("Expiration dates can only be assigned to active notices.");

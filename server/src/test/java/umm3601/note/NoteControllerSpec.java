@@ -485,6 +485,56 @@ public class NoteControllerSpec {
   }
 
   @Test
+  public void addNoteToNonexistentDoorBoardFails() throws IOException {
+    String testNewNote = "{ "
+      + "\"doorBoardID\": \"" + new ObjectId() + "\", "
+      + "\"body\": \"Faily McFailface\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
+
+    mockReq.setBodyContent(testNewNote);
+    mockReq.setMethod("POST");
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    useJwtForSam();
+
+    assertThrows(BadRequestResponse.class, () -> {
+      noteController.addNewNote(ctx);
+    });
+
+    assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
+  }
+
+  @Test
+  public void addNoteWithBadDoorBoardIDFails() throws IOException {
+    String testNewNote = "{ "
+      + "\"doorBoardID\": \"frogs are cool I guess sometimes\", "
+      + "\"body\": \"Faily McFailface\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
+
+    mockReq.setBodyContent(testNewNote);
+    mockReq.setMethod("POST");
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    useJwtForSam();
+
+    assertThrows(BadRequestResponse.class, () -> {
+      noteController.addNewNote(ctx);
+    });
+
+    assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
+  }
+
+
+
+  @Test
   public void AddNoteWithoutExpiration() throws IOException {
     String testNewNote = "{ "
       + "\"doorBoardID\": \"" + doorBoard1ID + "\", "
