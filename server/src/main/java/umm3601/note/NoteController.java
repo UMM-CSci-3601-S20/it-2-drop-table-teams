@@ -274,9 +274,11 @@ public class NoteController {
     }
 
     // verifyJwtFromHeader will throw an UnauthorizedResponse if the user isn't logged in.
-    String currentUserID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+    String currentUserSub = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
 
-    if (!note.doorBoardID.equals(currentUserID)) {
+    String subOfOwnerOfNote = getDoorBoard(note.doorBoardID).sub;
+
+    if (!subOfOwnerOfNote.equals(currentUserSub)) {
       throw new ForbiddenResponse("Request not allowed; users can only edit their own notes");
     }
 
@@ -305,7 +307,7 @@ public class NoteController {
         if (validStatuses.contains(inputDoc.get("status"))) {
           toEdit.append("status", inputDoc.get("status"));
           noteStatus = inputDoc.get("status").toString();
-          if(inputDoc.get("status") != "active") {
+          if(!inputDoc.get("status").equals("active")) {
             toReturn.append("$unset", new Document("expireDate", ""));
             //Only active notices can have expiration dates, so if a notice becomes inactive, it loses
             //its expiration date.
@@ -319,7 +321,7 @@ public class NoteController {
       if(inputDoc.containsKey("expireDate")){
         if(inputDoc.get("expireDate") == null) {
           toReturn.append("$unset", new Document("expireDate", "")); //If expireDate is specifically included with a null value, remove the expiration date.
-        } else if (!(noteStatus.equals("active"))) {
+        } else if (!noteStatus.equals("active")) {
           throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
           //Order of clauses means we don't mind of someone manually zeroes their expireDate when making something inactive.
         } else if(inputDoc.get("expireDate").toString() //This assumes that we're using the same string encoding they are, but it's our own API we should be fine.
