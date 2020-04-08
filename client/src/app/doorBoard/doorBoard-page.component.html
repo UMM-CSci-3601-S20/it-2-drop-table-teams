@@ -44,7 +44,7 @@
 
 
     <!--New Note-->
-    <app-add-note [doorBoard_id]="this.id" class="add-note">
+    <app-add-note [doorBoard_id]="this.id" (newNoteAdded)="getNotesFromServer()" class="add-note">
     </app-add-note >
   </div>
     <!--Notes-->
