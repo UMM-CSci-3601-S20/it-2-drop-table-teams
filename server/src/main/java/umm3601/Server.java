@@ -64,7 +64,7 @@ public class Server {
 
     // ----- Note routes ----- //
     // List notes, filtered using query parameters
-    server.get("api/notes", noteController::getNotesByOwner);
+    server.get("api/notes", noteController::getNotesByDoorBoard);
 
     // Delete specific note
     server.delete("api/notes/:id", noteController::deleteNote);
