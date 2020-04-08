@@ -12,10 +12,6 @@ public class Note {
   @ObjectId @Id
   public String _id;
 
-  // Jackson should consider doorBoardID nullable, but Mongo shouldn't.
-  // (Notes might have a null doorBoardID while they're in transit, but not
-  // when they're in the database.)
-  @JsonInclude(Include.NON_NULL)
   public String doorBoardID;
 
   public String body;
