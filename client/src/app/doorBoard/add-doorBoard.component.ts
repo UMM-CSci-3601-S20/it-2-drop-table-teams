@@ -49,10 +49,6 @@ export class AddDoorBoardComponent implements OnInit {
       {type: 'pattern', message: 'Office number must contain only numbers and letters'},
     ],
     sub: [
-      {type: 'required', message: 'Sub is required' },
-      {type: 'minlength', message: 'Sub must be at least 1 characters long'},
-      {type: 'maxlength', message: 'Sub cannot be more than 25 characters long'},
-      {type: 'pattern', message: 'Sub must contain only numbers and letters'},
     ],
   };
 
@@ -94,9 +90,7 @@ export class AddDoorBoardComponent implements OnInit {
       ])),
 
       sub: new FormControl('', Validators.compose([
-        Validators.required,
-        Validators.minLength(1),
-        Validators.maxLength(50)
+
       ])),
 
     });

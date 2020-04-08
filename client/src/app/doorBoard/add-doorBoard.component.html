@@ -59,17 +59,8 @@ is potentially helpful and contributed to the shaping of this example -->
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field>
-            <mat-label>Sub</mat-label>
-            <input matInput #input id="subField" placeholder="sub"
-                  formControlName="sub" [(ngModel)]= "profile.sub" required>
-            <mat-error *ngFor="let validation of add_doorBoard_validation_messages.sub">
-              <mat-error class="error-message" id="sub-error"
-                        *ngIf="addDoorBoardForm.get('sub').hasError(validation.type) && (addDoorBoardForm.get('sub').dirty || addDoorBoardForm.get('sub').touched)">
-                {{validation.message}}
-                </mat-error>
-              </mat-error>
-          </mat-form-field>
+          <input type="hidden" #input id="sub" placeholder="Sub"
+          ormControlName="sub"  [(ngModel)]= "profile.sub"  required>
 
         </mat-card-content>
         <mat-card-actions align="end">
