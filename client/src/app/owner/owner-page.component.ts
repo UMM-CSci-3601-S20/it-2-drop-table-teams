@@ -9,7 +9,7 @@ import { Subscription, forkJoin } from 'rxjs';
 import { NoteService } from '../notes/note.service';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { HttpParameterCodec } from "@angular/common/http";
+import { HttpParameterCodec } from '@angular/common/http';
 import { async } from '@angular/core/testing';
 @Component({
   selector: 'app-owner-page-component',

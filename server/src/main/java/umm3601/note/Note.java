@@ -1,15 +1,18 @@
 package umm3601.note;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.mongodb.lang.Nullable;
 
 import org.mongojack.Id;
-import org.mongojack.ObjectId;
+
 
 public class Note {
 
-  @ObjectId @Id
+  @org.mongojack.ObjectId @Id
   public String _id;
 
   // Jackson should consider ownerID nullable, but Mongo shouldn't.
@@ -20,7 +23,7 @@ public class Note {
 
   public String body;
 
-  public String addDate;
+  public Date addDate = new Date();
 
   @Nullable @JsonInclude(Include.NON_NULL)
   public String expireDate;

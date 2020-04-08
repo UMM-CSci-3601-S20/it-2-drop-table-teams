@@ -143,7 +143,7 @@ public class NoteControllerSpec {
             + "expireDate: \"2021-03-07T22:03:38+0000\", " + "status: \"active\"" + "}"));
     samsNoteId = new ObjectId();
     BasicDBObject sam = new BasicDBObject("_id", samsNoteId);
-    sam = sam.append("ownerID", "owner3_ID").append("body", "I am sam").append("expireDate", "2100-03-07T22:03:38+0000")
+    sam = sam.append("ownerID", "owner3_ID").append("body", "I am sam").append("addDate", new Date()).append("expireDate", "2100-03-07T22:03:38+0000")
         .append("status", "active");
 
     noteDocuments.insertMany(testNotes);
@@ -411,15 +411,10 @@ public class NoteControllerSpec {
 
     Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
 
-    Date idDate = new ObjectId(id).getDate();
     assertNotNull(addedNote);
     assertEquals("some_new_owner", addedNote.getString("ownerID"));
     assertEquals("Test Body", addedNote.getString("body"));
-    try {
-      assertEquals(idDate, new StdDateFormat().parse(addedNote.getString("addDate")));
-    } catch (ParseException e) {
-      fail(e);
-    }
+    assertNotNull(addedNote.get("addDate")); // we don't know when it was created, so we just want to make sure the date exists.
     assertEquals("2021-03-07T22:03:38+0000", addedNote.getString("expireDate"));
     assertEquals("active", addedNote.getString("status"));
 
@@ -428,11 +423,7 @@ public class NoteControllerSpec {
     assertEquals(id, newNote._id);
     assertEquals("some_new_owner", newNote.ownerID);
     assertEquals("Test Body", newNote.body);
-    try {
-      assertEquals(idDate, new StdDateFormat().parse(newNote.addDate));
-    } catch (ParseException e) {
-      fail(e);
-    }
+    assertNotNull(newNote.addDate);
     assertEquals("2021-03-07T22:03:38+0000", newNote.expireDate);
     assertEquals("active", newNote.status);
   }
@@ -618,6 +609,8 @@ public class NoteControllerSpec {
 
     useJwtForSam();
 
+    Date samsDate = db.getCollection("notes").find(eq("_id", samsNoteId)).first().getDate("addDate");
+
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
     noteController.editNote(ctx);
 
@@ -638,11 +631,7 @@ public class NoteControllerSpec {
 
     assertEquals("owner3_ID", editedNote.getString("ownerID"));
     assertEquals("active", editedNote.getString("status"));
-    try {
-      assertEquals(samsNoteId.getDate(), new StdDateFormat().parse(editedNote.getString("addDate")));
-    } catch (ParseException e) {
-      fail(e);
-    }
+    assertEquals(samsDate, editedNote.getDate("addDate"));
     assertEquals("2100-03-07T22:03:38+0000", editedNote.getString("expireDate"));
     // all other fields should be untouched
 
@@ -658,6 +647,7 @@ public class NoteControllerSpec {
 
     useJwtForSam();
 
+    Date samsDate = db.getCollection("notes").find(eq("_id", samsNoteId)).first().getDate("addDate");
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
     noteController.editNote(ctx);
 
@@ -673,11 +663,7 @@ public class NoteControllerSpec {
 
     assertEquals("active", editedNote.getString("status"));
     assertEquals("owner3_ID", editedNote.getString("ownerID"));
-    try {
-      assertEquals(samsNoteId.getDate(), new StdDateFormat().parse(editedNote.getString("addDate")));
-    } catch (ParseException e) {
-      fail(e);
-    }
+    assertEquals(samsDate, editedNote.getDate("addDate"));
     // Since the expireDate was changed, the timer's status should have been updated
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note updatedNote = noteCaptor.getValue();
@@ -686,11 +672,7 @@ public class NoteControllerSpec {
     assertEquals("2025-03-07T22:03:38+0000", updatedNote.expireDate);
     assertEquals("active", updatedNote.status);
     assertEquals("owner3_ID", updatedNote.ownerID);
-    try {
-      assertEquals(samsNoteId.getDate(), new StdDateFormat().parse(updatedNote.addDate));
-    } catch (ParseException e) {
-      fail(e);
-    }
+    assertEquals(samsDate, updatedNote.addDate);
   }
 
   @Test
@@ -838,6 +820,9 @@ public class NoteControllerSpec {
 
     useJwtForSam();
 
+    Date samsDate = db.getCollection("notes").find(eq("_id", samsNoteId)).first().getDate("addDate");
+
+
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
 
     noteController.editNote(ctx);
@@ -854,21 +839,14 @@ public class NoteControllerSpec {
     assertEquals("active", editedNote.getString("status"));
     assertEquals("I am sam", editedNote.getString("body"));
     assertEquals("owner3_ID", editedNote.getString("ownerID"));
-    try {
-      assertEquals(samsNoteId.getDate(), new StdDateFormat().parse(editedNote.getString("addDate")));
-    } catch (ParseException e) {
-      fail(e);
-    }
+    assertEquals(samsDate, editedNote.getDate("addDate"));
+
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note updatedNote = noteCaptor.getValue();
     assertEquals("active", updatedNote.status);
     assertEquals("I am sam", updatedNote.body);
     assertEquals("owner3_ID", updatedNote.ownerID);
-    try {
-      assertEquals(samsNoteId.getDate(), new StdDateFormat().parse(updatedNote.addDate));
-    } catch (ParseException e) {
-      fail(e);
-    }
+    assertEquals(samsDate, updatedNote.addDate);
   }
 
   @Test
@@ -894,7 +872,8 @@ public class NoteControllerSpec {
     noteController.addNewNote(ctx);
 
     String id = jsonMapper.readValue(ctx.resultString(), ObjectNode.class).get("id").asText();
-    Date idDate = new ObjectId(id).getDate();
+    Date idDate = db.getCollection("notes").find(eq("_id", id)).first().getDate("addDate");
+
     mockRes.resetAll();
 
     // We don't need to re-mock the JwtProcessor; the old mock should
@@ -911,11 +890,7 @@ public class NoteControllerSpec {
     assertNotNull(addedNote);
     assertEquals("e7fd674c72b76596c75d9f1e", addedNote.getString("ownerID"));
     assertEquals("Test Body", addedNote.getString("body"));
-    try {
-      assertEquals(idDate, new StdDateFormat().parse(addedNote.getString("addDate")));
-    } catch (ParseException e) {
-      fail(e);
-    }
+    assertEquals(idDate, addedNote.getDate("addDate"));
     assertEquals("2021-03-07T22:03:38+0000", addedNote.getString("expireDate"));
     assertEquals("active", addedNote.getString("status"));
 
@@ -924,11 +899,7 @@ public class NoteControllerSpec {
     assertEquals(id, editedNote._id);
     assertEquals("e7fd674c72b76596c75d9f1e", editedNote.ownerID);
     assertEquals("Test Body", editedNote.body);
-    try {
-      assertEquals(idDate, new StdDateFormat().parse(editedNote.addDate));
-    } catch (ParseException e) {
-      fail(e);
-    }
+    assertEquals(idDate, editedNote.addDate);
     assertEquals("2021-03-07T22:03:38+0000", editedNote.expireDate);
     assertEquals("active", editedNote.status);
 
@@ -972,7 +943,6 @@ public class NoteControllerSpec {
 
     String testNewNote = "{ "
       + "\"body\": \"Test Body\", "
-      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
       + "\"status\": \"template\""
       + "}";
 
