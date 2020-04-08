@@ -27,6 +27,7 @@ import io.javalin.http.NotFoundResponse;
 import io.javalin.http.UnauthorizedResponse;
 import umm3601.JwtProcessor;
 import umm3601.UnprocessableResponse;
+import umm3601.doorboard.DoorBoard;
 
 
 /**
@@ -43,6 +44,7 @@ public class NoteController {
   JacksonCodecRegistry jacksonCodecRegistry = JacksonCodecRegistry.withDefaultObjectMapper();
 
   private final MongoCollection<Note> noteCollection;
+  private final MongoCollection<DoorBoard> doorBoardCollection;
 
   /**
    * @param database the database containing the note data
@@ -53,8 +55,14 @@ public class NoteController {
       DeathTimer dt,
       JwtProcessor jwtProcessor) {
     jacksonCodecRegistry.addCodecForClass(Note.class);
+    jacksonCodecRegistry.addCodecForClass(DoorBoard.class);
+
     noteCollection = database.getCollection("notes").withDocumentClass(Note.class)
         .withCodecRegistry(jacksonCodecRegistry);
+
+    doorBoardCollection = database.getCollection("doorBoards").withDocumentClass(DoorBoard.class)
+        .withCodecRegistry(jacksonCodecRegistry);
+
     deathTimer = dt;
     this.jwtProcessor = jwtProcessor;
   }
@@ -71,22 +79,31 @@ public class NoteController {
   public void deleteNote(Context ctx) {
     String id = ctx.pathParam("id");
 
-    String doorBoardID = ctx.queryParam("doorBoardid");
-    Note note;
+    // This throws an UnauthorizedResponse if the user isn't logged in.
+    String sub = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
 
+    Note note;
     try {
       note = noteCollection.find(eq("_id", new ObjectId(id))).first();
     } catch(IllegalArgumentException e) {
       throw new BadRequestResponse("The requested note id wasn't a legal Mongo Object ID.");
     }
+
     if (note == null) {
       throw new NotFoundResponse("The requested does not exist.");
-    } else if (note.doorBoardID != doorBoardID) {
-      throw new ForbiddenResponse("The requested note does not belong to this doorBoard. It cannot be deleted.");
-    } else {
-      noteCollection.deleteOne(eq("_id", new ObjectId(id)));
-      deathTimer.clearKey(id);
     }
+
+    String subOfOwnerOfNote = doorBoardCollection
+      .find(eq("_id", new ObjectId(note.doorBoardID)))
+      .first()
+      .sub;
+    if (!sub.equals(subOfOwnerOfNote)) {
+      throw new ForbiddenResponse("The requested note does not belong to this doorBoard. It cannot be deleted.");
+    }
+
+    noteCollection.deleteOne(eq("_id", new ObjectId(id)));
+    deathTimer.clearKey(id);
+    ctx.status(204);
   }
 
   /**
