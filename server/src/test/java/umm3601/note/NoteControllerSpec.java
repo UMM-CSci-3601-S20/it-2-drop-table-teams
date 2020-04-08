@@ -77,7 +77,6 @@ public class NoteControllerSpec {
 
   private void useJwtForUser1() {
     // Make a fake DecodedJWT for jwtProcessorMock to return.
-    // (Sam's Auth0 sub is "doorBoard3_ID".)
     DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
     when(mockDecodedJWT.getSubject()).thenReturn("user1");
     when(jwtProcessorMock.verifyJwtFromHeader(any()))
@@ -86,7 +85,6 @@ public class NoteControllerSpec {
 
   private void useJwtForSam() {
     // Make a fake DecodedJWT for jwtProcessorMock to return.
-    // (Sam's Auth0 sub is "doorBoard3_ID".)
     DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
     when(mockDecodedJWT.getSubject()).thenReturn("sam");
     when(jwtProcessorMock.verifyJwtFromHeader(any()))
@@ -192,7 +190,7 @@ public class NoteControllerSpec {
 
   @Test
   public void getAllNotesForDoorBoard1() {
-    mockReq.setQueryString("doorBoardid=doorBoard1_ID");
+    mockReq.setQueryString("doorBoardid=" + doorBoard1ID);
 
     useJwtForUser1();
 
@@ -207,7 +205,7 @@ public class NoteControllerSpec {
 
     assertEquals(2, resultNotes.length);
     for (Note note : resultNotes) {
-      assertEquals("doorBoard1_ID", note.doorBoardID, "Incorrect ID");
+      assertEquals(doorBoard1ID.toHexString(), note.doorBoardID, "Incorrect ID");
     }
   }
 
@@ -247,7 +245,7 @@ public class NoteControllerSpec {
 
     assertEquals(2, resultNotes.length);
     for (Note note : resultNotes) {
-      assertEquals(doorBoard1ID, note.doorBoardID, "Incorrect ID");
+      assertEquals(doorBoard1ID.toHexString(), note.doorBoardID, "Incorrect ID");
     }
   }
 
@@ -300,7 +298,7 @@ public class NoteControllerSpec {
 
     assertEquals(2, resultNotes.length);
     for (Note note : resultNotes) {
-      assertEquals(doorBoard1ID, note.doorBoardID, "Incorrect ID");
+      assertEquals(doorBoard1ID.toHexString(), note.doorBoardID, "Incorrect ID");
     }
   }
 
@@ -352,7 +350,7 @@ public class NoteControllerSpec {
 
     assertEquals(2, resultNotes.length);
     for (Note note : resultNotes) {
-      assertEquals(doorBoard1ID, note.doorBoardID, "Incorrect ID");
+      assertEquals(doorBoard1ID.toHexString(), note.doorBoardID, "Incorrect ID");
     }
   }
 
@@ -408,7 +406,7 @@ public class NoteControllerSpec {
     String result = ctx.resultString();
     Note[] resultNotes = JavalinJson.fromJson(result, Note[].class);
 
-    assertEquals(6, resultNotes.length);
+    assertEquals(4, resultNotes.length);
   }
 
   /*
@@ -446,7 +444,7 @@ public class NoteControllerSpec {
 
     Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
     assertNotNull(addedNote);
-    assertEquals(doorBoard1ID, addedNote.getString("doorBoardID"));
+    assertEquals(doorBoard1ID.toHexString(), addedNote.getString("doorBoardID"));
     assertEquals("Test Body", addedNote.getString("body"));
     assertEquals("2020-03-07T22:03:38+0000", addedNote.getString("addDate"));
     assertEquals("2021-03-07T22:03:38+0000", addedNote.getString("expireDate"));
@@ -455,7 +453,7 @@ public class NoteControllerSpec {
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note newNote = noteCaptor.getValue();
     assertEquals(id, newNote._id);
-    assertEquals(doorBoard1ID, newNote.doorBoardID);
+    assertEquals(doorBoard1ID.toHexString(), newNote.doorBoardID);
     assertEquals("Test Body", newNote.body);
     assertEquals("2020-03-07T22:03:38+0000", newNote.addDate);
     assertEquals("2021-03-07T22:03:38+0000", newNote.expireDate);
@@ -515,7 +513,7 @@ public class NoteControllerSpec {
 
     Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
     assertNotNull(addedNote);
-    assertEquals(doorBoard1ID, addedNote.getString("doorBoardID"));
+    assertEquals(doorBoard1ID.toHexString(), addedNote.getString("doorBoardID"));
     assertEquals("Test Body", addedNote.getString("body"));
     assertEquals("2020-03-07T22:03:38+0000", addedNote.getString("addDate"));
     assertNull(addedNote.getString("expireDate"));
@@ -629,7 +627,7 @@ public class NoteControllerSpec {
     assertEquals("I am not sam anymore", editedNote.getString("body"));
     // The edited field should show the new value
 
-    assertEquals(samsDoorBoardID, editedNote.getString("doorBoardID"));
+    assertEquals(samsDoorBoardID.toHexString(), editedNote.getString("doorBoardID"));
     assertEquals("active", editedNote.getString("status"));
     assertEquals("2020-03-07T22:03:38+0000", editedNote.getString("addDate"));
     assertEquals("2100-03-07T22:03:38+0000", editedNote.getString("expireDate"));
@@ -661,7 +659,7 @@ public class NoteControllerSpec {
     assertEquals("2025-03-07T22:03:38+0000", editedNote.getString("expireDate"));
 
     assertEquals("active", editedNote.getString("status"));
-    assertEquals(samsDoorBoardID, editedNote.getString("doorBoardID"));
+    assertEquals(samsDoorBoardID.toHexString(), editedNote.getString("doorBoardID"));
     assertEquals("2020-03-07T22:03:38+0000", editedNote.getString("addDate"));
 
     // Since the expireDate was changed, the timer's status should have been updated
@@ -671,7 +669,7 @@ public class NoteControllerSpec {
     assertEquals("I am still sam", updatedNote.body);
     assertEquals("2025-03-07T22:03:38+0000", updatedNote.expireDate);
     assertEquals("active", updatedNote.status);
-    assertEquals(samsDoorBoardID, updatedNote.doorBoardID);
+    assertEquals(samsDoorBoardID.toHexString(), updatedNote.doorBoardID);
     assertEquals("2020-03-07T22:03:38+0000", updatedNote.addDate);
   }
 
@@ -835,14 +833,14 @@ public class NoteControllerSpec {
 
     assertEquals("active", editedNote.getString("status"));
     assertEquals("I am sam", editedNote.getString("body"));
-    assertEquals(samsDoorBoardID, editedNote.getString("doorBoardID"));
+    assertEquals(samsDoorBoardID.toHexString(), editedNote.getString("doorBoardID"));
     assertEquals("2020-03-07T22:03:38+0000", editedNote.getString("addDate"));
 
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note updatedNote = noteCaptor.getValue();
     assertEquals("active", updatedNote.status);
     assertEquals("I am sam", updatedNote.body);
-    assertEquals(samsDoorBoardID, updatedNote.doorBoardID);
+    assertEquals(samsDoorBoardID.toHexString(), updatedNote.doorBoardID);
     assertEquals("2020-03-07T22:03:38+0000", updatedNote.addDate);
   }
 
@@ -885,7 +883,7 @@ public class NoteControllerSpec {
 
     Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
     assertNotNull(addedNote);
-    assertEquals(doorBoard1ID, addedNote.getString("doorBoardID"));
+    assertEquals(doorBoard1ID.toHexString(), addedNote.getString("doorBoardID"));
     assertEquals("Test Body", addedNote.getString("body"));
     assertEquals("2020-03-07T22:03:38+0000", addedNote.getString("addDate"));
     assertEquals("2021-03-07T22:03:38+0000", addedNote.getString("expireDate"));
@@ -894,7 +892,7 @@ public class NoteControllerSpec {
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note editedNote = noteCaptor.getValue();
     assertEquals(id, editedNote._id);
-    assertEquals(doorBoard1ID, editedNote.doorBoardID);
+    assertEquals(doorBoard1ID.toHexString(), editedNote.doorBoardID);
     assertEquals("Test Body", editedNote.body);
     assertEquals("2020-03-07T22:03:38+0000", editedNote.addDate);
     assertEquals("2021-03-07T22:03:38+0000", editedNote.expireDate);
@@ -924,7 +922,7 @@ public class NoteControllerSpec {
     assertNull(editedNote.getString("expireDate"));
 
     assertEquals("I am sam", editedNote.getString("body"));
-    assertEquals(samsDoorBoardID, editedNote.getString("doorBoardID"));
+    assertEquals(samsDoorBoardID.toHexString(), editedNote.getString("doorBoardID"));
     assertEquals("2020-03-07T22:03:38+0000", editedNote.getString("addDate"));
 
     verify(dtMock).updateTimerStatus(any(Note.class));
