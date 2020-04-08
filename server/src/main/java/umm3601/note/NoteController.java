@@ -68,6 +68,19 @@ public class NoteController {
   }
 
   /**
+   * Given the ObjectId, as a hex string, of a DoorBoard in the database,
+   * return that DoorBoard.
+   *
+   * Returns null if the ObjectId doesn't correspond to any DoorBoard in the
+   * database.
+   */
+  private DoorBoard getDoorBoard(String doorBoardID) {
+    return doorBoardCollection
+      .find(eq("_id", new ObjectId(doorBoardID)))
+      .first();
+  }
+
+  /**
    * Delete a note belonging to a specific doorBoard.
    * Uses the following parameters in the request:
    *
@@ -80,7 +93,7 @@ public class NoteController {
     String id = ctx.pathParam("id");
 
     // This throws an UnauthorizedResponse if the user isn't logged in.
-    String sub = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+    String currentUserSub = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
 
     Note note;
     try {
@@ -93,11 +106,8 @@ public class NoteController {
       throw new NotFoundResponse("The requested does not exist.");
     }
 
-    String subOfOwnerOfNote = doorBoardCollection
-      .find(eq("_id", new ObjectId(note.doorBoardID)))
-      .first()
-      .sub;
-    if (!sub.equals(subOfOwnerOfNote)) {
+    String subOfOwnerOfNote = getDoorBoard(note.doorBoardID).sub;
+    if (!currentUserSub.equals(subOfOwnerOfNote)) {
       throw new ForbiddenResponse("The requested note does not belong to this doorBoard. It cannot be deleted.");
     }
 
@@ -158,17 +168,24 @@ public class NoteController {
     }
 
     // For any other request, you have to be logged in.
-    String currentUserId;
+    String currentUserSub;
     try {
-      currentUserId = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+      currentUserSub = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
     } catch (UnauthorizedResponse e) {
       throw e;
       // Catch and rethrow, just to be explicit.
     }
 
-    // You're only allowed to view your own notes.
-    if (!ctx.queryParamMap().containsKey("doorBoardid")
-        || !ctx.queryParam("doorBoardid").equals(currentUserId)) {
+    // You can't view everyone's notes (unless you're only asking for active
+    // notes.)
+
+    if (!ctx.queryParamMap().containsKey("doorBoardid")) {
+      throw new ForbiddenResponse(
+        "Request not allowed; users can only view their own notes.");
+    }
+
+    String subOfOwnerOfDoorBoard = getDoorBoard(ctx.queryParam("doorBoardid")).sub;
+    if (!currentUserSub.equals(subOfOwnerOfDoorBoard)) {
       throw new ForbiddenResponse(
         "Request not allowed; users can only view their own notes.");
     }
