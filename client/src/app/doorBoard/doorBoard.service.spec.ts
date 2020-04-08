@@ -1,35 +1,38 @@
 import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Owner } from './owner';
-import { OwnerService } from './owner.service';
+import { DoorBoard } from './doorBoard';
+import { DoorBoardService } from './doorBoard.service';
 
-describe('Owner service: ', () => {
-  // A small collection of test owners
-  const testOwners: Owner[] = [
+describe('DoorBoard service: ', () => {
+  // A small collection of test doorBoards
+  const testDoorBoards: DoorBoard[] = [
     {
       _id: 'chris_id',
       name: 'Chris',
       building: 'Science Hall',
       email: 'chris@this.that',
-      officeNumber: '1001'
+      officeNumber: '1001',
+      sub: 'ABC'
     },
     {
       _id: 'richard_id',
       name: 'Richard Mars',
       building: 'HFA',
       email: 'mars@this.that',
-      officeNumber: '2022'
+      officeNumber: '2022',
+      sub: 'BCD'
     },
     {
       _id: 'william_id',
       name: 'William',
       building: 'Humanities',
       email: 'enterprise@this.that',
-      officeNumber: '111'
+      officeNumber: '111',
+      sub: 'CDE'
     }
   ];
-  let ownerService: OwnerService;
+  let doorBoardService: DoorBoardService;
   // These are used to mock the HTTP requests so that we (a) don't have to
   // have the server running and (b) we can check exactly which HTTP
   // requests were made to ensure that we're making the correct requests.
@@ -45,7 +48,7 @@ describe('Owner service: ', () => {
     httpTestingController = TestBed.inject(HttpTestingController);
     // Construct an instance of the service with the mock
     // HTTP client.
-    ownerService = new OwnerService(httpClient);
+    doorBoardService = new DoorBoardService(httpClient);
   });
 
   afterEach(() => {
@@ -53,27 +56,27 @@ describe('Owner service: ', () => {
     httpTestingController.verify();
   });
 
-  it('getOwners() calls api/owners', () => {
+  it('getDoorBoards() calls api/doorBoards', () => {
 
-    ownerService.getOwners().subscribe(
-      owners => expect(owners).toBe(testOwners)
+    doorBoardService.getDoorBoards().subscribe(
+      doorBoards => expect(doorBoards).toBe(testDoorBoards)
     );
-    const req = httpTestingController.expectOne(ownerService.ownerUrl);
+    const req = httpTestingController.expectOne(doorBoardService.doorBoardUrl);
 
     expect(req.request.method).toEqual('GET');
 
-    req.flush(testOwners);
+    req.flush(testDoorBoards);
   });
 
-  it('getOwners() calls api/owners with filter parameter \'name\'', () => {
+  it('getDoorBoards() calls api/doorBoards with filter parameter \'name\'', () => {
 
-    ownerService.getOwners({ name: 'Chris' }).subscribe(
-      owners => expect(owners).toBe(testOwners)
+    doorBoardService.getDoorBoards({ name: 'Chris' }).subscribe(
+      doorBoards => expect(doorBoards).toBe(testDoorBoards)
     );
 
     // Specify that (exactly) one request will be made to the specified URL with the name parameter.
     const req = httpTestingController.expectOne(
-      (request) => request.url.startsWith(ownerService.ownerUrl) && request.params.has('name')
+      (request) => request.url.startsWith(doorBoardService.doorBoardUrl) && request.params.has('name')
     );
 
     // Check that the request made to that URL was a GET request.
@@ -82,18 +85,18 @@ describe('Owner service: ', () => {
     // Check that the name parameter was 'Chris'
     expect(req.request.params.get('name')).toEqual('Chris');
 
-    req.flush(testOwners);
+    req.flush(testDoorBoards);
   });
 
-  it('getOwners() calls api/owners with filter parameter \'email\'', () => {
+  it('getDoorBoards() calls api/doorBoards with filter parameter \'email\'', () => {
 
-    ownerService.getOwners({ email: 'mars@this.that' }).subscribe(
-      owners => expect(owners).toBe(testOwners)
+    doorBoardService.getDoorBoards({ email: 'mars@this.that' }).subscribe(
+      doorBoards => expect(doorBoards).toBe(testDoorBoards)
     );
 
     // Specify that (exactly) one request will be made to the specified URL with the parameter.
     const req = httpTestingController.expectOne(
-      (request) => request.url.startsWith(ownerService.ownerUrl) && request.params.has('email')
+      (request) => request.url.startsWith(doorBoardService.doorBoardUrl) && request.params.has('email')
     );
 
     // Check that the request made to that URL was a GET request.
@@ -102,18 +105,18 @@ describe('Owner service: ', () => {
     // Check that the parameter was correct
     expect(req.request.params.get('email')).toEqual('mars@this.that');
 
-    req.flush(testOwners);
+    req.flush(testDoorBoards);
   });
 
-  it('getOwners() calls api/owners with multiple filter parameters', () => {
+  it('getDoorBoards() calls api/doorBoards with multiple filter parameters', () => {
 
-    ownerService.getOwners({ name: 'william', building: 'Humanities', officeNumber: '111' }).subscribe(
-      owners => expect(owners).toBe(testOwners)
+    doorBoardService.getDoorBoards({ name: 'william', building: 'Humanities', officeNumber: '111', sub: 'CED' }).subscribe(
+      doorBoards => expect(doorBoards).toBe(testDoorBoards)
     );
 
     // Specify that (exactly) one request will be made to the specified URL with the parameters.
     const req = httpTestingController.expectOne(
-      (request) => request.url.startsWith(ownerService.ownerUrl)
+      (request) => request.url.startsWith(doorBoardService.doorBoardUrl)
         && request.params.has('name') && request.params.has('building') && request.params.has('officenumber')
     );
 
@@ -124,40 +127,41 @@ describe('Owner service: ', () => {
     expect(req.request.params.get('name')).toEqual('william');
     expect(req.request.params.get('building')).toEqual('Humanities');
     expect(req.request.params.get('officenumber')).toEqual('111');
+    expect(req.request.params.get('sub')).toEqual('CED');
 
-    req.flush(testOwners);
+    req.flush(testDoorBoards);
   });
 
-  it('getOwnerById() calls api/owners/id', () => {
-    const targetOwner: Owner = testOwners[1];
-    const targetId: string = targetOwner._id;
-    ownerService.getOwnerById(targetId).subscribe(
-      owner => expect(owner).toBe(targetOwner)
+  it('getDoorBoardById() calls api/doorBoards/id', () => {
+    const targetDoorBoard: DoorBoard = testDoorBoards[1];
+    const targetId: string = targetDoorBoard._id;
+    doorBoardService.getDoorBoardById(targetId).subscribe(
+      doorBoard => expect(doorBoard).toBe(targetDoorBoard)
     );
 
-    const expectedUrl: string = ownerService.ownerUrl + '/' + targetId;
+    const expectedUrl: string = doorBoardService.doorBoardUrl + '/' + targetId;
     const req = httpTestingController.expectOne(expectedUrl);
     expect(req.request.method).toEqual('GET');
-    req.flush(targetOwner);
+    req.flush(targetDoorBoard);
   });
 
 
-  it('filterOwners() filters by building', () => {
-    expect(testOwners.length).toBe(3);
-    const ownerCompany = 'HFA';
-    expect(ownerService.filterOwners(testOwners, { building: ownerCompany }).length).toBe(1);
+  it('filterDoorBoards() filters by building', () => {
+    expect(testDoorBoards.length).toBe(3);
+    const doorBoardCompany = 'HFA';
+    expect(doorBoardService.filterDoorBoards(testDoorBoards, { building: doorBoardCompany }).length).toBe(1);
   });
 
-  it('addOwner() calls api/owners/new', () => {
+  it('addDoorBoard() calls api/doorBoards/new', () => {
 
-    ownerService.addOwner(testOwners[1]).subscribe(
+    doorBoardService.addDoorBoard(testDoorBoards[1]).subscribe(
       id => expect(id).toBe('testid')
     );
 
-    const req = httpTestingController.expectOne(ownerService.ownerUrl + '/new');
+    const req = httpTestingController.expectOne(doorBoardService.doorBoardUrl + '/new');
 
     expect(req.request.method).toEqual('POST');
-    expect(req.request.body).toEqual(testOwners[1]);
+    expect(req.request.body).toEqual(testDoorBoards[1]);
 
     req.flush({id: 'testid'});
   });

@@ -30,7 +30,7 @@ import umm3601.UnprocessableResponse;
 
 
 /**
- * Controller that manages requests for note data (for a specific owner).
+ * Controller that manages requests for note data (for a specific doorBoard).
  */
 public class NoteController {
 
@@ -60,18 +60,18 @@ public class NoteController {
   }
 
   /**
-   * Delete a note belonging to a specific owner.
+   * Delete a note belonging to a specific doorBoard.
    * Uses the following parameters in the request:
    *
    * `id` parameter -> note id
-   * `ownerid` -> which owner's notes
+   * `doorBoardid` -> which doorBoard's notes
    *
    * @param ctx a Javalin HTTP context
    */
   public void deleteNote(Context ctx) {
     String id = ctx.pathParam("id");
 
-    String ownerID = ctx.queryParam("ownerid");
+    String doorBoardID = ctx.queryParam("doorBoardid");
     Note note;
 
     try {
@@ -81,8 +81,8 @@ public class NoteController {
     }
     if (note == null) {
       throw new NotFoundResponse("The requested does not exist.");
-    } else if (note.ownerID != ownerID) {
-      throw new ForbiddenResponse("The requested note does not belong to this owner. It cannot be deleted.");
+    } else if (note.doorBoardID != doorBoardID) {
+      throw new ForbiddenResponse("The requested note does not belong to this doorBoard. It cannot be deleted.");
     } else {
       noteCollection.deleteOne(eq("_id", new ObjectId(id)));
       deathTimer.clearKey(id);
@@ -95,16 +95,16 @@ public class NoteController {
    *
    * @param ctx a Javalin HTTP context
    */
-  public void getNotesByOwner(Context ctx) {
+  public void getNotesByDoorBoard(Context ctx) {
     checkCredentialsForGetNotesRequest(ctx);
 
     // If we've gotten this far without throwing an exception,
     // the client has the proper credentials to make the get request.
 
     List<Bson> filters = new ArrayList<Bson>(); // start with a blank JSON document
-    if (ctx.queryParamMap().containsKey("ownerid")) {
-      String targetOwnerID = ctx.queryParam("ownerid");
-      filters.add(eq("ownerID", targetOwnerID));
+    if (ctx.queryParamMap().containsKey("doorBoardid")) {
+      String targetDoorBoardID = ctx.queryParam("doorBoardid");
+      filters.add(eq("doorBoardID", targetDoorBoardID));
     }
     if (ctx.queryParamMap().containsKey("body")) {
       filters.add(regex("body", ctx.queryParam("body"), "i"));
@@ -150,8 +150,8 @@ public class NoteController {
     }
 
     // You're only allowed to view your own notes.
-    if (!ctx.queryParamMap().containsKey("ownerid")
-        || !ctx.queryParam("ownerid").equals(currentUserId)) {
+    if (!ctx.queryParamMap().containsKey("doorBoardid")
+        || !ctx.queryParam("doorBoardid").equals(currentUserId)) {
       throw new ForbiddenResponse(
         "Request not allowed; users can only view their own notes.");
     }
@@ -165,7 +165,7 @@ public class NoteController {
    */
   public void addNewNote(Context ctx) {
     Note newNote = ctx.bodyValidator(Note.class)
-      .check((note) -> note.ownerID == null) // The ownerID shouldn't be present; you can't choose who you're posting the note as.
+      .check((note) -> note.doorBoardID == null) // The doorBoardID shouldn't be present; you can't choose who you're posting the note as.
       .check((note) -> note.body != null && note.body.length() > 0) // Make sure the body is not empty
       .check((note) -> note.addDate != null && note.addDate.matches(ISO_8601_REGEX))
       .check((note) -> note.expireDate == null || note.expireDate.matches(ISO_8601_REGEX))
@@ -173,7 +173,7 @@ public class NoteController {
       .get();
 
     // This will throw an UnauthorizedResponse if the user isn't logged in.
-    newNote.ownerID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+    newNote.doorBoardID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
 
     if(newNote.expireDate != null && !(newNote.status.equals("active"))) {
       throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
@@ -222,12 +222,12 @@ public class NoteController {
     // verifyJwtFromHeader will throw an UnauthorizedResponse if the user isn't logged in.
     String currentUserID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
 
-    if (!note.ownerID.equals(currentUserID)) {
+    if (!note.doorBoardID.equals(currentUserID)) {
       throw new ForbiddenResponse("Request not allowed; users can only edit their own notes");
     }
 
     HashSet<String> validKeys = new HashSet<String>(Arrays.asList("body", "expireDate", "status"));
-    HashSet<String> forbiddenKeys = new HashSet<String>(Arrays.asList("ownerID", "addDate", "_id"));
+    HashSet<String> forbiddenKeys = new HashSet<String>(Arrays.asList("doorBoardID", "addDate", "_id"));
     HashSet<String> validStatuses = new HashSet<String>(Arrays.asList("active", "draft", "deleted", "template"));
     for (String key: inputDoc.keySet()) {
       if(forbiddenKeys.contains(key)) {

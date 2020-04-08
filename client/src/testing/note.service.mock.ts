@@ -8,7 +8,7 @@ export class MockNoteService extends NoteService {
   static testNotes: Note[] = [
     {
       _id: 'first_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'This is the body of the first test id. It is somewhat long.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -16,7 +16,7 @@ export class MockNoteService extends NoteService {
     },
     {
       _id: 'second_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'This is the second test id.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -24,7 +24,7 @@ export class MockNoteService extends NoteService {
     },
     {
       _id: 'third_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'Third test id body.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -32,7 +32,7 @@ export class MockNoteService extends NoteService {
     },
     {
       _id: 'fourth_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'This is the fourth test id.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -40,7 +40,7 @@ export class MockNoteService extends NoteService {
     },
     {
       _id: 'fifth_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'Fifth id test body.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -48,7 +48,7 @@ export class MockNoteService extends NoteService {
     },
     {
       _id: 'sixth_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'Sixth id test body.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -56,7 +56,7 @@ export class MockNoteService extends NoteService {
     },
     {
       _id: 'seventh_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'Fifth id test body.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -64,7 +64,7 @@ export class MockNoteService extends NoteService {
     },
     {
       _id: 'eighth_id',
-      ownerID: 'test-id',
+      doorBoardID: 'test-id',
       body: 'Eighth id test body.',
       addDate: new Date().toISOString(),
       expireDate: '2025-03-06T22:03:38+0000',
@@ -77,11 +77,11 @@ export class MockNoteService extends NoteService {
     super(null);
   }
 
-  getNotesByOwner(OwnerId: string): Observable<Note[]> {
+  getNotesByDoorBoard(DoorBoardId: string): Observable<Note[]> {
    let notesObtained: Note[];
    let amount = 0;
    for(let i = 0; i < 8; i++){
-      if (OwnerId === MockNoteService.testNotes[i].ownerID) {
+      if (DoorBoardId === MockNoteService.testNotes[i].doorBoardID) {
         notesObtained[amount] = MockNoteService.testNotes[i];
         amount++;
       }

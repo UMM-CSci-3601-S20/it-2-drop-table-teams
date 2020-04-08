@@ -1,16 +1,16 @@
 import {browser, by, element, Key, ElementFinder} from 'protractor';
 
-export class OwnerPage {
+export class DoorBoardPage {
   navigateTo() {
-    return browser.get('/owners');
+    return browser.get('/doorBoards');
   }
 
   getUrl() {
     return browser.getCurrentUrl();
   }
 
-  getOwnerTitle() {
-    const title = element(by.className('owner-list-title')).getText();
+  getDoorBoardTitle() {
+    const title = element(by.className('doorBoard-list-title')).getText();
     return title;
   }
 
@@ -27,15 +27,15 @@ export class OwnerPage {
     });
   }
 
-  getOwnerListItems() {
-    return element(by.className('owner-nav-list')).all(by.className('owner-list-item'));
+  getDoorBoardListItems() {
+    return element(by.className('doorBoard-nav-list')).all(by.className('doorBoard-list-item'));
   }
 
-  clickViewOwner() {
-    return element(by.className('owner-list-item')).click();
+  clickViewDoorBoard() {
+    return element(by.className('doorBoard-list-item')).click();
   }
 
-  clickAddOwnerFAB() {
-    return element(by.className('add-owner-fab')).click();
+  clickAddDoorBoardFAB() {
+    return element(by.className('add-doorBoard-fab')).click();
   }
 }

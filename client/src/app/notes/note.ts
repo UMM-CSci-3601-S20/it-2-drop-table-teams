@@ -7,7 +7,7 @@ export interface Note extends NewNote {
  * them are left for the server to fill in.
  */
 export interface NewNote {
-  ownerID: string;
+  doorBoardID: string;
   body: string;
   addDate: string;
   expireDate: string;

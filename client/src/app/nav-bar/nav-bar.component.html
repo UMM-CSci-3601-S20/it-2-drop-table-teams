@@ -1,0 +1,5 @@
+  <!-- Copied from Auth0 recommended setup files for Angular clients  -->
+
+  <button mat-raised-button (click)="auth.login()" *ngIf="!auth.loggedIn"> <mat-icon>account_circle</mat-icon> Log In or Sign Up</button>
+  <button mat-raised-button (click)="auth.logout()" *ngIf="auth.loggedIn"> <mat-icon>account_circle</mat-icon> Log Out</button>
+
