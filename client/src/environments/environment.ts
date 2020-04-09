@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  API_URL: '/api/'
+  API_URL: '/api/',
+  OUR_API_NAME: 'https://64.227.25.112.nip.io/api/',
 };
 
 /*

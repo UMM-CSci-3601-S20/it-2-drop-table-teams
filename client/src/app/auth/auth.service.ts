@@ -4,6 +4,7 @@ import Auth0Client from '@auth0/auth0-spa-js/dist/typings/Auth0Client';
 import { from, of, Observable, BehaviorSubject, combineLatest, throwError } from 'rxjs';
 import { tap, catchError, concatMap, shareReplay } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 // Copied from Auth0 recommended setup files for Angular clients
 
@@ -16,7 +17,8 @@ export class AuthService {
     createAuth0Client({
       domain: 'doorbboard-dev.auth0.com',
       client_id: 'xJFvEnSarSELOghxsm4D24IO3zib10Ub',
-      redirect_uri: `${window.location.origin}`
+      redirect_uri: `${window.location.origin}`,
+      audience: environment.OUR_API_NAME,
     })
   ) as Observable<Auth0Client>).pipe(
     shareReplay(1), // Every subscription receives the same shared value
@@ -112,6 +114,13 @@ export class AuthService {
         this.router.navigate([targetRoute]);
       });
     }
+  }
+
+  getTokenSilently$(options?): Observable<string> {
+    // Return an access token if it exists; otherwise, prompt for login.
+    return this.auth0Client$.pipe(
+      concatMap((client: Auth0Client) => from(client.getTokenSilently(options)))
+    );
   }
 
   logout() {
