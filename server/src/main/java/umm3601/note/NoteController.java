@@ -4,6 +4,7 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.regex;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -13,6 +14,9 @@ import com.google.common.collect.ImmutableMap;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.FindIterable;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -202,8 +206,7 @@ public class NoteController {
   public void addNewNote(Context ctx) {
     Note newNote = ctx.bodyValidator(Note.class)
       .check((note) -> note.doorBoardID != null) // The doorBoardID shouldn't be present; you can't choose who you're posting the note as.
-      .check((note) -> note.body != null && note.body.length() > 0) // Make sure the body is not empty
-      .check((note) -> note.addDate != null && note.addDate.matches(ISO_8601_REGEX))
+      .check((note) -> note.body != null && note.body.length() > 0) // Make sure the body is not empty -- consider using StringUtils.isBlank to also get all-whitespace notes?
       .check((note) -> note.expireDate == null || note.expireDate.matches(ISO_8601_REGEX))
       .check((note) -> note.status.matches("^(active|draft|deleted|template)$")) // Status should be one of these
       .get();
@@ -252,17 +255,18 @@ public class NoteController {
     Document toReturn = new Document();
 
     String id = ctx.pathParam("id");
-    Note note;
-
     if(inputDoc.isEmpty()) {
       throw new BadRequestResponse("PATCH request must contain a body.");
     }
 
+
+    Note note;
+
     try {
-      note = noteCollection.find(eq("_id", new ObjectId(id))).first();
+      note = noteCollection.find(eq("_id", new ObjectId(id))).projection(new Document("addDate", 0)).first();
       // This really isn't the right way to do things.  Retrieving the database object
       // in order to check if it exists is inefficient.  We will need to do this at some
-      // point, in order to enfore non-active notices not gaining expiration dates--but
+      // point, in order to enforce non-active notices not gaining expiration dates--but
       // we can probably move that later.  It's a question of: do the expensive thing always;
       // or do the cheap thing always, and sometimes the expensive thing as well.
     } catch(IllegalArgumentException e) {
