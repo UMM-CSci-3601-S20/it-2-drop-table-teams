@@ -26,7 +26,7 @@ export class InterceptorService implements HttpInterceptor {
     return next.handle(req);
   }
 
-  private shouldThereBeAToken(req: HttpRequest<any>): boolean {
+  shouldThereBeAToken(req: HttpRequest<any>): boolean {
     let endpoint: string;
     const match = req.url.match(/^\/api\/(.*?)\/?$/);
     if (match) {
@@ -60,7 +60,7 @@ export class InterceptorService implements HttpInterceptor {
     }
   }
 
-  private requestWithTokenAttached(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  requestWithTokenAttached(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return this.auth.getTokenSilently$().pipe(
       mergeMap(token => {
         const tokenReq = req.clone({
