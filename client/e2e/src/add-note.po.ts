@@ -1,4 +1,4 @@
-import {browser, by, element, Key, ElementFinder} from 'protractor';
+import {browser, by, element} from 'protractor';
 import {NoteStatus} from '../../src/app/notes/note';
 
 export interface TestNote {
