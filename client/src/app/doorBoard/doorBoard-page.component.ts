@@ -101,14 +101,20 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
 
   public getLoginSub(): Observable<string> {
     const currentSub = this.auth.userProfile$.pipe(
-      map(profile => JSON.stringify(profile.sub).replace(/['"]+/g, ''))
+      map(profile => {
+        if (profile) {
+          return JSON.stringify(profile.sub).replace(/['"]+/g, '');
+        } else {
+          return null;
+        }
+      })
     );
     return currentSub;
   }
 
 
   public compareSubs(): Observable<boolean> {
-    return this.getLoginSub().pipe(map(val => val === this.getSub()));
+    return this.getLoginSub().pipe(map(val => val !== null && val === this.getSub()));
   }
 
 
