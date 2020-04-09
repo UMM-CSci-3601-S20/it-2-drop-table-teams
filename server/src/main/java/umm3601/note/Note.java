@@ -19,11 +19,7 @@ public class Note {
   @org.mongojack.ObjectId @Id
   public String _id;
 
-  // Jackson should consider ownerID nullable, but Mongo shouldn't.
-  // (Notes might have a null ownerID while they're in transit, but not
-  // when they're in the database.)
-  @JsonInclude(Include.NON_NULL)
-  public String ownerID;
+  public String doorBoardID;
 
   public String body;
 

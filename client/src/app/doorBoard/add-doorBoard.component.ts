@@ -2,26 +2,28 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Owner } from './owner';
-import { OwnerService } from './owner.service';
+import { DoorBoard } from './doorBoard';
+import { DoorBoardService } from './doorBoard.service';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
-  selector: 'app-add-owner',
-  templateUrl: './add-owner.component.html',
+  selector: 'app-add-doorBoard',
+  templateUrl: './add-doorBoard.component.html',
   styleUrls: []
 })
-export class AddOwnerComponent implements OnInit {
+export class AddDoorBoardComponent implements OnInit {
 
-  addOwnerForm: FormGroup;
+  addDoorBoardForm: FormGroup;
 
-  owner: Owner;
+  doorBoard: DoorBoard;
 
-  constructor(private fb: FormBuilder, private ownerService: OwnerService, private snackBar: MatSnackBar, private router: Router) {
+  constructor(private fb: FormBuilder, private doorBoardService: DoorBoardService, private snackBar: MatSnackBar, private router: Router,
+              public auth: AuthService) {
   }
 
   // not sure if this name is magical and making it be found or if I'm missing something,
   // but this is where the red text that shows up (when there is invalid input) comes from
-  add_owner_validation_messages = {
+  add_doorBoard_validation_messages = {
     name: [
       {type: 'required', message: 'Name is required'},
       {type: 'minlength', message: 'Name must be more than 1 character long'},
@@ -45,15 +47,17 @@ export class AddOwnerComponent implements OnInit {
       {type: 'minlength', message: 'Office number must be at least 1 characters long'},
       {type: 'maxlength', message: 'Office number cannot be more than 25 characters long'},
       {type: 'pattern', message: 'Office number must contain only numbers and letters'},
-    ]
+    ],
+    sub: [
+    ],
   };
 
   createForms() {
 
-    // add owner form validations
-    this.addOwnerForm = this.fb.group({
+    // add doorBoard form validations
+    this.addDoorBoardForm = this.fb.group({
       // We allow alphanumeric input and limit the length for name.
-      // FIX: this incorrectly rejects owners whose names contain
+      // FIX: this incorrectly rejects doorBoards whose names contain
       // non-English characters.  I'm unclear as to why we're actually
       // doing this check in the first place--if we want to prevent some
       // sort of attack, we should perform actual sanitation rather than
@@ -85,6 +89,10 @@ export class AddOwnerComponent implements OnInit {
         Validators.pattern('^[\\w\\s]+$')
       ])),
 
+      sub: new FormControl('', Validators.compose([
+
+      ])),
+
     });
 
   }
@@ -95,15 +103,16 @@ export class AddOwnerComponent implements OnInit {
 
 
   submitForm() {
-    this.ownerService.addOwner(this.addOwnerForm.value).subscribe(newID => {
-      this.snackBar.open('Added Owner ' + this.addOwnerForm.value.name, null, {
+    this.doorBoardService.addDoorBoard(this.addDoorBoardForm.value).subscribe(newID => {
+      this.snackBar.open('Added DoorBoard ' + this.addDoorBoardForm.value.name, null, {
         duration: 2000,
       });
-      this.router.navigate(['/owners/', newID]);
+      this.router.navigate(['/doorBoards/', newID]);
     }, err => {
-      this.snackBar.open('Failed to add the owner', null, {
+      this.snackBar.open('Failed to add the doorBoard', null, {
         duration: 2000,
       });
+      console.error(err);
     });
   }
 

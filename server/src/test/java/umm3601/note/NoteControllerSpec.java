@@ -70,6 +70,9 @@ public class NoteControllerSpec {
   private ObjectId samsNoteId;
   private Date samsDate;
 
+  private ObjectId doorBoard1ID;
+  private ObjectId samsDoorBoardID;
+
   static MongoClient mongoClient;
   @Spy
   static MongoDatabase db;
@@ -77,26 +80,27 @@ public class NoteControllerSpec {
   @Mock(name = "jwtProcessor")
   JwtProcessor jwtProcessorMock;
 
-  private void useJwtForOwner1() {
+  private void useJwtForUser1() {
     // Make a fake DecodedJWT for jwtProcessorMock to return.
-    // (Sam's owner ID is "owner3_ID".)
     DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
-    when(mockDecodedJWT.getSubject()).thenReturn("owner1_ID");
-    when(jwtProcessorMock.verifyJwtFromHeader(any())).thenReturn(mockDecodedJWT);
+    when(mockDecodedJWT.getSubject()).thenReturn("user1");
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
   }
 
   private void useJwtForSam() {
     // Make a fake DecodedJWT for jwtProcessorMock to return.
-    // (Sam's owner ID is "owner3_ID".)
     DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
-    when(mockDecodedJWT.getSubject()).thenReturn("owner3_ID");
-    when(jwtProcessorMock.verifyJwtFromHeader(any())).thenReturn(mockDecodedJWT);
+    when(mockDecodedJWT.getSubject()).thenReturn("sam");
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
   }
 
   private void useJwtForNewUser() {
     DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
     when(mockDecodedJWT.getSubject()).thenReturn("e7fd674c72b76596c75d9f1e");
-    when(jwtProcessorMock.verifyJwtFromHeader(any())).thenReturn(mockDecodedJWT);
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
   }
 
   private void useInvalidJwt() {
@@ -127,22 +131,59 @@ public class NoteControllerSpec {
 
     MongoCollection<Document> noteDocuments = db.getCollection("notes");
     noteDocuments.drop();
+
+    MongoCollection<Document> doorBoardDocuments = db.getCollection("doorBoards");
+    doorBoardDocuments.drop();
+
+    doorBoard1ID = new ObjectId();
+    BasicDBObject doorBoard1 = new BasicDBObject("_id", doorBoard1ID)
+      .append("name", "User One")
+      .append("email", "one@one.com")
+      .append("building", "100 First St")
+      .append("officeNumber", "1001")
+      .append("sub", "user1");
+
+    samsDoorBoardID = new ObjectId();
+    BasicDBObject samsDoorBoard = new BasicDBObject("_id", samsDoorBoardID)
+      .append("name", "Sam Spade")
+      .append("email", "sam@frogs.frogs")
+      .append("building", "Herpetology Department")
+      .append("officeNumber", "2001")
+      .append("sub", "sam");
+
+    doorBoardDocuments.insertOne(Document.parse(doorBoard1.toJson()));
+    doorBoardDocuments.insertOne(Document.parse(samsDoorBoard.toJson()));
+
     List<Document> testNotes = new ArrayList<>();
-    testNotes.add(Document
-        .parse("{ " + "ownerID: \"owner1_ID\", " + "body: \"I am running 5 minutes late to my non-existent office\", "
-            + "expireDate: \"2021-03-20T22:03:38+0000\", " + "status: \"active\"" + "}"));
-    testNotes.add(Document.parse("{ " + "ownerID: \"owner1_ID\", " + "body: \"I am never coming to my office again\", "
-        + "expireDate: \"2099-03-07T22:03:38+0000\", " + "status: \"active\"" + "}"));
-    testNotes.add(Document.parse("{ " + "ownerID: \"owner2_ID\", " + "body: \"I am on sabbatical no office hours\", "
-        + "expireDate: \"2021-03-07T22:03:38+0000\", " + "status: \"active\"" + "}"));
-    testNotes.add(Document.parse("{ " + "ownerID: \"owner2_ID\", " + "body: \"Go to owner3's office\", "
-        + "expireDate: \"2020-03-21T22:03:38+0000\", " + "status: \"active\"" + "}"));
-    testNotes.add(Document.parse("{ " + "ownerID: \"owner3_ID\", " + "body: \"Not many come to my office I offer donuts\", "
-        + "expireDate: \"2021-03-07T22:03:38+0000\", " + "status: \"active\"" + "}"));
+    testNotes.add(Document.parse("{ "
+      + "doorBoardID: \"" + doorBoard1ID + "\", "
+      + "body: \"I am running 5 minutes late to my non-existent office\", "
+      + "addDate: \"2020-03-07T22:03:38+0000\", "
+      + "expireDate: \"2021-03-20T22:03:38+0000\", "
+      + "status: \"active\""
+      + "}"));
+    testNotes.add(Document.parse("{ "
+      + "doorBoardID: \"" + doorBoard1ID + "\", "
+      + "body: \"I am never coming to my office again\", "
+      + "addDate: \"2020-03-07T22:03:38+0000\", "
+      + "expireDate: \"2099-03-07T22:03:38+0000\", "
+      + "status: \"active\""
+      + "}"));
+    testNotes.add(Document.parse("{ "
+      + "doorBoardID: \"" + samsDoorBoardID + "\", "
+      + "body: \"Not many come to my office I offer donuts\", "
+      + "addDate: \"2020-03-07T22:03:38+0000\", "
+      + "expireDate: \"2021-03-07T22:03:38+0000\", "
+      + "status: \"active\""
+      + "}"));
+
     samsNoteId = new ObjectId();
     BasicDBObject sam = new BasicDBObject("_id", samsNoteId);
-    sam = sam.append("ownerID", "owner3_ID").append("body", "I am sam").append("expireDate", "2100-03-07T22:03:38+0000")
-        .append("status", "active");
+    sam = sam.append("doorBoardID", samsDoorBoardID.toHexString())
+      .append("body", "I am sam")
+      .append("addDate", "2020-03-07T22:03:38+0000")
+      .append("expireDate", "2100-03-07T22:03:38+0000")
+      .append("status", "active");
 
     noteDocuments.insertMany(testNotes);
     noteDocuments.insertOne(Document.parse(sam.toJson()));
@@ -180,14 +221,14 @@ public class NoteControllerSpec {
    */
 
   @Test
-  public void getAllNotesForOwner1() {
-    mockReq.setQueryString("ownerid=owner1_ID");
+  public void getAllNotesForDoorBoard1() {
+    mockReq.setQueryString("doorBoardid=" + doorBoard1ID);
 
-    useJwtForOwner1();
+    useJwtForUser1();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
+    noteController.getNotesByDoorBoard(ctx);
 
     assertEquals(200, mockRes.getStatus());
 
@@ -196,20 +237,20 @@ public class NoteControllerSpec {
 
     assertEquals(2, resultNotes.length);
     for (Note note : resultNotes) {
-      assertEquals("owner1_ID", note.ownerID, "Incorrect ID");
+      assertEquals(doorBoard1ID.toHexString(), note.doorBoardID, "Incorrect ID");
       assertNotNull(note.getAddDate());
     }
   }
 
   @Test
-  public void getDraftNotesForOwner1() {
-    mockReq.setQueryString("ownerid=owner1_ID&status=draft");
+  public void getDraftNotesForDoorBoard1() {
+    mockReq.setQueryString("doorBoardid=" + doorBoard1ID + "&status=draft");
 
-    useJwtForOwner1();
+    useJwtForUser1();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
+    noteController.getNotesByDoorBoard(ctx);
 
     assertEquals(200, mockRes.getStatus());
 
@@ -220,14 +261,14 @@ public class NoteControllerSpec {
   }
 
   @Test
-  public void getActiveNotesForOwner1() {
-    mockReq.setQueryString("ownerid=owner1_ID&status=active");
+  public void getActiveNotesForDoorBoard1() {
+    mockReq.setQueryString("doorBoardid=" + doorBoard1ID + "&status=active");
 
-    useJwtForOwner1();
+    useJwtForUser1();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
+    noteController.getNotesByDoorBoard(ctx);
 
     assertEquals(200, mockRes.getStatus());
 
@@ -236,7 +277,7 @@ public class NoteControllerSpec {
 
     assertEquals(2, resultNotes.length);
     for (Note note : resultNotes) {
-      assertEquals("owner1_ID", note.ownerID, "Incorrect ID");
+      assertEquals(doorBoard1ID.toHexString(), note.doorBoardID, "Incorrect ID");
     }
   }
 
@@ -245,42 +286,42 @@ public class NoteControllerSpec {
    */
 
   @Test
-  public void getAllNotesForOwner1WithoutJwtFails() {
-    mockReq.setQueryString("ownerid=owner1_ID");
+  public void getAllNotesForDoorBoard1WithoutJwtFails() {
+    mockReq.setQueryString("doorBoardid=" + doorBoard1ID);
 
     useInvalidJwt();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
     assertThrows(UnauthorizedResponse.class, () -> {
-      noteController.getNotesByOwner(ctx);
+      noteController.getNotesByDoorBoard(ctx);
     });
   }
 
   @Test
-  public void getDraftNotesForOwner1WithoutJwtFails() {
-    mockReq.setQueryString("ownerid=owner1_ID&status=draft");
+  public void getDraftNotesForDoorBoard1WithoutJwtFails() {
+    mockReq.setQueryString("doorBoardid=" + doorBoard1ID + "&status=draft");
 
     useInvalidJwt();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
     assertThrows(UnauthorizedResponse.class, () -> {
-      noteController.getNotesByOwner(ctx);
+      noteController.getNotesByDoorBoard(ctx);
     });
   }
 
   // Active notes are public.
   // You're allowed to see them even if you aren't logged in.
   @Test
-  public void getActiveNotesForOwner1WithoutJwtIsFine() {
-    mockReq.setQueryString("ownerid=owner1_ID&status=active");
+  public void getActiveNotesForDoorBoard1WithoutJwtIsFine() {
+    mockReq.setQueryString("doorBoardid=" + doorBoard1ID + "&status=active");
 
     useInvalidJwt();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
+    noteController.getNotesByDoorBoard(ctx);
 
     assertEquals(200, mockRes.getStatus());
 
@@ -289,49 +330,49 @@ public class NoteControllerSpec {
 
     assertEquals(2, resultNotes.length);
     for (Note note : resultNotes) {
-      assertEquals("owner1_ID", note.ownerID, "Incorrect ID");
+      assertEquals(doorBoard1ID.toHexString(), note.doorBoardID, "Incorrect ID");
     }
   }
 
   /*
-   * Tests for GET api/notes when you're logged in as a different owner.
+   * Tests for GET api/notes when you're logged in as a different doorBoard.
    */
 
   @Test
-  public void getAllNotesForOwner1LoggedInAsWrongOwnerFails() {
-    mockReq.setQueryString("ownerid=owner1_ID");
+  public void getAllNotesForDoorBoard1LoggedInAsWrongDoorBoardFails() {
+    mockReq.setQueryString("doorBoardid=" + doorBoard1ID);
 
     useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
     assertThrows(ForbiddenResponse.class, () -> {
-      noteController.getNotesByOwner(ctx);
+      noteController.getNotesByDoorBoard(ctx);
     });
   }
 
   @Test
-  public void getDraftNotesForOwner1LoggedInAsWrongOwnerFails() {
-    mockReq.setQueryString("ownerid=owner1_ID&status=draft");
+  public void getDraftNotesForDoorBoard1LoggedInAsWrongDoorBoardFails() {
+    mockReq.setQueryString("doorBoardid=" + doorBoard1ID + "&status=draft");
 
     useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
     assertThrows(ForbiddenResponse.class, () -> {
-      noteController.getNotesByOwner(ctx);
+      noteController.getNotesByDoorBoard(ctx);
     });
   }
 
   @Test
-  public void getActiveNotesForOwner1LoggedInAsWrongOwnerIsFine() {
-    mockReq.setQueryString("ownerid=owner1_ID&status=active");
+  public void getActiveNotesForDoorBoard1LoggedInAsWrongDoorBoardIsFine() {
+    mockReq.setQueryString("doorBoardid=" + doorBoard1ID + "&status=active");
 
     useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
+    noteController.getNotesByDoorBoard(ctx);
 
     assertEquals(200, mockRes.getStatus());
 
@@ -340,12 +381,12 @@ public class NoteControllerSpec {
 
     assertEquals(2, resultNotes.length);
     for (Note note : resultNotes) {
-      assertEquals("owner1_ID", note.ownerID, "Incorrect ID");
+      assertEquals(doorBoard1ID.toHexString(), note.doorBoardID, "Incorrect ID");
     }
   }
 
   /*
-   * Tests for GET api/notes without the ownerid query parameter.
+   * Tests for GET api/notes without the doorBoardid query parameter.
    *
    * This is always allowed if you specify status=active; anyone is allowed to
    * view any active notes.
@@ -364,7 +405,7 @@ public class NoteControllerSpec {
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
     assertThrows(UnauthorizedResponse.class, () -> {
-      noteController.getNotesByOwner(ctx);
+      noteController.getNotesByDoorBoard(ctx);
     });
   }
 
@@ -372,12 +413,12 @@ public class NoteControllerSpec {
   public void getAllNotesInTheDatabaseFailsEvenWithAJwt() {
     mockReq.setQueryString("");
 
-    useJwtForOwner1();
+    useJwtForUser1();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
     assertThrows(ForbiddenResponse.class, () -> {
-      noteController.getNotesByOwner(ctx);
+      noteController.getNotesByDoorBoard(ctx);
     });
   }
 
@@ -389,14 +430,14 @@ public class NoteControllerSpec {
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes");
 
-    noteController.getNotesByOwner(ctx);
+    noteController.getNotesByDoorBoard(ctx);
 
     assertEquals(200, mockRes.getStatus());
 
     String result = ctx.resultString();
     Note[] resultNotes = JavalinJson.fromJson(result, Note[].class);
 
-    assertEquals(6, resultNotes.length);
+    assertEquals(4, resultNotes.length);
   }
 
   /*
@@ -406,18 +447,22 @@ public class NoteControllerSpec {
   @Test
   public void addNote() throws IOException {
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
-    String testNewNote = "{ " + "\"body\": \"Test Body\", " + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
-        + "\"status\": \"active\"" + "}";
+    String testNewNote = "{ "
+      + "\"doorBoardID\": \"" + doorBoard1ID + "\", "
+      + "\"body\": \"Test Body\", "
+      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
 
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
 
-    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
-    when(mockDecodedJWT.getSubject()).thenReturn("some_new_owner");
+    useJwtForUser1();
 
-    when(jwtProcessorMock.verifyJwtFromHeader(any())).thenReturn(mockDecodedJWT);
+    when(jwtProcessorMock.verifyJwtFromHeader(any()))
+      .thenReturn(mockDecodedJWT);
 
     noteController.addNewNote(ctx);
 
@@ -432,7 +477,7 @@ public class NoteControllerSpec {
     Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
 
     assertNotNull(addedNote);
-    assertEquals("some_new_owner", addedNote.getString("ownerID"));
+    assertEquals(doorBoard1ID.toHexString(), addedNote.getString("doorBoardID"));
     assertEquals("Test Body", addedNote.getString("body"));
     assertNotNull(addedNote.getDate("addDate")); // we don't know when it was created, so we just want to make sure the date exists.
     assertEquals("2021-03-07T22:03:38+0000", addedNote.getString("expireDate"));
@@ -441,7 +486,7 @@ public class NoteControllerSpec {
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note newNote = noteCaptor.getValue();
     assertEquals(id, newNote._id);
-    assertEquals("some_new_owner", newNote.ownerID);
+    assertEquals(doorBoard1ID.toHexString(), newNote.doorBoardID);
     assertEquals("Test Body", newNote.body);
     assertEquals(addedNote.getDate("addDate"), newNote.getAddDate());
     assertEquals("2021-03-07T22:03:38+0000", newNote.expireDate);
@@ -451,6 +496,7 @@ public class NoteControllerSpec {
   @Test
   public void addNoteWithInvalidJwtFails() throws IOException {
     String testNewNote = "{ "
+      + "\"doorBoardID\": \"" + doorBoard1ID + "\", "
       + "\"body\": \"Faily McFailface\", "
       + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
       + "\"status\": \"active\""
@@ -470,16 +516,12 @@ public class NoteControllerSpec {
     assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
   }
 
-  // Our API doesn't allow setting the owner of a note in the request body
-  // (if we did, you could just post notes for whoever you want.)
-  // Instead, we get the owner's ID from the JWT that Auth0 gives us,
-  // and attach the new note to that user.
   @Test
-  public void addNoteWithOwnerIdInTheRequestBodyFails() throws IOException {
+  public void addNoteToNonexistentDoorBoardFails() throws IOException {
     String testNewNote = "{ "
-      + "\"ownerID\": \"e7fd674c72b76596c75d9f1e\", "
+      + "\"doorBoardID\": \"" + new ObjectId() + "\", "
       + "\"body\": \"Faily McFailface\", "
-      + "\"expireDate\": 2021-03-07T22:03:38+0000, "
+      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
       + "\"status\": \"active\""
       + "}";
 
@@ -488,12 +530,7 @@ public class NoteControllerSpec {
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
 
-    // Put the owner ID in the JWT, just to try to trick NoteController.
-    DecodedJWT mockDecodedJWT = Mockito.mock(DecodedJWT.class);
-    when(mockDecodedJWT.getSubject()).thenReturn("e7fd674c72b76596c75d9f1e");
-
-    when(jwtProcessorMock.verifyJwtFromHeader(any()))
-      .thenReturn(mockDecodedJWT);
+    useJwtForSam();
 
     assertThrows(BadRequestResponse.class, () -> {
       noteController.addNewNote(ctx);
@@ -503,8 +540,35 @@ public class NoteControllerSpec {
   }
 
   @Test
+  public void addNoteWithBadDoorBoardIDFails() throws IOException {
+    String testNewNote = "{ "
+      + "\"doorBoardID\": \"frogs are cool I guess sometimes\", "
+      + "\"body\": \"Faily McFailface\", "
+      + "\"addDate\": \"2020-03-07T22:03:38+0000\", "
+      + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
+      + "\"status\": \"active\""
+      + "}";
+
+    mockReq.setBodyContent(testNewNote);
+    mockReq.setMethod("POST");
+
+    Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
+
+    useJwtForSam();
+
+    assertThrows(BadRequestResponse.class, () -> {
+      noteController.addNewNote(ctx);
+    });
+
+    assertEquals(0, db.getCollection("notes").countDocuments(eq("body", "Faily McFailface")));
+  }
+
+
+
+  @Test
   public void AddNoteWithoutExpiration() throws IOException {
     String testNewNote = "{ "
+      + "\"doorBoardID\": \"" + doorBoard1ID + "\", "
       + "\"body\": \"Test Body\", "
       + "\"status\": \"active\""
       + "}";
@@ -513,8 +577,7 @@ public class NoteControllerSpec {
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
 
-    useJwtForNewUser();
-
+    useJwtForUser1();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
 
@@ -530,7 +593,7 @@ public class NoteControllerSpec {
 
     Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
     assertNotNull(addedNote);
-    assertEquals("e7fd674c72b76596c75d9f1e", addedNote.getString("ownerID"));
+    assertEquals(doorBoard1ID.toHexString(), addedNote.getString("doorBoardID"));
     assertEquals("Test Body", addedNote.getString("body"));
     assertNotNull(addedNote.getDate("addDate"));
     assertNull(addedNote.getString("expireDate"));
@@ -541,6 +604,7 @@ public class NoteControllerSpec {
   @Test
   public void AddNewInactiveWithExpiration() throws IOException {
     String testNewNote = "{ "
+      + "\"doorBoardID\": \"" + doorBoard1ID + "\", "
       + "\"body\": \"Test Body\", "
       + "\"expireDate\": \"2021-03-07T22:03:38+0000\", "
       + "\"status\": \"draft\""
@@ -549,7 +613,7 @@ public class NoteControllerSpec {
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
 
-    useJwtForNewUser();
+    useJwtForUser1();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
 
@@ -598,7 +662,7 @@ public class NoteControllerSpec {
   public void deleteNoteLoggedInAsWrongUserFails() throws IOException {
     mockReq.setMethod("DELETE");
 
-    useJwtForNewUser();
+    useJwtForUser1();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
     assertThrows(ForbiddenResponse.class, () -> {
@@ -643,7 +707,7 @@ public class NoteControllerSpec {
     assertEquals("I am not sam anymore", editedNote.getString("body"));
     // The edited field should show the new value
 
-    assertEquals("owner3_ID", editedNote.getString("ownerID"));
+    assertEquals(samsDoorBoardID.toHexString(), editedNote.getString("doorBoardID"));
     assertEquals("active", editedNote.getString("status"));
     //assertEquals(samsDate, editedNote.getDate("addDate"));
     assertEquals("2100-03-07T22:03:38+0000", editedNote.getString("expireDate"));
@@ -675,8 +739,9 @@ public class NoteControllerSpec {
     assertEquals("2025-03-07T22:03:38+0000", editedNote.getString("expireDate"));
 
     assertEquals("active", editedNote.getString("status"));
-    assertEquals("owner3_ID", editedNote.getString("ownerID"));
-    //assertEquals(samsDate, editedNote.getDate("addDate"));
+    assertEquals(samsDoorBoardID.toHexString(), editedNote.getString("doorBoardID"));
+    assertEquals("2020-03-07T22:03:38+0000", editedNote.getString("addDate"));
+
     // Since the expireDate was changed, the timer's status should have been updated
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note updatedNote = noteCaptor.getValue();
@@ -684,7 +749,7 @@ public class NoteControllerSpec {
     assertEquals("I am still sam", updatedNote.body);
     assertEquals("2025-03-07T22:03:38+0000", updatedNote.expireDate);
     assertEquals("active", updatedNote.status);
-    assertEquals("owner3_ID", updatedNote.ownerID);
+    assertEquals(samsDoorBoardID.toHexString(), updatedNote.doorBoardID);
     assertEquals(samsDate, updatedNote.getAddDate());
   }
 
@@ -707,12 +772,12 @@ public class NoteControllerSpec {
   }
 
   @Test
-  public void editLoggedInAsWrongOwnerFails() throws IOException {
+  public void editLoggedInAsWrongDoorBoardFails() throws IOException {
     String reqBody = "{\"body\": \"I am not sam anymore\"}";
     mockReq.setBodyContent(reqBody);
     mockReq.setMethod("PATCH");
 
-    useJwtForNewUser();
+    useJwtForUser1();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
     assertThrows(ForbiddenResponse.class, () -> {
@@ -734,7 +799,7 @@ public class NoteControllerSpec {
     useJwtForSam();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id",
-        ImmutableMap.of("id", "58af3a600343927e48e87335"));
+        ImmutableMap.of("id", new ObjectId().toHexString()));
 
     assertThrows(NotFoundResponse.class, () -> {
       noteController.editNote(ctx);
@@ -808,7 +873,7 @@ public class NoteControllerSpec {
 
   @Test
   public void editIdWithIllegalKeys() throws IOException {
-    mockReq.setBodyContent("{\"ownerID\": \"Charlie\"}");
+    mockReq.setBodyContent("{\"doorBoardID\": \"Charlie\"}");
     mockReq.setMethod("PATCH");
 
     useJwtForSam();
@@ -822,7 +887,7 @@ public class NoteControllerSpec {
 
   // The 422 and 409 errors could be switched between these conditions, or they
   // could possibly both be 409?
-  // Additionally, should attempting to edit a non-editable field (id, ownerID, or
+  // Additionally, should attempting to edit a non-editable field (id, doorBoardID, or
   // addDate) throw a 422, 409, 400, or 403?
 
   @Test
@@ -848,14 +913,13 @@ public class NoteControllerSpec {
 
     assertEquals("active", editedNote.getString("status"));
     assertEquals("I am sam", editedNote.getString("body"));
-    assertEquals("owner3_ID", editedNote.getString("ownerID"));
-    //assertEquals(samsDate, editedNote.getDate("addDate"));
+    assertEquals(samsDoorBoardID.toHexString(), editedNote.getString("doorBoardID"));
 
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note updatedNote = noteCaptor.getValue();
     assertEquals("active", updatedNote.status);
     assertEquals("I am sam", updatedNote.body);
-    assertEquals("owner3_ID", updatedNote.ownerID);
+    assertEquals(samsDoorBoardID.toHexString(), updatedNote.doorBoardID);
     assertEquals(samsDate, updatedNote.getAddDate());
   }
 
@@ -867,6 +931,7 @@ public class NoteControllerSpec {
     ArgumentCaptor<Note> noteCaptor = ArgumentCaptor.forClass(Note.class);
 
     String testNewNote = "{ "
+      + "\"doorBoardID\": \"" + doorBoard1ID + "\", "
       + "\"body\": \"Test Body\", "
       + "\"status\": \"active\" "
       + "}";
@@ -874,7 +939,7 @@ public class NoteControllerSpec {
     mockReq.setBodyContent(testNewNote);
     mockReq.setMethod("POST");
 
-    useJwtForNewUser();
+    useJwtForUser1();
 
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/new");
 
@@ -897,7 +962,7 @@ public class NoteControllerSpec {
 
     Document addedNote = db.getCollection("notes").find(eq("_id", new ObjectId(id))).first();
     assertNotNull(addedNote);
-    assertEquals("e7fd674c72b76596c75d9f1e", addedNote.getString("ownerID"));
+    assertEquals(doorBoard1ID.toHexString(), addedNote.getString("doorBoardID"));
     assertEquals("Test Body", addedNote.getString("body"));
     assertEquals(idDate, addedNote.getDate("addDate")); // This works--the date field was created when it went through addNewNote
     assertEquals("2021-03-07T22:03:38+0000", addedNote.getString("expireDate"));
@@ -906,7 +971,7 @@ public class NoteControllerSpec {
     verify(dtMock).updateTimerStatus(noteCaptor.capture());
     Note editedNote = noteCaptor.getValue();
     assertEquals(id, editedNote._id);
-    assertEquals("e7fd674c72b76596c75d9f1e", editedNote.ownerID);
+    assertEquals(doorBoard1ID.toHexString(), editedNote.doorBoardID);
     assertEquals("Test Body", editedNote.body);
     assertEquals(idDate, editedNote.getAddDate());
     assertEquals("2021-03-07T22:03:38+0000", editedNote.expireDate);
@@ -936,8 +1001,7 @@ public class NoteControllerSpec {
     assertNull(editedNote.getString("expireDate"));
 
     assertEquals("I am sam", editedNote.getString("body"));
-    assertEquals("owner3_ID", editedNote.getString("ownerID"));
-    //assertEquals(samsDate, editedNote.getDate("addDate"));
+    assertEquals(samsDoorBoardID.toHexString(), editedNote.getString("doorBoardID"));
 
     verify(dtMock).updateTimerStatus(any(Note.class));
 
@@ -947,6 +1011,7 @@ public class NoteControllerSpec {
   public void AddExpirationToInactive() throws IOException {
 
     String testNewNote = "{ "
+      + "\"doorBoardID\": \"" + samsDoorBoardID + "\", "
       + "\"body\": \"Test Body\", "
       + "\"status\": \"template\""
       + "}";

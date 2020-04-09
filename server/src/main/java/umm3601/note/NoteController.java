@@ -31,10 +31,11 @@ import io.javalin.http.NotFoundResponse;
 import io.javalin.http.UnauthorizedResponse;
 import umm3601.JwtProcessor;
 import umm3601.UnprocessableResponse;
+import umm3601.doorboard.DoorBoard;
 
 
 /**
- * Controller that manages requests for note data (for a specific owner).
+ * Controller that manages requests for note data (for a specific doorBoard).
  */
 public class NoteController {
 
@@ -47,6 +48,7 @@ public class NoteController {
   JacksonCodecRegistry jacksonCodecRegistry = JacksonCodecRegistry.withDefaultObjectMapper();
 
   private final MongoCollection<Note> noteCollection;
+  private final MongoCollection<DoorBoard> doorBoardCollection;
 
   /**
    * @param database the database containing the note data
@@ -57,40 +59,67 @@ public class NoteController {
       DeathTimer dt,
       JwtProcessor jwtProcessor) {
     jacksonCodecRegistry.addCodecForClass(Note.class);
+    jacksonCodecRegistry.addCodecForClass(DoorBoard.class);
+
     noteCollection = database.getCollection("notes").withDocumentClass(Note.class)
         .withCodecRegistry(jacksonCodecRegistry);
+
+    doorBoardCollection = database.getCollection("doorBoards").withDocumentClass(DoorBoard.class)
+        .withCodecRegistry(jacksonCodecRegistry);
+
     deathTimer = dt;
     this.jwtProcessor = jwtProcessor;
   }
 
   /**
-   * Delete a note belonging to a specific owner.
+   * Given the ObjectId, as a hex string, of a DoorBoard in the database,
+   * return that DoorBoard.
+   *
+   * Returns null if the ObjectId doesn't correspond to any DoorBoard in the
+   * database.
+   *
+   * Throws an IllegalArgumentException if doorBoardID isn't a valid ObjectId.
+   */
+  private DoorBoard getDoorBoard(String doorBoardID) {
+    return doorBoardCollection
+      .find(eq("_id", new ObjectId(doorBoardID)))
+      .first();
+  }
+
+  /**
+   * Delete a note belonging to a specific doorBoard.
    * Uses the following parameters in the request:
    *
    * `id` parameter -> note id
-   * `ownerid` -> which owner's notes
+   * `doorBoardid` -> which doorBoard's notes
    *
    * @param ctx a Javalin HTTP context
    */
   public void deleteNote(Context ctx) {
     String id = ctx.pathParam("id");
 
-    String ownerID = ctx.queryParam("ownerid");
-    Note note;
+    // This throws an UnauthorizedResponse if the user isn't logged in.
+    String currentUserSub = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
 
+    Note note;
     try {
       note = noteCollection.find(eq("_id", new ObjectId(id))).first();
     } catch(IllegalArgumentException e) {
       throw new BadRequestResponse("The requested note id wasn't a legal Mongo Object ID.");
     }
+
     if (note == null) {
       throw new NotFoundResponse("The requested does not exist.");
-    } else if (note.ownerID != ownerID) {
-      throw new ForbiddenResponse("The requested note does not belong to this owner. It cannot be deleted.");
-    } else {
-      noteCollection.deleteOne(eq("_id", new ObjectId(id)));
-      deathTimer.clearKey(id);
     }
+
+    String subOfOwnerOfNote = getDoorBoard(note.doorBoardID).sub;
+    if (!currentUserSub.equals(subOfOwnerOfNote)) {
+      throw new ForbiddenResponse("The requested note does not belong to this doorBoard. It cannot be deleted.");
+    }
+
+    noteCollection.deleteOne(eq("_id", new ObjectId(id)));
+    deathTimer.clearKey(id);
+    ctx.status(204);
   }
 
   /**
@@ -99,16 +128,16 @@ public class NoteController {
    *
    * @param ctx a Javalin HTTP context
    */
-  public void getNotesByOwner(Context ctx) {
+  public void getNotesByDoorBoard(Context ctx) {
     checkCredentialsForGetNotesRequest(ctx);
 
     // If we've gotten this far without throwing an exception,
     // the client has the proper credentials to make the get request.
 
     List<Bson> filters = new ArrayList<Bson>(); // start with a blank JSON document
-    if (ctx.queryParamMap().containsKey("ownerid")) {
-      String targetOwnerID = ctx.queryParam("ownerid");
-      filters.add(eq("ownerID", targetOwnerID));
+    if (ctx.queryParamMap().containsKey("doorBoardid")) {
+      String targetDoorBoardID = ctx.queryParam("doorBoardid");
+      filters.add(eq("doorBoardID", targetDoorBoardID));
     }
     if (ctx.queryParamMap().containsKey("body")) {
       filters.add(regex("body", ctx.queryParam("body"), "i"));
@@ -145,17 +174,24 @@ public class NoteController {
     }
 
     // For any other request, you have to be logged in.
-    String currentUserId;
+    String currentUserSub;
     try {
-      currentUserId = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+      currentUserSub = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
     } catch (UnauthorizedResponse e) {
       throw e;
       // Catch and rethrow, just to be explicit.
     }
 
-    // You're only allowed to view your own notes.
-    if (!ctx.queryParamMap().containsKey("ownerid")
-        || !ctx.queryParam("ownerid").equals(currentUserId)) {
+    // You can't view everyone's notes (unless you're only asking for active
+    // notes.)
+
+    if (!ctx.queryParamMap().containsKey("doorBoardid")) {
+      throw new ForbiddenResponse(
+        "Request not allowed; users can only view their own notes.");
+    }
+
+    String subOfOwnerOfDoorBoard = getDoorBoard(ctx.queryParam("doorBoardid")).sub;
+    if (!currentUserSub.equals(subOfOwnerOfDoorBoard)) {
       throw new ForbiddenResponse(
         "Request not allowed; users can only view their own notes.");
     }
@@ -169,17 +205,32 @@ public class NoteController {
    */
   public void addNewNote(Context ctx) {
     Note newNote = ctx.bodyValidator(Note.class)
-      .check((note) -> note.ownerID == null) // The ownerID shouldn't be present; you can't choose who you're posting the note as.
+      .check((note) -> note.doorBoardID != null) // The doorBoardID shouldn't be present; you can't choose who you're posting the note as.
       .check((note) -> note.body != null && note.body.length() > 0) // Make sure the body is not empty -- consider using StringUtils.isBlank to also get all-whitespace notes?
-      //.check((note) -> note.addDate == null)
       .check((note) -> note.expireDate == null || note.expireDate.matches(ISO_8601_REGEX))
       .check((note) -> note.status.matches("^(active|draft|deleted|template)$")) // Status should be one of these
       .get();
 
     // This will throw an UnauthorizedResponse if the user isn't logged in.
-    newNote.ownerID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+    String currentUserSub = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
 
 
+    DoorBoard doorBoard;
+    try {
+      doorBoard = getDoorBoard(newNote.doorBoardID);
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestResponse(
+        newNote.doorBoardID + "does not refer to an existing DoorBoard.");
+    }
+
+    if (doorBoard == null) {
+      throw new BadRequestResponse(
+        newNote.doorBoardID + "does not refer to an existing DoorBoard.");
+    }
+
+    if (!doorBoard.sub.equals(currentUserSub)) {
+      throw new ForbiddenResponse("You can only add notes to your own DoorBoard.");
+    }
 
     if(newNote.expireDate != null && !(newNote.status.equals("active"))) {
       throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
@@ -227,14 +278,16 @@ public class NoteController {
     }
 
     // verifyJwtFromHeader will throw an UnauthorizedResponse if the user isn't logged in.
-    String currentUserID = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
+    String currentUserSub = jwtProcessor.verifyJwtFromHeader(ctx).getSubject();
 
-    if (!note.ownerID.equals(currentUserID)) {
+    String subOfOwnerOfNote = getDoorBoard(note.doorBoardID).sub;
+
+    if (!subOfOwnerOfNote.equals(currentUserSub)) {
       throw new ForbiddenResponse("Request not allowed; users can only edit their own notes");
     }
 
     HashSet<String> validKeys = new HashSet<String>(Arrays.asList("body", "expireDate", "status"));
-    HashSet<String> forbiddenKeys = new HashSet<String>(Arrays.asList("ownerID", "addDate", "_id"));
+    HashSet<String> forbiddenKeys = new HashSet<String>(Arrays.asList("doorBoardID", "addDate", "_id"));
     HashSet<String> validStatuses = new HashSet<String>(Arrays.asList("active", "draft", "deleted", "template"));
     for (String key: inputDoc.keySet()) {
       if(forbiddenKeys.contains(key)) {
@@ -258,7 +311,7 @@ public class NoteController {
         if (validStatuses.contains(inputDoc.get("status"))) {
           toEdit.append("status", inputDoc.get("status"));
           noteStatus = inputDoc.get("status").toString();
-          if(inputDoc.get("status") != "active") {
+          if(!inputDoc.get("status").equals("active")) {
             toReturn.append("$unset", new Document("expireDate", ""));
             //Only active notices can have expiration dates, so if a notice becomes inactive, it loses
             //its expiration date.
@@ -272,7 +325,7 @@ public class NoteController {
       if(inputDoc.containsKey("expireDate")){
         if(inputDoc.get("expireDate") == null) {
           toReturn.append("$unset", new Document("expireDate", "")); //If expireDate is specifically included with a null value, remove the expiration date.
-        } else if (!(noteStatus.equals("active"))) {
+        } else if (!noteStatus.equals("active")) {
           throw new ConflictResponse("Expiration dates can only be assigned to active notices.");
           //Order of clauses means we don't mind of someone manually zeroes their expireDate when making something inactive.
         } else if(inputDoc.get("expireDate").toString() //This assumes that we're using the same string encoding they are, but it's our own API we should be fine.

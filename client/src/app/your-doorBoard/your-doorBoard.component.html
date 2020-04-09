@@ -1,0 +1,28 @@
+
+
+ <h1 class ="heading"> YOUR DOORBOARDS </h1>
+  <button mat-raised-button (click)="createBoard()" > CREATE BOARD </button>
+
+
+
+  <div fxLayout="row">
+    <div fxFlex fxFlex.gt-sm="80" fxFlexOffset.gt-sm="10" *ngIf="serverFilteredDoorBoards; else doorBoardsError" >
+      <div [ngSwitch]="viewType">
+        <div *ngSwitchCase="'card'"  fxLayout="row wrap" fxLayoutGap="10px" class="doorBoard-doorBoard-cards-container">
+          <app-doorBoard-card *ngFor= "let doorBoard of filteredDoorBoards" class="doorBoard-doorBoard-card" [doorBoard]="doorBoard" fxFlex="1 1 280px"></app-doorBoard-card>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #doorBoardsError>
+      <div fxFlex fxFlex.gt-sm="80" fxFlexOffset.gt-sm="10" class="doorBoard-card-error">
+        <mat-error>
+          There was a problem loading your DoorBoard(s). Possibly the server is down or perhaps there are network
+          issues.
+        </mat-error>
+        <mat-error>
+          Please wait a bit and try again or start the server.
+        </mat-error>
+      </div>
+    </ng-template>
+

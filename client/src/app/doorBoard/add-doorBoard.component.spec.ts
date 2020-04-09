@@ -8,15 +8,15 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MockOwnerService } from 'src/testing/owner.service.mock';
-import { AddOwnerComponent } from './add-owner.component';
-import { OwnerService } from './owner.service';
+import { MockDoorBoardService } from 'src/testing/doorBoard.service.mock';
+import { AddDoorBoardComponent } from './add-doorBoard.component';
+import { DoorBoardService } from './doorBoard.service';
 
-describe('AddOwnerComponent', () => {
-  let addOwnerComponent: AddOwnerComponent;
-  let addOwnerForm: FormGroup;
+describe('AddDoorBoardComponent', () => {
+  let addDoorBoardComponent: AddDoorBoardComponent;
+  let addDoorBoardForm: FormGroup;
   let calledClose: boolean;
-  let fixture: ComponentFixture<AddOwnerComponent>;
+  let fixture: ComponentFixture<AddDoorBoardComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -31,8 +31,8 @@ describe('AddOwnerComponent', () => {
         BrowserAnimationsModule,
         RouterTestingModule
       ],
-      declarations: [AddOwnerComponent],
-      providers: [{ provide: OwnerService, useValue: new MockOwnerService() }]
+      declarations: [AddDoorBoardComponent],
+      providers: [{ provide: DoorBoardService, useValue: new MockDoorBoardService() }]
     }).compileComponents().catch(error => {
       expect(error).toBeNull();
     });
@@ -40,13 +40,13 @@ describe('AddOwnerComponent', () => {
 
   beforeEach(() => {
     calledClose = false;
-    fixture = TestBed.createComponent(AddOwnerComponent);
-    addOwnerComponent = fixture.componentInstance;
-    addOwnerComponent.ngOnInit();
+    fixture = TestBed.createComponent(AddDoorBoardComponent);
+    addDoorBoardComponent = fixture.componentInstance;
+    addDoorBoardComponent.ngOnInit();
     fixture.detectChanges();
-    addOwnerForm = addOwnerComponent.addOwnerForm;
-    expect(addOwnerForm).toBeDefined();
-    expect(addOwnerForm.controls).toBeDefined();
+    addDoorBoardForm = addDoorBoardComponent.addDoorBoardForm;
+    expect(addDoorBoardForm).toBeDefined();
+    expect(addDoorBoardForm.controls).toBeDefined();
   });
 
   // Not terribly important; if the component doesn't create
@@ -55,21 +55,21 @@ describe('AddOwnerComponent', () => {
   // our component definitions don't have errors that would
   // prevent them from being successfully constructed.
   it('should create the component and form', () => {
-    expect(addOwnerComponent).toBeTruthy();
-    expect(addOwnerForm).toBeTruthy();
+    expect(addDoorBoardComponent).toBeTruthy();
+    expect(addDoorBoardForm).toBeTruthy();
   });
 
   // Confirms that an initial, empty form is *not* valid, so
   // people can't submit an empty form.
   it('form should be invalid when empty', () => {
-    expect(addOwnerForm.valid).toBeFalsy();
+    expect(addDoorBoardForm.valid).toBeFalsy();
   });
 
   describe('The name field', () => {
     let nameControl: AbstractControl;
 
     beforeEach(() => {
-      nameControl = addOwnerComponent.addOwnerForm.controls[`name`];
+      nameControl = addDoorBoardComponent.addDoorBoardForm.controls[`name`];
     });
 
     it('should not allow empty names', () => {
@@ -117,7 +117,7 @@ describe('AddOwnerComponent', () => {
     let buildingControl: AbstractControl;
 
     beforeEach(() => {
-      buildingControl = addOwnerComponent.addOwnerForm.controls[`building`];
+      buildingControl = addDoorBoardComponent.addDoorBoardForm.controls[`building`];
     });
 
     it('should not allow empty buildings', () => {
@@ -165,7 +165,7 @@ describe('AddOwnerComponent', () => {
     let emailControl: AbstractControl;
 
     beforeEach(() => {
-      emailControl = addOwnerComponent.addOwnerForm.controls[`email`];
+      emailControl = addDoorBoardComponent.addDoorBoardForm.controls[`email`];
     });
 
     it('should not allow empty values', () => {
@@ -190,7 +190,7 @@ describe('AddOwnerComponent', () => {
     let officeNumberControl: AbstractControl;
 
     beforeEach(() => {
-      officeNumberControl = addOwnerComponent.addOwnerForm.controls[`officeNumber`];
+      officeNumberControl = addDoorBoardComponent.addDoorBoardForm.controls[`officeNumber`];
     });
 
     it('should not allow empty office number', () => {
