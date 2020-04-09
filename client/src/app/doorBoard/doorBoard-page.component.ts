@@ -9,6 +9,8 @@ import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../auth/auth.service';
 import { map } from 'rxjs/operators';
+import { MatRadioChange } from '@angular/material/radio';
+
 @Component({
   selector: 'app-doorBoard-page-component',
   templateUrl: 'doorBoard-page.component.html',
@@ -111,6 +113,16 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
 
   public compareSubs(): Observable<boolean> {
     return this.getLoginSub().pipe(map(val => val !== null && val === this.getSub()));
+  }
+
+
+  radioChange($event: MatRadioChange) {
+    console.log($event.source.name, $event.value);
+
+    if ($event.source.name === 'radioGroup') {
+      console.log('Pressed Radio Button!');
+      this.getNotesFromServer();
+    }
   }
 
 

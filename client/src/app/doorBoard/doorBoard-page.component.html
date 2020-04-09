@@ -54,9 +54,22 @@
             <h3 mat-subheader></h3>
 
             <div *ngIf="compareSubs() | async">
+
+                <!-- <mat-label>Status</mat-label> -->
+                <mat-radio-group  name="radioGroup" [(ngModel)]="noteStatus" (change)="radioChange($event)" id="note-status-select">
+                  <mat-radio-button value="active">Active</mat-radio-button>
+                  <mat-radio-button value="template">Template</mat-radio-button>
+                  <mat-radio-button value="draft">Draft</mat-radio-button>
+                  <mat-radio-button value="deleted">Deleted</mat-radio-button>
+                </mat-radio-group>
+
+
+
                 <!--New Note-->
               <app-add-note [doorBoard_id]="this.id" (newNoteAdded)="getNotesFromServer()" class="add-note">
               </app-add-note >
+
+
             </div>
             <mat-list-item *ngFor="let note of this.filteredNotes" class="note-list-item">
              <mat-card class="note-card">
