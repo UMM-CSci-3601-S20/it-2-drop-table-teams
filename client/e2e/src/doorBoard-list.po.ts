@@ -34,8 +34,4 @@ export class DoorBoardPage {
   clickViewDoorBoard() {
     return element(by.className('doorBoard-list-item')).click();
   }
-
-  clickAddDoorBoardFAB() {
-    return element(by.className('add-doorBoard-fab')).click();
-  }
 }
