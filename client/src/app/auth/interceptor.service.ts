@@ -28,9 +28,9 @@ export class InterceptorService implements HttpInterceptor {
 
   private shouldThereBeAToken(req: HttpRequest<any>): boolean {
     let endpoint: string;
-    const match = req.url.match(/^.*\/api\/(.*?)\/?$/);
+    const match = req.url.match(/^\/api\/(.*?)\/?$/);
     if (match) {
-      endpoint = match.groups[1];
+      endpoint = match[1];
     } else {
       // This request isn't going to our api; don't bother
       // including a JWT.
