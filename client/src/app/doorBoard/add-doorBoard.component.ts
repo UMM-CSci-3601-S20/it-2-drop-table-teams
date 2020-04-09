@@ -112,6 +112,7 @@ export class AddDoorBoardComponent implements OnInit {
       this.snackBar.open('Failed to add the doorBoard', null, {
         duration: 2000,
       });
+      console.error(err);
     });
   }
 

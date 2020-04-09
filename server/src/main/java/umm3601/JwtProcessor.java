@@ -24,6 +24,8 @@ public class JwtProcessor {
   private JwtGetter jwtGetter;
   private JwkProvider auth0JwkProvider;
 
+  public static final String OUR_TENANT_URL = "https://doorbboard-dev.auth0.com/";
+
   public JwtProcessor(JwtGetter jwtGetter, JwkProvider auth0JwkProvider) {
     this.jwtGetter = jwtGetter;
     this.auth0JwkProvider = auth0JwkProvider;
@@ -90,7 +92,7 @@ public class JwtProcessor {
     try {
       Algorithm algorithm = Algorithm.RSA256(publicKey, null);
       JWTVerifier verifier = JWT.require(algorithm)
-        .withIssuer("auth0")
+        .withIssuer(OUR_TENANT_URL)
         .build();
 
       // We've already got the decoded token, so we can just ignore verify()'s
