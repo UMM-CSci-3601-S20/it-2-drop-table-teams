@@ -461,9 +461,6 @@ public class NoteControllerSpec {
 
     useJwtForUser1();
 
-    when(jwtProcessorMock.verifyJwtFromHeader(any()))
-      .thenReturn(mockDecodedJWT);
-
     noteController.addNewNote(ctx);
 
     assertEquals(201, mockRes.getStatus());
