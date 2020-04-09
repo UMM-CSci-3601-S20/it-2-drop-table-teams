@@ -1,5 +1,3 @@
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Note, NoteStatus } from '../notes/note';
 import { OnInit, Component, OnDestroy, SecurityContext } from '@angular/core';
@@ -10,8 +8,6 @@ import { NoteService } from '../notes/note.service';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../auth/auth.service';
-import { HttpParameterCodec } from "@angular/common/http";
-import { async } from '@angular/core/testing';
 import { map } from 'rxjs/operators';
 @Component({
   selector: 'app-doorBoard-page-component',
