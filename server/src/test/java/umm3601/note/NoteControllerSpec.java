@@ -77,8 +77,6 @@ public class NoteControllerSpec {
   @Mock(name = "jwtProcessor")
   JwtProcessor jwtProcessorMock;
 
-  // When mocking adding notes, all notes were added 2020-03-07T22:03:38+0000
-
   private void useJwtForOwner1() {
     // Make a fake DecodedJWT for jwtProcessorMock to return.
     // (Sam's owner ID is "owner3_ID".)
@@ -139,17 +137,16 @@ public class NoteControllerSpec {
         + "expireDate: \"2021-03-07T22:03:38+0000\", " + "status: \"active\"" + "}"));
     testNotes.add(Document.parse("{ " + "ownerID: \"owner2_ID\", " + "body: \"Go to owner3's office\", "
         + "expireDate: \"2020-03-21T22:03:38+0000\", " + "status: \"active\"" + "}"));
-    testNotes
-        .add(Document.parse("{ " + "ownerID: \"owner3_ID\", " + "body: \"Not many come to my office I offer donuts\", "
-            + "expireDate: \"2021-03-07T22:03:38+0000\", " + "status: \"active\"" + "}"));
+    testNotes.add(Document.parse("{ " + "ownerID: \"owner3_ID\", " + "body: \"Not many come to my office I offer donuts\", "
+        + "expireDate: \"2021-03-07T22:03:38+0000\", " + "status: \"active\"" + "}"));
     samsNoteId = new ObjectId();
     BasicDBObject sam = new BasicDBObject("_id", samsNoteId);
-    sam = sam.append("ownerID", "owner3_ID").append("body", "I am sam").append("addDate", new Date()).append("expireDate", "2100-03-07T22:03:38+0000")
+    sam = sam.append("ownerID", "owner3_ID").append("body", "I am sam").append("expireDate", "2100-03-07T22:03:38+0000")
         .append("status", "active");
 
     noteDocuments.insertMany(testNotes);
     noteDocuments.insertOne(Document.parse(sam.toJson()));
-    samsDate = db.getCollection("notes").find(eq("_id", samsNoteId)).first().getDate("addDate");
+    samsDate = samsNoteId.getDate();
   }
 
   @AfterAll
@@ -157,6 +154,17 @@ public class NoteControllerSpec {
     db.drop();
     mongoClient.close();
   }
+
+  /*
+   * Testing to make sure that the objects in the initial database actually have addDates.
+   * This is to determine if they are getting mangled in some way when being edited, or if they
+   * were never good in the first place.
+   */
+
+   @Test
+   public void testSingleNote() {
+     assertEquals(samsDate, db.getCollection("notes").find(eq("_id", samsNoteId)).first().getDate("addDate"));
+   }
 
   /*
    * Tests for GET api/notes when you're logged in with the right credentials.
@@ -180,6 +188,7 @@ public class NoteControllerSpec {
     assertEquals(2, resultNotes.length);
     for (Note note : resultNotes) {
       assertEquals("owner1_ID", note.ownerID, "Incorrect ID");
+      assertNotNull(note.getAddDate());
     }
   }
 
@@ -425,7 +434,7 @@ public class NoteControllerSpec {
     assertEquals(id, newNote._id);
     assertEquals("some_new_owner", newNote.ownerID);
     assertEquals("Test Body", newNote.body);
-    assertEquals(addedNote.getDate("addDate"), newNote.addDate);
+    assertEquals(addedNote.getDate("addDate"), newNote.getAddDate());
     assertEquals("2021-03-07T22:03:38+0000", newNote.expireDate);
     assertEquals("active", newNote.status);
   }
@@ -667,7 +676,7 @@ public class NoteControllerSpec {
     assertEquals("2025-03-07T22:03:38+0000", updatedNote.expireDate);
     assertEquals("active", updatedNote.status);
     assertEquals("owner3_ID", updatedNote.ownerID);
-    assertEquals(samsDate, updatedNote.addDate);
+    assertEquals(samsDate, updatedNote.getAddDate());
   }
 
   @Test
@@ -815,9 +824,6 @@ public class NoteControllerSpec {
 
     useJwtForSam();
 
-    Date samsDate = db.getCollection("notes").find(eq("_id", samsNoteId)).first().getDate("addDate");
-
-
     Context ctx = ContextUtil.init(mockReq, mockRes, "api/notes/:id", ImmutableMap.of("id", samsNoteId.toHexString()));
 
     noteController.editNote(ctx);
@@ -841,7 +847,7 @@ public class NoteControllerSpec {
     assertEquals("active", updatedNote.status);
     assertEquals("I am sam", updatedNote.body);
     assertEquals("owner3_ID", updatedNote.ownerID);
-    assertEquals(samsDate, updatedNote.addDate);
+    assertEquals(samsDate, updatedNote.getAddDate());
   }
 
   @Test
@@ -894,7 +900,7 @@ public class NoteControllerSpec {
     assertEquals(id, editedNote._id);
     assertEquals("e7fd674c72b76596c75d9f1e", editedNote.ownerID);
     assertEquals("Test Body", editedNote.body);
-    assertEquals(idDate, editedNote.addDate);
+    assertEquals(idDate, editedNote.getAddDate());
     assertEquals("2021-03-07T22:03:38+0000", editedNote.expireDate);
     assertEquals("active", editedNote.status);
 
