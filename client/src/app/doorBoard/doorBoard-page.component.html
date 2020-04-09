@@ -1,9 +1,9 @@
 <div fxLayout="row wrap">
-  <div fxFlex fxLayoutAlign.gt-sm="start start">
+
     <!--doorBoard card-->
     <mat-card class="doorBoard-card" *ngIf="this.doorBoard">
       <mat-card-header>
-        <mat-card-title class="doorBoard-card-title">doorBoard Profile</mat-card-title>
+        <mat-card-title class="doorBoard-card-title">DoorBoard Profile</mat-card-title>
       </mat-card-header>
       <mat-card-content id=nameField>
         Name: {{getName()}}
@@ -21,38 +21,43 @@
 
     <!-- set active to default-->
     <!---search Card???-->
-    <div *ngIf="compareSubs() | async">
-    <mat-card class="search-card">
+
+
+
+    <!-- <mat-card class="search-card">
       <mat-card-header>
-        <!--Note filter-->
+        Note filter
         <mat-card-title class="note-list-title">Notes</mat-card-title>
       </mat-card-header>
       <mat-card-content fxLayout="column">
         <div fxLayout="row wrap" fxGap>
           <mat-form-field class="input-field">
             <mat-label>Status</mat-label>
-            <mat-select (selectionChange)="getNotesFromServer()" [(ngModel)]="noteStatus" id="note-status-select">
-              <mat-option value="active">Active</mat-option>
-              <mat-option value="template">Template</mat-option>
-              <mat-option value="draft">Draft</mat-option>
-              <mat-option value="deleted">Deleted</mat-option>
-            </mat-select>
+            <mat-radio-group (selectionChange)="getNotesFromServer()" [(ngModel)]="noteStatus" id="note-status-select">
+              <mat-radio-button value="active">Active</mat-radio-button>
+              <mat-radio-button value="template">Template</mat-radio-button>
+              <mat-radio-button value="draft">Draft</mat-radio-button>
+              <mat-radio-button value="deleted">Deleted</mat-radio-button>
+            </mat-radio-group>
           </mat-form-field>
         </div>
       </mat-card-content>
-    </mat-card>
+    </mat-card> -->
 
 
-    <!--New Note-->
-    <app-add-note [doorBoard_id]="this.id" (newNoteAdded)="getNotesFromServer()" class="add-note">
-    </app-add-note >
-  </div>
+
     <!--Notes-->
     <div fxFlex>
       <mat-card class="list">
         <mat-card-content>
           <mat-list class="note-nav-list">
-            <h3 mat-subheader>Notes</h3>
+            <h3 mat-subheader></h3>
+
+            <div *ngIf="compareSubs() | async">
+                <!--New Note-->
+              <app-add-note [doorBoard_id]="this.id" (newNoteAdded)="getNotesFromServer()" class="add-note">
+              </app-add-note >
+            </div>
             <mat-list-item *ngFor="let note of this.filteredNotes" class="note-list-item">
              <mat-card class="note-card">
               <p matLine class="note-list-body"> {{note.body}} </p>
@@ -72,4 +77,4 @@
         scrolling="auto"></iframe>
     </mat-card>
   </div>
-</div>
+
