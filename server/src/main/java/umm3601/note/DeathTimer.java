@@ -6,15 +6,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.mongodb.client.MongoDatabase;
 
 
 
-@Singleton
 public class DeathTimer extends Timer {
 
   public final long ONE_WEEK_MILLIS = 604800000; // 1 week, in milliseconds
@@ -24,12 +21,6 @@ public class DeathTimer extends Timer {
 
   private NoteController noteController;
 
-  @Inject
-  void NoteControllerSetup(MongoDatabase db) {
-    noteController = new NoteController(db, this);
-  }
-
-  @Inject
   private static DeathTimer deathTimerInstance = new DeathTimer();
 
   protected DeathTimer() {
@@ -56,13 +47,13 @@ public class DeathTimer extends Timer {
    * set before they are permanently purged from the database. This timer is
    * currently set to one week.
    *
-   * @param n: The note whose timer will be updated.
+   * @param n The note whose timer will be updated.
    * @return true if the note now has a timer attached to it, false otherwise.
    */
   public boolean updateTimerStatus(Note n) {
     String noteStatus = n.status;
     String noteId = n._id;
-    Boolean output = false;
+    boolean output = false;
     TimerTask timerTask;
     clearKey(noteId);
 

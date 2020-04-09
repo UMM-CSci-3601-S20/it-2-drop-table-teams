@@ -1,11 +1,9 @@
-import { Component, OnInit, Input, SystemJsNgModuleLoader} from '@angular/core';
+import { Component, OnInit, Input} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Note } from './note';
 import { NoteService } from './note.service';
-import { Owner } from '../owner/owner';
-
 
 @Component({
   selector: 'app-add-note',
@@ -64,7 +62,7 @@ export class AddNoteComponent implements OnInit {
 
   submitForm() {
     const noteToAdd: Note = this.addNoteForm.value;
-    //const owner_id = this.router.url.substring(9); // trim off "/notes/new/"
+    // const owner_id = this.router.url.substring(9); // trim off "/notes/new/"
     noteToAdd.ownerID = this.owner_id;
     noteToAdd.addDate = new Date().toISOString();
     this.noteService.addNewNote(noteToAdd).subscribe(newID => {
