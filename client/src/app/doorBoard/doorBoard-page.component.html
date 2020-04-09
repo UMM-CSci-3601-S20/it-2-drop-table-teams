@@ -19,31 +19,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- set active to default-->
-    <!---search Card???-->
-
-
-
-    <!-- <mat-card class="search-card">
-      <mat-card-header>
-        Note filter
-        <mat-card-title class="note-list-title">Notes</mat-card-title>
-      </mat-card-header>
-      <mat-card-content fxLayout="column">
-        <div fxLayout="row wrap" fxGap>
-          <mat-form-field class="input-field">
-            <mat-label>Status</mat-label>
-            <mat-radio-group (selectionChange)="getNotesFromServer()" [(ngModel)]="noteStatus" id="note-status-select">
-              <mat-radio-button value="active">Active</mat-radio-button>
-              <mat-radio-button value="template">Template</mat-radio-button>
-              <mat-radio-button value="draft">Draft</mat-radio-button>
-              <mat-radio-button value="deleted">Deleted</mat-radio-button>
-            </mat-radio-group>
-          </mat-form-field>
-        </div>
-      </mat-card-content>
-    </mat-card> -->
-
 
 
     <!--Notes-->
@@ -55,7 +30,6 @@
 
             <div *ngIf="compareSubs() | async">
 
-                <!-- <mat-label>Status</mat-label> -->
                 <mat-radio-group  name="radioGroup" [(ngModel)]="noteStatus" (change)="radioChange($event)" id="note-status-select">
                   <mat-radio-button value="active">Active</mat-radio-button>
                   <mat-radio-button value="template">Template</mat-radio-button>
@@ -63,14 +37,14 @@
                   <mat-radio-button value="deleted">Deleted</mat-radio-button>
                 </mat-radio-group>
 
-
-
+               <div *ngIf="noteStatus!='deleted'">
                 <!--New Note-->
               <app-add-note [doorBoard_id]="this.id" (newNoteAdded)="getNotesFromServer()" class="add-note">
               </app-add-note >
-
-
             </div>
+            </div>
+
+
             <mat-list-item *ngFor="let note of this.filteredNotes" class="note-list-item">
              <mat-card class="note-card">
               <p matLine class="note-list-body"> {{note.body}} </p>
