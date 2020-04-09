@@ -112,7 +112,7 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
     // Subscribe doorBoard's notes
     this.route.paramMap.subscribe((pmap) => {
       this.id = pmap.get('id');
-      if (this.getNotesSub){
+      if (this.getNotesSub) {
         this.getNotesSub.unsubscribe();
       }
       this.getNotesSub = this.noteService.getNotesByDoorBoard(this.id).subscribe( notes => this.notes = notes);
