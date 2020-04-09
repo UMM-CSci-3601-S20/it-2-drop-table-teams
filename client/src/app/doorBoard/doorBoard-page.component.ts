@@ -1,18 +1,15 @@
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Note, NoteStatus } from '../notes/note';
-import { OnInit, Component, OnDestroy, SecurityContext } from '@angular/core';
+import { OnInit, Component, OnDestroy } from '@angular/core';
 import { DoorBoardService } from './doorBoard.service';
 import { DoorBoard } from './doorBoard';
-import { Subscription, forkJoin, Observable } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { NoteService } from '../notes/note.service';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../auth/auth.service';
-import { HttpParameterCodec } from "@angular/common/http";
-import { async } from '@angular/core/testing';
 import { map } from 'rxjs/operators';
+
 @Component({
   selector: 'app-doorBoard-page-component',
   templateUrl: 'doorBoard-page.component.html',
@@ -70,7 +67,7 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
 }
 
   public createGmailConnection(doorBoardEmail: string): void {
-    let gmailUrl = doorBoardEmail.replace('@', '%40'); // Convert doorBoard e-mail to acceptable format for connection to gCalendar
+    let gmailUrl = doorBoardEmail.replace(/@/g, '%40'); // Convert doorBoard e-mail to acceptable format for connection to gCalendar
     console.log('BEING CALLED');
     gmailUrl = 'https://calendar.google.com/calendar/embed?mode=WEEK&src='+ gmailUrl; // Connection string
     //this.GcalURL = gmailUrl; // Set the global connection string
