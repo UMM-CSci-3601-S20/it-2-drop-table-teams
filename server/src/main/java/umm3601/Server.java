@@ -9,7 +9,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
 import io.javalin.Javalin;
-
+import umm3601.doorboard.DoorBoardController;
 import umm3601.note.DeathTimer;
 import umm3601.note.NoteController;
 
@@ -49,7 +49,18 @@ public class Server {
       DeathTimer.getDeathTimerInstance(),
       new JwtProcessor(new JwtGetter(), auth0JwkProvider));
 
+    DoorBoardController doorBoardController = new DoorBoardController(
+      database,
+      new JwtProcessor(new JwtGetter(), auth0JwkProvider));
+
     Javalin server = Javalin.create().start(4567);
+
+    // ----- DoorBoard routes ----- //
+    server.get("api/doorBoards", doorBoardController::getDoorBoards);
+
+    server.get("api/doorBoards/:id", doorBoardController::getDoorBoard);
+
+    server.post("api/doorBoards/new", doorBoardController::addNewDoorBoard);
 
     // ----- Note routes ----- //
     // List notes, filtered using query parameters
