@@ -1,4 +1,4 @@
-import {browser, by, element, Key, ElementFinder} from 'protractor';
+import { browser, by, element } from 'protractor';
 
 export class DoorBoardPage {
   navigateTo() {
@@ -33,9 +33,5 @@ export class DoorBoardPage {
 
   clickViewDoorBoard() {
     return element(by.className('doorBoard-list-item')).click();
-  }
-
-  clickAddDoorBoardFAB() {
-    return element(by.className('add-doorBoard-fab')).click();
   }
 }

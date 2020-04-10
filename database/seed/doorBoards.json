@@ -1,0 +1,52 @@
+[
+  {
+   "_id": {
+      "$oid": "2fe01d6c5f1ab7afd60f375b"
+    },
+    "sub": "hz123",
+    "name": "Harry Zorander",
+    "email": "harry@blob.com",
+    "building": "White House",
+    "officeNumber": 112
+  },
+  {
+   "_id": {
+      "$oid": "3a2b9370f396026fad6c4844"
+    },
+    "sub": "google-oauth|6",
+    "name": "Eric Flagg",
+    "email": "eric@blob.com",
+    "building": "Taj Mahal",
+    "officeNumber": 55
+  },
+  {
+   "_id": {
+      "$oid": "959245662f4685083b4aa907"
+    },
+    "sub": "dude with a super cool name",
+    "name": "Prospero Bruce",
+    "email": "prospero@blob.com",
+    "building": "Hagia Sophia",
+    "officeNumber": 7
+  },
+  {
+   "_id": {
+      "$oid": "9bd53626c7fdda3ee1201c63"
+    },
+    "sub": "mrtutorthecuratoroftheguggenheimmuseum",
+    "name": "Richard Tudor",
+    "email": "richard@blob.com",
+    "building": "The Guggenheim",
+    "officeNumber": 13
+  },
+  {
+   "_id": {
+      "$oid": "ab53d13949424cf863613677"
+    },
+    "sub": "728f07012237beb2e87b1237beb2e87b2f7eb37beb2e87b1a87c8787c2ab878",
+    "name": "Oscar Yaztromo",
+    "email": "oscar@blob.com",
+    "building": "Dancing House",
+    "officeNumber": 251
+  }
+]
