@@ -57,6 +57,7 @@
              <mat-card class="note-card">
               <p matLine class="note-list-body"> {{note.body}} </p>
               <p matLine class="note-list-expiration-date">{{note.expireDate}}</p>
+              <p matLine class="note-list-add-date">{{note.addDate | date:'medium'}}</p>
             </mat-card>
             </mat-list-item>
           </mat-list>

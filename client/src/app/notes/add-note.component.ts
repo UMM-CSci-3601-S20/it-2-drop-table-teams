@@ -74,9 +74,8 @@ export class AddNoteComponent implements OnInit {
 
 
   submitForm() {
-    const noteToAdd: Note = this.addNoteForm.value;
+    const noteToAdd: NewNote = this.addNoteForm.value;
     noteToAdd.doorBoardID = this.doorBoard_id;
-    noteToAdd.addDate = new Date().toISOString();
     this.noteService.addNewNote(noteToAdd).subscribe(newID => {
       // Notify the DoorBoard component that a note has been added.
       this.newNoteAdded.emit();
