@@ -1,5 +1,6 @@
 export interface Note extends NewNote {
   _id: string;
+  addDate: Date;
 }
 
 /**
@@ -9,7 +10,6 @@ export interface Note extends NewNote {
 export interface NewNote {
   doorBoardID: string;
   body: string;
-  addDate: string;
   expireDate: string;
   status: NoteStatus;
 }
