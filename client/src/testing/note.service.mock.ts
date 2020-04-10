@@ -10,7 +10,7 @@ export class MockNoteService extends NoteService {
       _id: 'first_id',
       doorBoardID: 'test-id',
       body: 'This is the body of the first test id. It is somewhat long.',
-      addDate: new Date().toISOString(),
+      addDate: new Date(),
       expireDate: '2025-03-06T22:03:38+0000',
       status: 'active'
     },
@@ -18,7 +18,7 @@ export class MockNoteService extends NoteService {
       _id: 'second_id',
       doorBoardID: 'test-id',
       body: 'This is the second test id.',
-      addDate: new Date().toISOString(),
+      addDate: new Date(),
       expireDate: '2025-03-06T22:03:38+0000',
       status: 'active'
     },
@@ -26,7 +26,7 @@ export class MockNoteService extends NoteService {
       _id: 'third_id',
       doorBoardID: 'test-id',
       body: 'Third test id body.',
-      addDate: new Date().toISOString(),
+      addDate: new Date(),
       expireDate: '2025-03-06T22:03:38+0000',
       status: 'template'
     },
@@ -34,7 +34,7 @@ export class MockNoteService extends NoteService {
       _id: 'fourth_id',
       doorBoardID: 'test-id',
       body: 'This is the fourth test id.',
-      addDate: new Date().toISOString(),
+      addDate: new Date(),
       expireDate: '2025-03-06T22:03:38+0000',
       status: 'template'
     },
@@ -42,7 +42,7 @@ export class MockNoteService extends NoteService {
       _id: 'fifth_id',
       doorBoardID: 'test-id',
       body: 'Fifth id test body.',
-      addDate: new Date().toISOString(),
+      addDate: new Date(),
       expireDate: '2025-03-06T22:03:38+0000',
       status: 'draft'
     },
@@ -50,7 +50,7 @@ export class MockNoteService extends NoteService {
       _id: 'sixth_id',
       doorBoardID: 'test-id',
       body: 'Sixth id test body.',
-      addDate: new Date().toISOString(),
+      addDate: new Date(),
       expireDate: '2025-03-06T22:03:38+0000',
       status: 'draft'
     },
@@ -58,7 +58,7 @@ export class MockNoteService extends NoteService {
       _id: 'seventh_id',
       doorBoardID: 'test-id',
       body: 'Fifth id test body.',
-      addDate: new Date().toISOString(),
+      addDate: new Date(),
       expireDate: '2025-03-06T22:03:38+0000',
       status: 'deleted'
     },
@@ -66,7 +66,7 @@ export class MockNoteService extends NoteService {
       _id: 'eighth_id',
       doorBoardID: 'test-id',
       body: 'Eighth id test body.',
-      addDate: new Date().toISOString(),
+      addDate: new Date(),
       expireDate: '2025-03-06T22:03:38+0000',
       status: 'deleted'
     }
