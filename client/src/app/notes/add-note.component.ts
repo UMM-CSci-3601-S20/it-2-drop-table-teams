@@ -6,6 +6,7 @@ import { NewNote } from './note';
 import { NoteService } from './note.service';
 import { DoorBoardService } from '../doorBoard/doorBoard.service';
 import { DoorBoard } from '../doorBoard/doorBoard';
+import {TextFieldModule} from '@angular/cdk/text-field';
 
 
 
@@ -16,6 +17,10 @@ import { DoorBoard } from '../doorBoard/doorBoard';
 })
 export class AddNoteComponent implements OnInit {
 
+  // Not necessary, apparently?
+  // tslint:disable-next-line: no-input-rename
+  // @Input('cdkTextareaAutosize')
+  // enabled = true;
 
   @Input() doorBoard_id: string;
 

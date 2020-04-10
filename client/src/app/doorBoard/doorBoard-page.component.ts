@@ -1,6 +1,6 @@
 
 import { Note, NoteStatus } from '../notes/note';
-import { OnInit, Component, OnDestroy } from '@angular/core';
+import { OnInit, Component, OnDestroy, Input } from '@angular/core';
 import { DoorBoardService } from './doorBoard.service';
 import { DoorBoard } from './doorBoard';
 import { Subscription, Observable } from 'rxjs';
@@ -11,6 +11,7 @@ import { AuthService } from '../auth/auth.service';
 import { map } from 'rxjs/operators';
 
 import { MatRadioChange } from '@angular/material/radio';
+import {TextFieldModule} from '@angular/cdk/text-field';
 
 
 @Component({
@@ -22,8 +23,14 @@ import { MatRadioChange } from '@angular/material/radio';
 
 export class DoorBoardPageComponent implements OnInit, OnDestroy {
 
+  // tslint:disable-next-line: no-input-rename
+  @Input('cdkTextareaAutosize')
+  enabled: boolean;
+
   constructor(private doorBoardService: DoorBoardService, private noteService: NoteService,
               private route: ActivatedRoute, private sanitizer: DomSanitizer, private auth: AuthService) { }
+
+
 
   public notes: Note[];
   public serverFilteredNotes: Note[];
@@ -72,8 +79,8 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
   public createGmailConnection(doorBoardEmail: string): void {
     let gmailUrl = doorBoardEmail.replace(/@/g, '%40'); // Convert doorBoard e-mail to acceptable format for connection to gCalendar
     console.log('BEING CALLED');
-    gmailUrl = 'https://calendar.google.com/calendar/embed?mode=WEEK&src='+ gmailUrl; // Connection string
-    //this.GcalURL = gmailUrl; // Set the global connection string
+    gmailUrl = 'https://calendar.google.com/calendar/embed?mode=WEEK&showPrint=0&src=' + gmailUrl; // Connection string
+    // this.GcalURL = gmailUrl; // Set the global connection string
     this.GcalURL = this.sanitizer.bypassSecurityTrustResourceUrl(gmailUrl);
   }
   // public returnSafeLink(): SafeResourceUrl{
