@@ -17,11 +17,25 @@ flex-wrap: wrap;
   margin: 0.4rem;
 }
 
-  .gcal-embed iframe {
-    width: max-content;
-    min-width: 30rem;
-    max-width: 60rem;
-  }
+  // .gcal-embed iframe {
+  //   width: max-content;
+  //   min-width: 30rem;
+  //   max-width: 60rem;
+  // }
+
+  .gcal-embed {
+    min-width: 478px;
+    width: 100%;
+    }
+
+
+
+    .gcal-embed iframe {
+    min-width: 478px;
+    position: absolute;
+    width: 55%;
+    height: 100%;
+    }
 
 
 .grid-container {
