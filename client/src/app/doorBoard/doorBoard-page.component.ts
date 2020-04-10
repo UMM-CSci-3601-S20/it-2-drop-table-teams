@@ -101,9 +101,13 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
   }
 
   public getSub(): string {
-    // console.log('From ID: ' + this.doorBoard.sub);
+    if (this.doorBoard){
     return this.doorBoard.sub;
+    } else {
+      return null;
+    }
   }
+
 
 
   public getLoginSub(): Observable<string> {
@@ -121,7 +125,7 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
 
 
   public compareSubs(): Observable<boolean> {
-    return this.getLoginSub().pipe(map(val => val !== null && val === this.getSub()));
+    return this.getLoginSub().pipe(map(val => val !== null && this.doorBoard !== null && val === this.getSub()));
   }
 
 
@@ -129,7 +133,7 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
     console.log($event.source.name, $event.value);
 
     if ($event.source.name === 'radioGroup') {
-      console.log('Pressed Radio Button!');
+      // console.log('Pressed Radio Button!');
       this.getNotesFromServer();
     }
   }

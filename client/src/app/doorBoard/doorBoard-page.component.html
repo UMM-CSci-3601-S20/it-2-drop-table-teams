@@ -27,8 +27,8 @@
   </div>
 
     <!--Notes-->
+    <div class="grid-container">
     <div fxFlex>
-      <div class="grid-container">
             <div *ngIf="compareSubs() | async">
                 <mat-radio-group  name="radioGroup" [(ngModel)]="noteStatus" (change)="radioChange($event)" id="note-status-select">
                   <mat-radio-button class="radioButton" value="active">Active</mat-radio-button>
@@ -38,20 +38,21 @@
                 </mat-radio-group>
              </div>
              <mat-card class="note-card" *ngFor="let note of this.filteredNotes">
-              <p matLine class="note-list-body"> {{note.body}} </p>
+               <mat-card-content>
+              <p matLine class="note-list-body">{{note.body}}</p>
               <p matLine class="note-list-expiration-date">{{note.expireDate}}</p>
               <p matLine class="note-list-add-date">Created on {{note.addDate | date:'MMM d'}} at {{note.addDate | date:'h:mm aa'}}</p>
+            </mat-card-content>
             </mat-card>
       </div>
     </div>
 
-  <div fxFlex>
+
     <!--google calendar and related-->
     <div class="grid-container">
     <div class="gcal-embed" *ngIf="this.doorBoard">
-      <iframe [src]="this.GcalURL" style="border: 0" width="478" style="border: 0" height="700" frameborder="0"
+      <iframe [src]="this.GcalURL" style="border: 0" width="450" style="border: 0" height="700" frameborder="0"
         scrolling="auto"></iframe>
-    </div>
     </div>
   </div>
 </div>

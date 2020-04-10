@@ -1,10 +1,10 @@
 .sidenav-container {
   height: 100%;
+  margin: -0.3rem;
 }
 
 .sidenav {
   width: 256px;
-
 }
 
 .sidenav .mat-toolbar {
@@ -14,18 +14,20 @@
 .mat-toolbar.mat-primary {
   position: sticky;
   top: 0;
-  z-index: 1;
-
+  left: 0;
+  z-index: 2;
+  width: 100% !important;
 }
 
 .app-title {
-  padding-left: 20px;
+  padding-left: 0.7rem;
+  font-size: medium;
 }
 
 
 .app-navbar {
   position:absolute;
-  right: 5%;
+  right: 3.5%;
 }
 
 .main-content {

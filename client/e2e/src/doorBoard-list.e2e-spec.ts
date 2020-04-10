@@ -11,7 +11,7 @@ describe('DoorBoard list', () => {
   });
 
   it('Should have the correct title', () => {
-    expect(page.getDoorBoardTitle()).toEqual('DoorBoards');
+    expect(page.getDoorBoardTitle()).toEqual('Search DoorBoards');
   });
 
   it('Should type something in the name filter and check that it returned correct elements', async () => {

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
@@ -6,7 +6,7 @@ import { NewNote } from './note';
 import { NoteService } from './note.service';
 import { DoorBoardService } from '../doorBoard/doorBoard.service';
 import { DoorBoard } from '../doorBoard/doorBoard';
-import {TextFieldModule} from '@angular/cdk/text-field';
+
 
 
 
@@ -23,6 +23,7 @@ export class AddNoteComponent implements OnInit {
   // enabled = true;
 
   @Input() doorBoard_id: string;
+  @ViewChild('bodyInput') bodyInput: ElementRef;
 
   addNoteForm: FormGroup;
   @Output() newNoteAdded = new EventEmitter();
@@ -79,11 +80,14 @@ export class AddNoteComponent implements OnInit {
 
 
   submitForm() {
+    // Body.value = '';
     const noteToAdd: NewNote = this.addNoteForm.value;
     noteToAdd.doorBoardID = this.doorBoard_id;
     this.noteService.addNewNote(noteToAdd).subscribe(newID => {
       // Notify the DoorBoard component that a note has been added.
       this.newNoteAdded.emit();
+      // Clear input form
+      this.bodyInput.nativeElement.value = '';
       this.snackBar.open('Added Note ', null, {
         duration: 2000,
       });
