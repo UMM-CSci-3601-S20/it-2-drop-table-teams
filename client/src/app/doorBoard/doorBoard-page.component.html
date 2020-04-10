@@ -39,7 +39,7 @@
              </div>
              <mat-card class="note-card" *ngFor="let note of this.filteredNotes">
                <mat-card-content>
-              <p matLine class="note-list-body"> {{note.body}} </p>
+              <p matLine class="note-list-body">{{note.body}}</p>
               <p matLine class="note-list-expiration-date">{{note.expireDate}}</p>
               <p matLine class="note-list-add-date">Created on {{note.addDate | date:'MMM d'}} at {{note.addDate | date:'h:mm aa'}}</p>
             </mat-card-content>
