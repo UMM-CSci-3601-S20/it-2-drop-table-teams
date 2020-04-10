@@ -9,6 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../auth/auth.service';
 import { map } from 'rxjs/operators';
+import { MatRadioChange } from '@angular/material/radio';
 
 @Component({
   selector: 'app-doorBoard-page-component',
@@ -115,11 +116,21 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
   }
 
 
+  radioChange($event: MatRadioChange) {
+    console.log($event.source.name, $event.value);
+
+    if ($event.source.name === 'radioGroup') {
+      console.log('Pressed Radio Button!');
+      this.getNotesFromServer();
+    }
+  }
+
+
   ngOnInit(): void {
     // Subscribe doorBoard's notes
     this.route.paramMap.subscribe((pmap) => {
       this.id = pmap.get('id');
-      if (this.getNotesSub){
+      if (this.getNotesSub) {
         this.getNotesSub.unsubscribe();
       }
       this.getNotesSub = this.noteService.getNotesByDoorBoard(this.id).subscribe( notes => this.notes = notes);
