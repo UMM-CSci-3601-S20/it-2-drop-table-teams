@@ -1,6 +1,6 @@
 
 import { Note, NoteStatus } from '../notes/note';
-import { OnInit, Component, OnDestroy } from '@angular/core';
+import { OnInit, Component, OnDestroy, Input } from '@angular/core';
 import { DoorBoardService } from './doorBoard.service';
 import { DoorBoard } from './doorBoard';
 import { Subscription, Observable } from 'rxjs';
@@ -10,6 +10,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../auth/auth.service';
 import { map } from 'rxjs/operators';
 import { MatRadioChange } from '@angular/material/radio';
+import {TextFieldModule} from '@angular/cdk/text-field';
 
 @Component({
   selector: 'app-doorBoard-page-component',
@@ -20,8 +21,14 @@ import { MatRadioChange } from '@angular/material/radio';
 
 export class DoorBoardPageComponent implements OnInit, OnDestroy {
 
+  // tslint:disable-next-line: no-input-rename
+  @Input('cdkTextareaAutosize')
+  enabled: boolean;
+
   constructor(private doorBoardService: DoorBoardService, private noteService: NoteService,
               private route: ActivatedRoute, private sanitizer: DomSanitizer, private auth: AuthService) { }
+
+
 
   public notes: Note[];
   public serverFilteredNotes: Note[];
