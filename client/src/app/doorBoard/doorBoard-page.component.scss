@@ -1,5 +1,7 @@
 .doorBoard-card {
   margin: 3px;
+  text-size-adjust: 0.75rem;
+  line-height: 0.7rem;
 }
 
 .page {
@@ -14,6 +16,12 @@ flex-wrap: wrap;
 .radioButton {
   margin: 0.4rem;
 }
+
+  .gcal-embed iframe {
+    width: max-content;
+    min-width: 30rem;
+    max-width: 60rem;
+  }
 
 
 .grid-container {
