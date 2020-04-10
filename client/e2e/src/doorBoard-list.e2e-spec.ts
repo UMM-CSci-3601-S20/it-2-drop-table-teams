@@ -71,19 +71,4 @@ describe('DoorBoard list', () => {
     const url = await page.getUrl();
     expect(RegExp('.*\/doorBoards\/[0-9a-fA-F]{24}$', 'i').test(url)).toBe(true);
   });
-
-  it('Should click add doorBoard and go to the right URL', async () => {
-    await page.clickAddDoorBoardFAB();
-
-    // Wait until the URL contains 'doorBoards/new'
-    await browser.wait(EC.urlContains('doorBoards/new'), 10000);
-
-    // Make sure that 'doorBoards/new' is specifically the end of the url
-    const url = await page.getUrl();
-    expect(url.endsWith('/doorBoards/new')).toBe(true);
-
-    // On this profile page we were sent to, We should see the right title
-    expect(element(by.className('add-doorBoard-title')).getText()).toEqual('New DoorBoard');
-  });
-
 });
