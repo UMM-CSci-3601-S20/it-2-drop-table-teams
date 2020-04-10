@@ -1,9 +1,10 @@
-<div fxLayout="row wrap">
+<div class="page">
 
+  <div fxFlex="nogrow">
     <!--doorBoard card-->
     <mat-card class="doorBoard-card" *ngIf="this.doorBoard">
       <mat-card-header>
-        <mat-card-title class="doorBoard-card-title">DoorBoard Profile</mat-card-title>
+        <mat-card-title class="doorBoard-card-title">DoorBoard Info</mat-card-title>
       </mat-card-header>
       <mat-card-content id=nameField>
         Name: {{getName()}}
@@ -19,49 +20,42 @@
       </mat-card-content>
     </mat-card>
 
+    <div *ngIf="compareSubs() | async">
+      <!--New Note-->
+    <app-add-note [doorBoard_id]="this.id" (newNoteAdded)="getNotesFromServer()" class="add-note">
+    </app-add-note >
+  </div>
+  </div>
+
 
 
     <!--Notes-->
     <div fxFlex>
-      <mat-card class="list">
-        <mat-card-content>
-          <mat-list class="note-nav-list">
-            <h3 mat-subheader></h3>
-
+      <div class="grid-container">
             <div *ngIf="compareSubs() | async">
-
                 <mat-radio-group  name="radioGroup" [(ngModel)]="noteStatus" (change)="radioChange($event)" id="note-status-select">
-                  <mat-radio-button value="active">Active</mat-radio-button>
-                  <mat-radio-button value="template">Template</mat-radio-button>
-                  <mat-radio-button value="draft">Draft</mat-radio-button>
-                  <mat-radio-button value="deleted">Deleted</mat-radio-button>
+                  <mat-radio-button class="radioButton" value="active">Active</mat-radio-button>
+                  <mat-radio-button class="radioButton" value="template">Template</mat-radio-button>
+                  <mat-radio-button class="radioButton" value="draft">Draft</mat-radio-button>
+                  <mat-radio-button class="radioButton" value="deleted">Deleted</mat-radio-button>
                 </mat-radio-group>
-
-               <div *ngIf="noteStatus!='deleted'">
-                <!--New Note-->
-              <app-add-note [doorBoard_id]="this.id" (newNoteAdded)="getNotesFromServer()" class="add-note">
-              </app-add-note >
-            </div>
-            </div>
-
-
-            <mat-list-item *ngFor="let note of this.filteredNotes" class="note-list-item">
-             <mat-card class="note-card">
+             </div>
+             <mat-card class="note-card" *ngFor="let note of this.filteredNotes">
               <p matLine class="note-list-body"> {{note.body}} </p>
-              <p matLine class="note-list-expiration-date">{{note.expireDate}}</p>
+              <p matLine class="note-list-expiration-date">{{note.addDate}}</p>
             </mat-card>
-            </mat-list-item>
-          </mat-list>
-        </mat-card-content>
-      </mat-card>
+      </div>
+    </div>
+
+
+  <div fxFlex>
+    <!--google calendar and related-->
+    <div class="grid-container">
+    <div class="gcal-embed" *ngIf="this.doorBoard">
+      <iframe [src]="this.GcalURL" style="border: 0" width="478" style="border: 0" height="700" frameborder="0"
+        scrolling="auto"></iframe>
+    </div>
     </div>
   </div>
-
-  <div fxFlex ="end center">
-    <!--google calendar and related-->
-    <mat-card class="gcal-embed" *ngIf="this.doorBoard">
-      <iframe [src]="this.GcalURL" style="border: 0" width="800" style="border: 0" height="750" frameborder="0"
-        scrolling="auto"></iframe>
-    </mat-card>
-  </div>
+</div>
 
