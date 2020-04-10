@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, LOCALE_ID } from '@angular/core';
 import { DoorBoard } from './doorBoard';
 import { DoorBoardService } from './doorBoard.service';
 import { Subscription } from 'rxjs';
@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-doorBoard-list-component',
   templateUrl: 'doorBoard-list.component.html',
   styleUrls: ['./doorBoard-list.component.scss'],
-  providers: []
+  providers: [{provide: LOCALE_ID, useValue: 'en-US' }]
 })
 
 export class DoorBoardListComponent implements OnInit, OnDestroy  {
