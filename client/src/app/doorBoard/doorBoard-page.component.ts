@@ -70,8 +70,8 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
   public createGmailConnection(doorBoardEmail: string): void {
     let gmailUrl = doorBoardEmail.replace('@', '%40'); // Convert doorBoard e-mail to acceptable format for connection to gCalendar
     console.log('BEING CALLED');
-    gmailUrl = 'https://calendar.google.com/calendar/embed?mode=WEEK&src='+ gmailUrl; // Connection string
-    //this.GcalURL = gmailUrl; // Set the global connection string
+    gmailUrl = 'https://calendar.google.com/calendar/embed?mode=WEEK&showPrint=0&src=' + gmailUrl; // Connection string
+    // this.GcalURL = gmailUrl; // Set the global connection string
     this.GcalURL = this.sanitizer.bypassSecurityTrustResourceUrl(gmailUrl);
   }
   // public returnSafeLink(): SafeResourceUrl{
