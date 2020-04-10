@@ -1,0 +1,41 @@
+.doorBoard-card {
+  margin: 3px;
+}
+
+.page {
+display: flex;
+flex-wrap: wrap;
+}
+
+.mat-radio-group{
+  font-size: small;
+}
+
+.radioButton {
+  margin: 0.4rem;
+}
+
+
+.grid-container {
+  display: grid;
+  margin: 0.5rem;
+}
+
+.note-card {
+  // flex-wrap: wrap;
+  max-block-size: 5rem;
+  margin: 0.5rem;
+}
+
+
+.fxLayout{
+  justify-content: center;
+}
+
+.add-note {
+  margin: 1rem;
+}
+
+.note-list-add-date {
+  font-size: smallest;
+}

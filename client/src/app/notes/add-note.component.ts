@@ -1,9 +1,14 @@
-import { Component, OnInit, Input} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Note } from './note';
+import { NewNote } from './note';
 import { NoteService } from './note.service';
+import { DoorBoardService } from '../doorBoard/doorBoard.service';
+import { DoorBoard } from '../doorBoard/doorBoard';
+import {TextFieldModule} from '@angular/cdk/text-field';
+
+
 
 @Component({
   selector: 'app-add-note',
@@ -12,14 +17,27 @@ import { NoteService } from './note.service';
 })
 export class AddNoteComponent implements OnInit {
 
+  // Not necessary, apparently?
+  // tslint:disable-next-line: no-input-rename
+  // @Input('cdkTextareaAutosize')
+  // enabled = true;
 
-  @Input() owner_id: string;
+  @Input() doorBoard_id: string;
 
   addNoteForm: FormGroup;
-  note: Note;
-  constructor(private fb: FormBuilder,
-              private noteService: NoteService, private snackBar: MatSnackBar, private router: Router, ) {
+  @Output() newNoteAdded = new EventEmitter();
+  constructor(private fb: FormBuilder, private noteService: NoteService,
+              private snackBar: MatSnackBar, private router: Router,
+              private doorBoardService: DoorBoardService) {
   }
+
+  @Input() doorBoard: DoorBoard;
+  public serverFilteredDoorBoards: DoorBoard[];
+  sub: string;
+  name: string;
+  email: string;
+  building: string;
+  officeNumber: string;
 
   add_note_validation_messages = {
     status: [
@@ -61,17 +79,14 @@ export class AddNoteComponent implements OnInit {
 
 
   submitForm() {
-    const noteToAdd: Note = this.addNoteForm.value;
-    // const owner_id = this.router.url.substring(9); // trim off "/notes/new/"
-    noteToAdd.ownerID = this.owner_id;
-    noteToAdd.addDate = new Date().toISOString();
+    const noteToAdd: NewNote = this.addNoteForm.value;
+    noteToAdd.doorBoardID = this.doorBoard_id;
     this.noteService.addNewNote(noteToAdd).subscribe(newID => {
-
+      // Notify the DoorBoard component that a note has been added.
+      this.newNoteAdded.emit();
       this.snackBar.open('Added Note ', null, {
         duration: 2000,
       });
-      this.router.navigate(['/owners/', this.owner_id]);
-      location.reload();
     }, err => {
       this.snackBar.open('Failed to add the note', null, {
         duration: 2000,

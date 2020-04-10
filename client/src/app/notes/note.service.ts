@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { map } from 'rxjs/operators';
-import { Note, NoteStatus } from './note';
+import { Note, NoteStatus, NewNote } from './note';
 
 @Injectable()
 export class NoteService {
@@ -14,15 +14,15 @@ export class NoteService {
 
   /**
    *
-   * @param ownerID: _id of the owner
+   * @param doorBoardID: _id of the doorBoard
    * whose notes are being retrieved.
    *
-   * @returns a list of the notes belonging to this owner, filtered by body and status
+   * @returns a list of the notes belonging to this doorBoard, filtered by body and status
    *
    */
-  getNotesByOwner(ownerID: string, filters?: { body?: string, status?: NoteStatus} ): Observable<Note[]> {
+  getNotesByDoorBoard(doorBoardID: string, filters?: { body?: string, status?: NoteStatus} ): Observable<Note[]> {
     let httpParams: HttpParams = new HttpParams();
-    httpParams = httpParams.set('ownerid', ownerID);  // Ensure we are getting notes belonging to this owner
+    httpParams = httpParams.set('doorBoardid', doorBoardID);  // Ensure we are getting notes belonging to this doorBoard
     if (filters) {
       if (filters.body) {
         httpParams = httpParams.set('body', filters.body);
@@ -32,21 +32,6 @@ export class NoteService {
       }
     }
     return this.httpClient.get<Note[]>(this.noteUrl, {
-      params: httpParams,
-    });
-  }
-
-
-  /**
-   * @param id: _id of the note being retrieved
-   * @param ownerID: _id of the owner who is requesting this note (fails if not a match in the note)
-   *
-   * @returns a single note with `id` belonging to `ownerID`
-   */
-  getNoteById(id: string, ownerID: string): Observable<Note> {
-    let httpParams: HttpParams = new HttpParams();
-    httpParams = httpParams.set('ownerid', ownerID); // Ensure we are getting a note that belongs to this owner
-    return this.httpClient.get<Note>(this.noteUrl + '/' + id, {
       params: httpParams,
     });
   }
@@ -76,7 +61,7 @@ export class NoteService {
     return filteredNotes;
   }
 
-  addNewNote(newNote: Note): Observable<string> {
+  addNewNote(newNote: NewNote): Observable<string> {
     // Send a post request to add a new note with the note data as the body.
     // const test = this.httpClient.post<{id: string}>(this.noteUrl + '/new', newNote).pipe(map(res => res.id));
     return this.httpClient.post<{id: string}>(this.noteUrl + '/new', newNote).pipe(map(res => res.id));

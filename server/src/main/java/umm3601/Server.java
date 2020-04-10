@@ -9,15 +9,22 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
 import io.javalin.Javalin;
-import umm3601.owner.OwnerController;
+import umm3601.doorboard.DoorBoardController;
 import umm3601.note.DeathTimer;
 import umm3601.note.NoteController;
 
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
+
 public class Server {
 
-  static String appName = "DoorBoard";
-
   private static MongoDatabase database;
+
+  // This is what we'll use to get Auth0's public keys. (In the form of
+  // JSON Web Keys, or JWKs.) We'll use these JWKs to verify the tokens that
+  // Auth0 sends us.
+  public static JwkProvider auth0JwkProvider =
+    new UrlJwkProvider("https://doorbboard-dev.auth0.com/");
 
   public static void main(String[] args) {
 
@@ -37,43 +44,32 @@ public class Server {
     database = mongoClient.getDatabase(databaseName);
 
     // Initialize dependencies
-    OwnerController ownerController = new OwnerController(database);
-    NoteController noteController = new NoteController(database, DeathTimer.getDeathTimerInstance());
+    NoteController noteController = new NoteController(
+      database,
+      DeathTimer.getDeathTimerInstance(),
+      new JwtProcessor(new JwtGetter(), auth0JwkProvider));
+
+    DoorBoardController doorBoardController = new DoorBoardController(
+      database,
+      new JwtProcessor(new JwtGetter(), auth0JwkProvider));
 
     Javalin server = Javalin.create().start(4567);
 
-    // Simple example route
-    server.get("hello", ctx -> ctx.result("Hello World"));
+    // ----- DoorBoard routes ----- //
+    server.get("api/doorBoards", doorBoardController::getDoorBoards);
 
-    // Utility routes
-    server.get("api", ctx -> ctx.result(appName));
+    server.get("api/doorBoards/:id", doorBoardController::getDoorBoard);
 
-    // ----- Owner routes ----- //
-    // Get specific owner
-    server.get("api/owners/:id", ownerController::getOwner);
-
-    // Delete specific owner
-   // server.delete("api/owners/:id", ownerController::deleteOwner);
-
-    // List owners, filtered using query parameters
-    server.get("api/owners", ownerController::getOwners);
-
-    // Add new owner
-    server.post("api/owners/new", ownerController::addNewOwner);
-
+    server.post("api/doorBoards/new", doorBoardController::addNewDoorBoard);
 
     // ----- Note routes ----- //
-    // Get specific note
-    server.get("api/notes/:id", noteController::getNoteById);
+    // List notes, filtered using query parameters
+    server.get("api/notes", noteController::getNotesByDoorBoard);
 
     // Delete specific note
     server.delete("api/notes/:id", noteController::deleteNote);
 
-    // List notes, filtered using query parameters
-    server.get("api/notes", noteController::getNotesByOwner);
-
     // Add new note
-
     server.post("api/notes/new", noteController::addNewNote);
 
     // Update a note

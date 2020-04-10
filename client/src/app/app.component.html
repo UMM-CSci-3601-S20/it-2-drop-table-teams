@@ -1,3 +1,4 @@
+
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #drawer class="sidenav" fixedInViewport mode="over">
     <mat-toolbar>Menu</mat-toolbar>
@@ -14,17 +15,26 @@
       </mat-list-item>
 
 
-      <mat-list-item routerLink="/owners" routerLinkActive="drawer-list-item-active"
+      <mat-list-item routerLink="/doorBoards" routerLinkActive="drawer-list-item-active"
       (click)="drawer.close()">
         <mat-icon matListIcon>group</mat-icon>
-        Owners
+        DoorBoards
     </mat-list-item>
+
+      <mat-list-item routerLink="/your-doorBoard" routerLinkActive="drawer-list-item-active"
+    (click)="drawer.close()">
+      <mat-icon matListIcon>dashboard</mat-icon>
+      Your DoorBoards
+    </mat-list-item>
+
 
     </mat-nav-list>
   </mat-sidenav>
 
   <mat-sidenav-content>
     <mat-toolbar color="primary">
+      <app-navbar class="app-navbar"> </app-navbar>
+      <router-outlet></router-outlet>
       <button type="button" aria-label="Toggle sidenav" mat-icon-button
       (click)="drawer.toggle()" class="sidenav-button">
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
@@ -36,3 +46,5 @@
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
+
+

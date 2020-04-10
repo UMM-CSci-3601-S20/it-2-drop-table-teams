@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  API_URL: '/api/'
+  API_URL: '/api/',
+  OUR_API_NAME: 'https://droptables.csci.app/api/',
 };
 
 /*

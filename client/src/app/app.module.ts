@@ -21,17 +21,19 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatRadioModule } from '@angular/material/radio';
+import { MatRadioModule, MatRadioGroup } from '@angular/material/radio';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 
 // Home
 import { HomeComponent } from './home/home.component';
 
-// Owner
-import { OwnerListComponent } from './owner/owner-list.component';
-import { OwnerService } from './owner/owner.service';
-import { AddOwnerComponent } from './owner/add-owner.component';
-import { OwnerPageComponent } from './owner/owner-page.component';
+// DoorBoard
+import { DoorBoardListComponent } from './doorBoard/doorBoard-list.component';
+import { DoorBoardService } from './doorBoard/doorBoard.service';
+import { AddDoorBoardComponent } from './doorBoard/add-doorBoard.component';
+import { DoorBoardPageComponent } from './doorBoard/doorBoard-page.component';
+import { DoorBoardCardComponent } from './doorBoard/doorBoard-card.component';
 
 // Note
 import { NoteService } from './notes/note.service';
@@ -42,6 +44,12 @@ import { AddNoteComponent } from './notes/add-note.component';
 import { HttpClientModule } from '@angular/common/http';
 import { LayoutModule } from '@angular/cdk/layout';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
+
+// DoorBoard
+import { DoorBoardComponent } from './your-doorBoard/your-doorBoard.component';
+
+// Authentication
+import { NavBarComponent } from './nav-bar/nav-bar.component';
 
 const MATERIAL_MODULES: any[] = [
   MatListModule,
@@ -66,11 +74,14 @@ const MATERIAL_MODULES: any[] = [
   declarations: [
     AppComponent,
     HomeComponent,
-    OwnerListComponent,
-    AddOwnerComponent,
-    OwnerPageComponent,
+    DoorBoardListComponent,
+    AddDoorBoardComponent,
+    DoorBoardPageComponent,
     EditNoteComponent,
     AddNoteComponent,
+    DoorBoardComponent,
+    NavBarComponent,
+    DoorBoardCardComponent
   ],
   imports: [
     BrowserModule,
@@ -86,7 +97,7 @@ const MATERIAL_MODULES: any[] = [
     OwlNativeDateTimeModule,
   ],
   providers: [
-    OwnerService,
+    DoorBoardService,
     NoteService,
   ],
   bootstrap: [AppComponent]

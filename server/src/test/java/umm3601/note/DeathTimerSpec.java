@@ -60,33 +60,29 @@ public class DeathTimerSpec {
     sampleNote = new Note();
     sampleNoteID = new ObjectId().toHexString();
     sampleNote._id = sampleNoteID;
-    sampleNote.addDate = "2020-03-07T22:03:38+0000";
-    sampleNote.ownerID = "sampleOwnerID";
+    sampleNote.doorBoardID = "sampleDoorBoardID";
     sampleNote.body = "Sample note body";
     sampleNote.status = "active";
 
     anotherNote = new Note();
     anotherNoteID = new ObjectId().toHexString();
     anotherNote._id = anotherNoteID;
-    anotherNote.addDate = "2020-03-07T22:03:38+0000";
-    anotherNote.ownerID = "anotherOwnerID";
+    anotherNote.doorBoardID = "anotherDoorBoardID";
     anotherNote.body = "Another note body";
     anotherNote.status = "deleted";
 
     thirdNote = new Note();
     thirdNoteID = new ObjectId().toHexString();
     thirdNote._id = thirdNoteID;
-    thirdNote.addDate = "2022-04-03T22:03:38+0000";
-    thirdNote.ownerID = "thirdOwnerID";
+    thirdNote.doorBoardID = "thirdDoorBoardID";
     thirdNote.body = "A third note body";
     thirdNote.status = "template";
 
     fourthNote = new Note();
     fourthNoteID = new ObjectId().toHexString();
     fourthNote._id = fourthNoteID;
-    fourthNote.addDate = "2022-05-05T22:03:38+0000";
     fourthNote.expireDate = "2023-05-05T22:06:00+0000";
-    fourthNote.ownerID = "fourthOwnerID";
+    fourthNote.doorBoardID = "fourthDoorBoardID";
     fourthNote.body = "A fourth note body";
     fourthNote.status = "active";
 
