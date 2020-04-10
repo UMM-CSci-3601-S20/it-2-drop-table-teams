@@ -121,7 +121,7 @@ export class DoorBoardPageComponent implements OnInit, OnDestroy {
 
 
   public compareSubs(): Observable<boolean> {
-    return this.getLoginSub().pipe(map(val => val !== null && val === this.getSub()));
+    return this.getLoginSub().pipe(map(val => val !== null && this.doorBoard !== null && val === this.getSub()));
   }
 
 
